@@ -38,3 +38,20 @@ void GetBoneNames(const aiScene scene) {
         }
     }
 }
+
+void CopyNodesWithMeshes(aiNode node, SceneObject targetParent, Matrix4x4 accTransform)
+{
+
+    // if node has meshes, create a new scene object for it
+    if (node.mNumMeshes > 0)
+    {
+
+    }
+    else
+    {
+
+    }
+    // continue for all child nodes
+    for (all node.mChildren)
+        CopyNodesWithMeshes(node.mChildren[a], parent, transform);
+}
