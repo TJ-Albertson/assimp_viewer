@@ -11,59 +11,53 @@ std::vector<std::string> BoneNames;
 
 aiNode* aiRootNode;
 
-void GetBoneNames(aiScene scene);
-void CopyRoot(aiNode* node, const aiScene* scene);
-void CopyNodesWithMeshes(aiNode* node, const aiScene* scene);
+void BoneCheckRoot(aiNode* node, const aiScene* scene);
+void BoneCheck(aiNode* node, const aiScene* scene);
+void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
 
 int main()
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
+    const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
     // GetBoneNames(*scene);
 
     // std::cout << "Hello World" << std::endl;
     aiRootNode = scene->mRootNode;
 
-    CopyRoot(scene->mRootNode, scene);
+    BoneCheckRoot(scene->mRootNode, scene);
 
     return 1;
 }
 
-void GetBoneNames(const aiScene scene)
-{
-    for (int i = 0; i < scene.mNumMeshes; i++) {
 
-        if (scene.mMeshes[i]->mNumBones == 0)
-            continue;
-
-        for (int j = 0; j < scene.mMeshes[i]->mNumBones; j++) {
-
-            BoneNames.push_back(scene.mMeshes[i]->mBones[j]->mName.C_Str());
-            std::cout << scene.mMeshes[i]->mBones[j]->mName.C_Str() << std::endl;
+bool isStringInBoneVector(const std::string& target) {
+    for (const auto& str : BoneNames) {
+        if (str == target) {
+            return true;
         }
     }
+    return false;
 }
 
-
-void CheckParents(aiNode* boneNode, aiNode* meshNode)
+void BoneCheckParents(aiNode* boneNode, aiNode* meshNode)
 {
     // if node.parent == mesh node or mesh node.parent then skip
     aiString boneParentName = boneNode->mParent->mName;
 
     //need new clause to stop if bone already marked
-
-    if (boneParentName != meshNode->mName && boneParentName != meshNode->mParent->mName)
-    {
-        BoneNames.push_back(boneNode->mParent->mName.C_Str());
-        std::cout << "-> " << boneNode->mParent->mName.C_Str() << std::endl;
-        CheckParents(boneNode->mParent, meshNode);
+    if (!isStringInBoneVector(boneParentName.C_Str())) {
+        if (boneParentName != meshNode->mName && boneParentName != meshNode->mParent->mName)
+        {
+            BoneNames.push_back(boneNode->mParent->mName.C_Str());
+            std::cout << "-> " << boneNode->mParent->mName.C_Str() << std::endl;
+            BoneCheckParents(boneNode->mParent, meshNode);
+        }
     }
-    
     
 }
 
-void CopyRoot(aiNode* node, const aiScene* scene)
+void BoneCheckRoot(aiNode* node, const aiScene* scene)
 {
     if (node->mNumMeshes > 0) {
 
@@ -81,11 +75,11 @@ void CopyRoot(aiNode* node, const aiScene* scene)
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        CopyNodesWithMeshes(node->mChildren[i], scene);
+        BoneCheck(node->mChildren[i], scene);
     }
 }
 
-void CopyNodesWithMeshes(aiNode* node, const aiScene* scene)
+void BoneCheck(aiNode* node, const aiScene* scene)
 {
     if (node->mNumMeshes > 0) {
 
@@ -97,14 +91,13 @@ void CopyNodesWithMeshes(aiNode* node, const aiScene* scene)
 
                 aiString boneNodeName = scene->mMeshes[meshIndex]->mBones[j]->mName;
 
-                BoneNames.push_back(boneNodeName.C_Str());
-                std::cout << boneNodeName.C_Str() << std::endl;
+                if (!isStringInBoneVector(boneNodeName.C_Str())) {
+                    BoneNames.push_back(boneNodeName.C_Str());
+                    std::cout << boneNodeName.C_Str() << std::endl;
+                    aiNode* boneNode = aiRootNode->FindNode(boneNodeName);
 
-                aiNode* boneNode = aiRootNode->FindNode(boneNodeName);
-
-                //std::cout << "Mesh Name " << scene->mMeshes[meshIndex]->mName.C_Str() << std::endl;
-
-                CheckParents(boneNode, node);
+                    BoneCheckParents(boneNode, node);
+                }
             }
         }
     } else {
@@ -112,6 +105,6 @@ void CopyNodesWithMeshes(aiNode* node, const aiScene* scene)
 
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        CopyNodesWithMeshes(node->mChildren[i], scene);
+        BoneCheck(node->mChildren[i], scene);
     }
 }
