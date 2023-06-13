@@ -9,23 +9,39 @@
 
 std::vector<std::string> BoneNames;
 
+int nodeId = 0;
+
 aiNode* aiRootNode;
+
+struct SkeletonBone {
+    std::string mName;
+    int id;
+    int mNumChildren;
+    std::vector<SkeletonBone> children;
+};
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
 void BoneCheck(aiNode* node, const aiScene* scene);
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
+
+void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone);
 
 int main()
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
-    // GetBoneNames(*scene);
-
-    // std::cout << "Hello World" << std::endl;
+    // Used in BoneCheck to find Node associated with Bone
     aiRootNode = scene->mRootNode;
 
     BoneCheckRoot(scene->mRootNode, scene);
+
+    //for (int i = 0; i < BoneNames.size(); i++)
+        //std::cout << BoneNames[i] << std::endl;
+
+    SkeletonBone rootBone;
+
+    CreateSkeleton(scene->mRootNode, rootBone);
 
     return 1;
 }
@@ -50,8 +66,10 @@ void BoneCheckParents(aiNode* boneNode, aiNode* meshNode)
         if (boneParentName != meshNode->mName && boneParentName != meshNode->mParent->mName)
         {
             BoneNames.push_back(boneNode->mParent->mName.C_Str());
-            std::cout << "-> " << boneNode->mParent->mName.C_Str() << std::endl;
             BoneCheckParents(boneNode->mParent, meshNode);
+        }
+        else {
+            BoneNames.push_back(boneNode->mParent->mName.C_Str());
         }
     }
     
@@ -66,9 +84,7 @@ void BoneCheckRoot(aiNode* node, const aiScene* scene)
             int meshIndex = node->mMeshes[i];
 
             for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
-
                 BoneNames.push_back(scene->mMeshes[meshIndex]->mBones[j]->mName.C_Str());
-                std::cout << scene->mMeshes[meshIndex]->mBones[j]->mName.C_Str() << std::endl;
             }
         }
     } else {
@@ -93,18 +109,35 @@ void BoneCheck(aiNode* node, const aiScene* scene)
 
                 if (!isStringInBoneVector(boneNodeName.C_Str())) {
                     BoneNames.push_back(boneNodeName.C_Str());
-                    std::cout << boneNodeName.C_Str() << std::endl;
                     aiNode* boneNode = aiRootNode->FindNode(boneNodeName);
-
                     BoneCheckParents(boneNode, node);
                 }
             }
         }
-    } else {
     }
 
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
         BoneCheck(node->mChildren[i], scene);
+    }
+}
+    
+void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
+    if (isStringInBoneVector(node->mName.C_Str())) {
+        
+        skeleBone.mName = node->mName.data;
+        skeleBone.mNumChildren = node->mNumChildren;
+        skeleBone.id = ++nodeId;
+
+        std::cout << skeleBone.mName << " " << skeleBone.id << std::endl;
+
+        for (int i = 0; i < node->mNumChildren; i++) {
+
+            SkeletonBone newBone;
+
+            CreateSkeleton(node->mChildren[i], newBone);
+
+            skeleBone.children.push_back(newBone);
+        }
     }
 }
