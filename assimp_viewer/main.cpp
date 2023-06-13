@@ -51,6 +51,8 @@ void CheckParents(aiNode* boneNode, aiNode* meshNode)
     // if node.parent == mesh node or mesh node.parent then skip
     aiString boneParentName = boneNode->mParent->mName;
 
+    //need new clause to stop if bone already marked
+
     if (boneParentName != meshNode->mName && boneParentName != meshNode->mParent->mName)
     {
         BoneNames.push_back(boneNode->mParent->mName.C_Str());
