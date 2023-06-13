@@ -1,3 +1,6 @@
+#ifndef SKELETON_H
+#define SKELETON_H
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -9,13 +12,13 @@
 
 std::vector<std::string> BoneNames;
 
-int vertexDataIndexCount = 0;
+int nodeId = 0;
 
 aiNode* aiRootNode;
 
 struct SkeletonBone {
     std::string mName;
-    int vertexDataIndex;
+    int id;
     int mNumChildren;
     std::vector<SkeletonBone> children;
 };
@@ -56,6 +59,17 @@ bool isStringInBoneVector(const std::string& target) {
     return false;
 }
 
+int isStringInBoneVectorAndIndex(const std::string& target) {
+    int i = 0;
+    for (const auto& str : BoneNames) {
+        if (str == target) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode)
 {
     // if node.parent == mesh node or mesh node.parent then skip
@@ -69,10 +83,10 @@ void BoneCheckParents(aiNode* boneNode, aiNode* meshNode)
             BoneCheckParents(boneNode->mParent, meshNode);
         }
         else {
-           BoneNames.push_back(boneNode->mParent->mName.C_Str());
+            BoneNames.push_back(boneNode->mParent->mName.C_Str());
         }
     }
-    
+
 }
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene)
@@ -87,7 +101,8 @@ void BoneCheckRoot(aiNode* node, const aiScene* scene)
                 BoneNames.push_back(scene->mMeshes[meshIndex]->mBones[j]->mName.C_Str());
             }
         }
-    } else {
+    }
+    else {
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -116,20 +131,27 @@ void BoneCheck(aiNode* node, const aiScene* scene)
         }
     }
 
-    for(unsigned int i = 0; i < node->mNumChildren; i++)
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         BoneCheck(node->mChildren[i], scene);
     }
 }
-    
+
+void FindSkeletonRoot();
+// idea. same as bonecheck/bonecheckroot
+
+// this is bad. after first skeleton node all following are bones
 void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
-    if (isStringInBoneVector(node->mName.C_Str())) {
-        
+
+    int index = isStringInBoneVectorAndIndex(node->mName.C_Str());
+
+    if (index > 0) {
+
         skeleBone.mName = node->mName.data;
         skeleBone.mNumChildren = node->mNumChildren;
-        skeleBone.vertexDataIndex = vertexDataIndexCount++;
+        skeleBone.id = index;
 
-        std::cout << skeleBone.mName << "    " << skeleBone.vertexDataIndex << std::endl;
+        std::cout << skeleBone.mName << " " << skeleBone.id << std::endl;
 
         for (int i = 0; i < node->mNumChildren; i++) {
 
@@ -141,3 +163,7 @@ void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
         }
     }
 }
+
+
+
+#endif

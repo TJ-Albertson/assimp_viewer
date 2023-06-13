@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\include;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\lib\x64\assimp;C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\lib\x64\assimp;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\lib\x64\;C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\lib\x64\assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);assimp.lib;glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,6 +133,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="animation.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="skeleton.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
