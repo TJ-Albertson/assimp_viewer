@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\lib\x64\assimp;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\include;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\lib\x64\assimp;C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\lib\x64\assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
