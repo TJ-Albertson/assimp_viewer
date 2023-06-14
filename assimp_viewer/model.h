@@ -159,13 +159,18 @@ void processMesh(aiMesh* mesh, const aiScene* scene) {
 	std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-	createBoneMap(vertexDataVec, mesh, scene);
+	AssignBoneId(vertexDataVec, mesh, scene);
 
 	LoadMeshVertexData(vertexDataVec, indices, textures);
 }
 
 std::vector<std::string> BoneNames; //from skeleton
-void createBoneMap(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene) {
+void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene) {
+
+	int vertexId;
+
+	int boneId;
+	float weight;
 	
 	for (int j = 0; j < mesh->mNumBones; ++j) {
 
@@ -178,18 +183,16 @@ void createBoneMap(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSc
 				boneID = i;
 		}
 
-		auto weights = mesh->mBones[j]->mWeights;
 		int numWeights = mesh->mBones[j]->mNumWeights;
 
 		for (int k = 0; k < numWeights; ++k) {
 
-			int vertexId = weights[k].mVertexId;
-			float weight = weights[k].mWeight;
-
-			assert(vertexId <= vertexData.size());
+			int vertexId = mesh->mBones[j]->mWeights[k].mVertexId;
+			float weight = mesh->mBones[j]->mWeights[k].mWeight;
 
 			for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) {
 				if (vertexData[vertexId].m_BoneIDs[i] < 0) {
+					
 					vertexData[vertexId].m_Weights[i] = weight;
 					vertexData[vertexId].m_BoneIDs[i] = boneID;
 					break;

@@ -140,7 +140,11 @@ void BoneCheck(aiNode* node, const aiScene* scene)
 void FindSkeletonRoot();
 // idea. same as bonecheck/bonecheckroot
 
-// this is bad. after first skeleton node all following are bones
+// this is bad i think? after first skeleton node all following are bones
+// Is the Skeleton ususally the child of the root node?
+// Are there any children in the skelton hierachy that arent't bones?
+
+
 void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
 
     int index = isStringInBoneVectorAndIndex(node->mName.C_Str());
