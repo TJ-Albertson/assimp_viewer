@@ -1,3 +1,9 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -7,137 +13,127 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> BoneNames;
+// settings
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
-int vertexDataIndexCount = 0;
+// cameradt
+//Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
 
-aiNode* aiRootNode;
+// timing
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
-struct SkeletonBone {
-    std::string mName;
-    int vertexDataIndex;
-    int mNumChildren;
-    std::vector<SkeletonBone> children;
-};
 
-void BoneCheckRoot(aiNode* node, const aiScene* scene);
-void BoneCheck(aiNode* node, const aiScene* scene);
-void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
-
-void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone);
+GLFWwindow* initGladGLFW();
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
 
 int main()
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
-    // Used in BoneCheck to find Node associated with Bone
-    aiRootNode = scene->mRootNode;
+    GLFWwindow* window = initGladGLFW();
 
-    BoneCheckRoot(scene->mRootNode, scene);
+    while (!glfwWindowShouldClose(window)) {
+        // per-frame time logic
+        // --------------------
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-    //for (int i = 0; i < BoneNames.size(); i++)
-        //std::cout << BoneNames[i] << std::endl;
+        // input
+        // -----
+        processInput(window);
+      
 
-    SkeletonBone rootBone;
-
-    CreateSkeleton(scene->mRootNode, rootBone);
-
-    return 1;
-}
-
-
-bool isStringInBoneVector(const std::string& target) {
-    for (const auto& str : BoneNames) {
-        if (str == target) {
-            return true;
-        }
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
-    return false;
+
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
+    glfwTerminate();
+    return 0;
 }
 
-void BoneCheckParents(aiNode* boneNode, aiNode* meshNode)
+GLFWwindow* initGladGLFW()
 {
-    // if node.parent == mesh node or mesh node.parent then skip
-    aiString boneParentName = boneNode->mParent->mName;
+    // glfw: initialize and configure
+    // ------------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //need new clause to stop if bone already marked
-    if (!isStringInBoneVector(boneParentName.C_Str())) {
-        if (boneParentName != meshNode->mName && boneParentName != meshNode->mParent->mName)
-        {
-            BoneNames.push_back(boneNode->mParent->mName.C_Str());
-            BoneCheckParents(boneNode->mParent, meshNode);
-        }
-        else {
-           BoneNames.push_back(boneNode->mParent->mName.C_Str());
-        }
+    // glfw window creation
+    // --------------------
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
     }
-    
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+    }
+
+    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+    stbi_set_flip_vertically_on_load(true);
+
+    // configure global opengl state
+    // -----------------------------
+    glEnable(GL_DEPTH_TEST);
 }
 
-void BoneCheckRoot(aiNode* node, const aiScene* scene)
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    if (node->mNumMeshes > 0) {
-
-        for (int i = 0; i < node->mNumMeshes; i++) {
-
-            int meshIndex = node->mMeshes[i];
-
-            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
-                BoneNames.push_back(scene->mMeshes[meshIndex]->mBones[j]->mName.C_Str());
-            }
-        }
-    } else {
-    }
-
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        BoneCheck(node->mChildren[i], scene);
-    }
+    // make sure the viewport matches the new window dimensions; note that width and
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
 
-void BoneCheck(aiNode* node, const aiScene* scene)
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (node->mNumMeshes > 0) {
-
-        for (int i = 0; i < node->mNumMeshes; i++) {
-
-            int meshIndex = node->mMeshes[i];
-
-            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
-
-                aiString boneNodeName = scene->mMeshes[meshIndex]->mBones[j]->mName;
-
-                if (!isStringInBoneVector(boneNodeName.C_Str())) {
-                    BoneNames.push_back(boneNodeName.C_Str());
-                    aiNode* boneNode = aiRootNode->FindNode(boneNodeName);
-                    BoneCheckParents(boneNode, node);
-                }
-            }
-        }
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
     }
 
-    for(unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        BoneCheck(node->mChildren[i], scene);
-    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
-    
-void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
-    if (isStringInBoneVector(node->mName.C_Str())) {
-        
-        skeleBone.mName = node->mName.data;
-        skeleBone.mNumChildren = node->mNumChildren;
-        skeleBone.vertexDataIndex = vertexDataIndexCount++;
 
-        std::cout << skeleBone.mName << "    " << skeleBone.vertexDataIndex << std::endl;
-
-        for (int i = 0; i < node->mNumChildren; i++) {
-
-            SkeletonBone newBone;
-
-            CreateSkeleton(node->mChildren[i], newBone);
-
-            skeleBone.children.push_back(newBone);
-        }
-    }
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(yoffset);
 }

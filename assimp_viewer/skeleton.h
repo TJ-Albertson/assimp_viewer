@@ -168,6 +168,4 @@ void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
     }
 }
 
-
-
 #endif
