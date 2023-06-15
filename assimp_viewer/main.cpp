@@ -13,6 +13,9 @@
 #include <string>
 #include <vector>
 
+#include <skeleton.h>
+#include <camera.h>
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -30,9 +33,9 @@ float lastFrame = 0.0f;
 
 GLFWwindow* initGladGLFW();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, Camera* camera, double xoffset, double yoffset);
+void processInput(GLFWwindow* window, Camera* camera);
 
 int main()
 {
@@ -40,6 +43,7 @@ int main()
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
     GLFWwindow* window = initGladGLFW();
+    Camera* camera = CreateCameraScalar(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -50,7 +54,7 @@ int main()
 
         // input
         // -----
-        processInput(window);
+        processInput(window, camera);
       
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -112,9 +116,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+void processInput(GLFWwindow* window, Camera* camera)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, RIGHT, deltaTime);
+}
+
+
+
+
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos)
 {
     if (firstMouse) {
         lastX = xpos;
@@ -128,12 +153,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    CameraProcessMouseMovement(camera, xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void scroll_callback(GLFWwindow* window, Camera* camera, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    CameraProcessMouseScroll(camera, yoffset);
 }

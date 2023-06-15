@@ -76,12 +76,12 @@ struct Mesh {
 	unsigned int EBO;
 };
 
-struct SkeletonBone {
+struct SkeletonNode {
 	std::string mName;
 	int id;
 	int mNumChildren;
 	glm::mat4 m_LocalTransform;
-	std::vector<SkeletonBone> children;
+	std::vector<SkeletonNode> children;
 };
 
 struct Model {
@@ -89,7 +89,7 @@ struct Model {
 	std::vector<Mesh*> m_Meshes;
 	std::vector<Animation*> m_Animations;
 
-	SkeletonBone* rootSkeleton;
+	SkeletonNode* rootSkeleton;
 };
 
 // Need to add ID's/ change to index for final bone array

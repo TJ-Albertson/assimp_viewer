@@ -23,10 +23,16 @@
     <ClInclude Include="animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="skeleton.h">
+    <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
+    <ClInclude Include="..\include\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\skeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="animatie_function.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

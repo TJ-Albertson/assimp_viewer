@@ -135,9 +135,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\camera.h" />
+    <ClInclude Include="..\include\skeleton.h" />
+    <ClInclude Include="animatie_function.h" />
     <ClInclude Include="animation.h" />
     <ClInclude Include="model.h" />
-    <ClInclude Include="skeleton.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
