@@ -9,8 +9,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 std::vector<std::string> BoneNames;
+std::map<std::string, int> BoneMap;
+int BoneID = 0;
 
 int nodeId = 0;
 
@@ -34,6 +37,13 @@ void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone);
 
 int main()
 {
+    // Create BoneMap
+    // Find all necessary Nodes for skeleton (not all nodes necessary are bones)
+    // Create Copy of node hiearchy with only necessary nodes for animation
+    // Copy nodes will have additional information( BoneID and Offset); If node is not bone then id == -1
+
+
+
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
@@ -137,6 +147,32 @@ void BoneCheck(aiNode* node, const aiScene* scene)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         BoneCheck(node->mChildren[i], scene);
+    }
+}
+
+//For every Mesh in Node; For every Bone in Mesh; Add bone to map
+void CreateBoneMap(aiNode* node, const aiScene* scene) {
+    if (node->mNumMeshes > 0) {
+
+        for (int i = 0; i < node->mNumMeshes; i++) {
+
+            int meshIndex = node->mMeshes[i];
+
+            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
+
+                aiString boneNodeName = scene->mMeshes[meshIndex]->mBones[j]->mName;
+
+                if (BoneMap.find(boneNodeName.C_Str()) == BoneMap.end()) {
+
+                    BoneMap.insert(std::make_pair(boneNodeName.C_Str(), BoneID++));
+                }
+            }
+        }
+    }
+
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        CreateBoneMap(node->mChildren[i], scene);
     }
 }
 

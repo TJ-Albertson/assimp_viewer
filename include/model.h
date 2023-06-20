@@ -44,8 +44,6 @@ struct Mesh {
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
 	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int EBO;
 };
 
 struct SkeletonNode {
@@ -148,7 +146,7 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 
 	int boneId;
 	float weight;
-	
+
 	for (int j = 0; j < mesh->mNumBones; ++j) {
 
 		unsigned int boneID;
@@ -169,7 +167,7 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 
 			for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) {
 				if (vertexData[vertexId].m_BoneIDs[i] < 0) {
-					
+
 					vertexData[vertexId].m_Weights[i] = weight;
 					vertexData[vertexId].m_BoneIDs[i] = boneID;
 					break;
@@ -179,10 +177,12 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 	}
 }
 
-unsigned int VAO, VBO, EBO;
+
 void LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
 {
-	Mesh mesh = { vertices, indices, textures };
+	unsigned int VAO, VBO, EBO;
+
+	Mesh mesh = { vertices, indices, textures, VAO };
 
 	// initializes all the buffer objects/arrays
 	// now that we have all the required data, set the vertex buffers and its attribute pointers.
@@ -274,7 +274,7 @@ std::string directory;
 std::vector<Texture> textures_loaded;
 std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	std:: vector<Texture> textures;
+	std::vector<Texture> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
@@ -298,4 +298,46 @@ std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, s
 	}
 	return textures;
 }
+
+void DrawModel(Model* model, unsigned int shaderID)
+{
+	for (unsigned int i = 0; i < model->m_Meshes.size(); i++) {
+		// bind appropriate textures
+		unsigned int diffuseNr = 1;
+		unsigned int specularNr = 1;
+		unsigned int normalNr = 1;
+		unsigned int heightNr = 1;
+
+		Mesh* mesh = model->m_Meshes[i];
+
+		for (unsigned int i = 0; i < mesh->textures.size(); i++) {
+			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+			// retrieve texture number (the N in diffuse_textureN)
+			std::string number;
+			std::string name = mesh->textures[i].type;
+			if (name == "texture_diffuse")
+				number = std::to_string(diffuseNr++);
+			else if (name == "texture_specular")
+				number = std::to_string(specularNr++); // transfer unsigned int to string
+			else if (name == "texture_normal")
+				number = std::to_string(normalNr++); // transfer unsigned int to string
+			else if (name == "texture_height")
+				number = std::to_string(heightNr++); // transfer unsigned int to string
+
+			// now set the sampler to the correct texture unit
+			glUniform1i(glGetUniformLocation(shaderID, (name + number).c_str()), i);
+			// and finally bind the texture
+			glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
+		}
+
+		// draw mesh
+		glBindVertexArray(mesh->VAO);
+		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		// always good practice to set everything back to defaults once configured.
+		glActiveTexture(GL_TEXTURE0);
+	}
+}
+
 #endif
