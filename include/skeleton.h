@@ -4,6 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <glm/glm.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -11,22 +12,32 @@
 #include <vector>
 #include <map>
 
+#include <assimp_glm_helpers.h>
+
 std::vector<std::string> BoneNames;
-std::map<std::string, int> BoneMap;
+
 int BoneID = 0;
+
+struct Bone {
+    int ID;
+    glm::mat4 Offset;
+};
+
+std::map<std::string, Bone> BoneMap;
 
 int nodeId = 0;
 
 aiNode* aiRootNode;
 
 struct SkeletonBone {
-    std::string mName;
+    std::string m_Name;
     int id;
 
-    glm::mat4 mTransformation;
+    glm::mat4 m_Transformation;
+    glm::mat4 m_Offset;
 
-    int mNumChildren;
-    std::vector<SkeletonBone> children;
+    int m_NumChildren;
+    std::vector<SkeletonBone> m_Children;
 };
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
@@ -151,6 +162,9 @@ void BoneCheck(aiNode* node, const aiScene* scene)
 }
 
 //For every Mesh in Node; For every Bone in Mesh; Add bone to map
+
+
+// change to bone struct and add offset
 void CreateBoneMap(aiNode* node, const aiScene* scene) {
     if (node->mNumMeshes > 0) {
 
@@ -164,7 +178,13 @@ void CreateBoneMap(aiNode* node, const aiScene* scene) {
 
                 if (BoneMap.find(boneNodeName.C_Str()) == BoneMap.end()) {
 
-                    BoneMap.insert(std::make_pair(boneNodeName.C_Str(), BoneID++));
+                    aiMatrix4x4 offset = scene->mMeshes[meshIndex]->mBones[j]->mOffsetMatrix;
+
+                    glm::mat4 glm_offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(offset);
+
+                    Bone newBone = { BoneID++, glm_offset };
+
+                    BoneMap[boneNodeName.C_Str()] = newBone;
                 }
             }
         }
@@ -186,25 +206,31 @@ void FindSkeletonRoot();
 
 void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
 
-    int index = isStringInBoneVectorAndIndex(node->mName.C_Str());
+	std::string nodeName = node->mName.C_Str();
+	int index = -1;
 
-    if (index > 0) {
+	if (BoneMap.find(nodeName) != BoneMap.end()) {
+		index = BoneMap[nodeName].ID;
+	}
 
-        skeleBone.mName = node->mName.data;
-        skeleBone.mNumChildren = node->mNumChildren;
-        skeleBone.id = index;
+	skeleBone.m_Name = node->mName.data;
+	skeleBone.m_NumChildren = node->mNumChildren;
+	skeleBone.id = index;
 
-        std::cout << skeleBone.mName << " " << skeleBone.id << std::endl;
+    skeleBone.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    skeleBone.m_Offset = BoneMap[nodeName].Offset;
 
-        for (int i = 0; i < node->mNumChildren; i++) {
+	std::cout << skeleBone.m_Name << " " << skeleBone.id << std::endl;
 
-            SkeletonBone newBone;
+	for (int i = 0; i < node->mNumChildren; i++) {
 
-            CreateSkeleton(node->mChildren[i], newBone);
+		SkeletonBone newBone;
 
-            skeleBone.children.push_back(newBone);
-        }
-    }
+		CreateSkeleton(node->mChildren[i], newBone);
+
+		skeleBone.m_Children.push_back(newBone);
+	}
+
 }
 
 #endif
