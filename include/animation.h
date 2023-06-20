@@ -24,8 +24,8 @@ struct Animation {
 glm::mat4 FindBoneAndGetTransform(Animation* animation, std::string boneNodeName, float animationTime)
 {
     for (int i = 0; i < animation->m_NumBoneAnimations; i++) {
-        if (animation->m_NumBoneAnimations[i].m_NodeName == boneNodeName) {
-            return getBoneAnimationTransformation(animation->m_NumBoneAnimations[i], animationTime);
+        if (animation->m_BoneAnimations[i].m_NodeName == boneNodeName) {
+            return getBoneAnimationTransformation(&animation->m_BoneAnimations[i], animationTime);
         }
     }
 }

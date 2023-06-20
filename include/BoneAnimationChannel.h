@@ -96,56 +96,56 @@ float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTi
 
 
 
-glm::mat4 InterpolatePosition(BoneAnimationChannel* animationNode, float animationTime)
+glm::mat4 InterpolatePosition(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {
-    if (1 == animationNode->m_NumPositions)
-        return glm::translate(glm::mat4(1.0f), animationNode->m_Positions[0].position);
+    if (1 == boneAnimationChannel->m_NumPositions)
+        return glm::translate(glm::mat4(1.0f), boneAnimationChannel->m_Positions[0].position);
 
-    int p0Index = GetPositionIndex(animationTime);
+    int p0Index = GetPositionIndex(boneAnimationChannel, animationTime);
 
     int p1Index = p0Index + 1;
 
-    float scaleFactor = GetScaleFactor(animationNode->m_Positions[p0Index].timeStamp, animationNode->m_Positions[p1Index].timeStamp, animationTime);
+    float scaleFactor = GetScaleFactor(boneAnimationChannel->m_Positions[p0Index].timeStamp, boneAnimationChannel->m_Positions[p1Index].timeStamp, animationTime);
 
-    glm::vec3 finalPosition = glm::mix(animationNode->m_Positions[p0Index].position, animationNode->m_Positions[p1Index].position, scaleFactor);
+    glm::vec3 finalPosition = glm::mix(boneAnimationChannel->m_Positions[p0Index].position, boneAnimationChannel->m_Positions[p1Index].position, scaleFactor);
 
     return glm::translate(glm::mat4(1.0f), finalPosition);
 }
 
-glm::mat4 InterpolateRotation(BoneAnimationChannel* animationNode, float animationTime)
+glm::mat4 InterpolateRotation(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {
-    if (1 == animationNode->m_NumRotations) {
-        auto rotation = glm::normalize(animationNode->m_Rotations[0].orientation);
+    if (1 == boneAnimationChannel->m_NumRotations) {
+        auto rotation = glm::normalize(boneAnimationChannel->m_Rotations[0].orientation);
         return glm::toMat4(rotation);
     }
 
-    int p0Index = GetRotationIndex(animationTime);
+    int p0Index = GetRotationIndex(boneAnimationChannel, animationTime);
 
     int p1Index = p0Index + 1;
 
-    float scaleFactor = GetScaleFactor(animationNode->m_Rotations[p0Index].timeStamp, animationNode->m_Rotations[p1Index].timeStamp, animationTime);
+    float scaleFactor = GetScaleFactor(boneAnimationChannel->m_Rotations[p0Index].timeStamp, boneAnimationChannel->m_Rotations[p1Index].timeStamp, animationTime);
 
-    glm::quat finalRotation = glm::slerp(animationNode->m_Rotations[p0Index].orientation, animationNode->m_Rotations[p1Index].orientation, scaleFactor);
+    glm::quat finalRotation = glm::slerp(boneAnimationChannel->m_Rotations[p0Index].orientation, boneAnimationChannel->m_Rotations[p1Index].orientation, scaleFactor);
 
     finalRotation = glm::normalize(finalRotation);
 
     return glm::toMat4(finalRotation);
 }
 
-glm::mat4 InterpolateScaling(BoneAnimationChannel* animationNode, float animationTime)
+glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {
-    if (1 == animationNode->m_NumScalings)
-        return glm::scale(glm::mat4(1.0f), animationNode->m_Scales[0].scale);
+    if (1 == boneAnimationChannel->m_NumScalings)
+        return glm::scale(glm::mat4(1.0f), boneAnimationChannel->m_Scales[0].scale);
 
-    int p0Index = GetScaleIndex(animationTime);
+    int p0Index = GetScaleIndex(boneAnimationChannel, animationTime);
 
     int p1Index = p0Index + 1;
 
-    float scaleFactor = GetScaleFactor(animationNode->m_Scales[p0Index].timeStamp,
+    float scaleFactor = GetScaleFactor(boneAnimationChannel->m_Scales[p0Index].timeStamp,
 
-    animationNode->m_Scales[p1Index].timeStamp, animationTime);
+    boneAnimationChannel->m_Scales[p1Index].timeStamp, animationTime);
 
-    glm::vec3 finalScale = glm::mix(animationNode->m_Scales[p0Index].scale, animationNode->m_Scales[p1Index].scale, scaleFactor);
+    glm::vec3 finalScale = glm::mix(boneAnimationChannel->m_Scales[p0Index].scale, boneAnimationChannel->m_Scales[p1Index].scale, scaleFactor);
 
     return glm::scale(glm::mat4(1.0f), finalScale);
 }

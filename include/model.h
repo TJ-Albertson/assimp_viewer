@@ -40,10 +40,9 @@ struct Texture {
 };
 
 struct Mesh {
-	std::vector<VertexData> vertices;
+	unsigned int* VAO;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-	unsigned int VAO;
 };
 
 struct SkeletonNode {
@@ -69,10 +68,10 @@ struct Model {
 
 // Need to add ID's/ change to index for final bone array
 
-void LoadModel(std::string const& path);
-void processNode(aiNode* node, const aiScene* scene);
+Model* LoadModel(std::string const& path);
+void processNode(aiNode* node, const aiScene* scene, Model* model);
 
-void LoadModel(std::string const& path) {
+Model* LoadModel(std::string const& path) {
 
 	Model* model;
 
@@ -80,21 +79,27 @@ void LoadModel(std::string const& path) {
 
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
-	processNode(scene->mRootNode, scene);
+	directory = path.substr(0, path.find_last_of('\\'));
+
+	processNode(scene->mRootNode, scene, model);
+
+	return model;
 }
 
-void processNode(aiNode* node, const aiScene* scene) {
+void processNode(aiNode* node, const aiScene* scene, Model* model) {
+
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		processMesh(mesh, scene);
+		model->m_Meshes.push_back(processMesh(mesh, scene));
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i], scene, model);
 	}
 }
 
-void processMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh* processMesh(aiMesh* mesh, const aiScene* scene) {
+
 	std::vector<VertexData> vertexDataVec;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
@@ -110,9 +115,10 @@ void processMesh(aiMesh* mesh, const aiScene* scene) {
 			vec.y = mesh->mTextureCoords[0][i].y;
 			vertexData.TexCoords = vec;
 		}
-		else
+		else {
 			vertexData.TexCoords = glm::vec2(0.0f, 0.0f);
-
+		}
+			
 		vertexDataVec.push_back(vertexData);
 	}
 
@@ -138,7 +144,11 @@ void processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	AssignBoneId(vertexDataVec, mesh, scene);
 
-	LoadMeshVertexData(vertexDataVec, indices, textures);
+	unsigned int* VAO = LoadMeshVertexData(vertexDataVec, indices, textures);
+
+	Mesh newMesh = { VAO, indices, textures };
+
+	return &newMesh;
 }
 
 std::vector<std::string> BoneNames; //from skeleton
@@ -180,11 +190,9 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 }
 
 
-void LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
 {
 	unsigned int VAO, VBO, EBO;
-
-	Mesh mesh = { vertices, indices, textures, VAO };
 
 	// initializes all the buffer objects/arrays
 	// now that we have all the required data, set the vertex buffers and its attribute pointers.
@@ -229,10 +237,11 @@ void LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned i
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, m_Weights));
 	glBindVertexArray(0);
 
+	return &VAO;
 }
 
 
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma)
+unsigned int TextureFromFile(const char* path, const std::string& directory)
 {
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
@@ -301,6 +310,7 @@ std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, s
 	return textures;
 }
 
+
 void DrawModel(Model* model, unsigned int shaderID)
 {
 	for (unsigned int i = 0; i < model->m_Meshes.size(); i++) {
@@ -333,7 +343,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 		}
 
 		// draw mesh
-		glBindVertexArray(mesh->VAO);
+		glBindVertexArray(*mesh->VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 

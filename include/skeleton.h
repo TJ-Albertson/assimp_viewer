@@ -204,23 +204,26 @@ void FindSkeletonRoot();
 // Are there any children in the skelton hierachy that arent't bones?
 
 
-void CreateSkeleton(const aiNode* node, SkeletonNode skeleBone) {
+void CreateSkeleton(const aiNode* node, SkeletonNode skeletonNode) {
 
 	std::string nodeName = node->mName.C_Str();
 	int index = -1;
+    glm::mat4 offset;
 
 	if (BoneMap.find(nodeName) != BoneMap.end()) {
 		index = BoneMap[nodeName].ID;
+        offset = BoneMap[nodeName].Offset;
 	}
 
-	skeleBone.m_NodeName = node->mName.data;
-	skeleBone.m_NumChildren = node->mNumChildren;
-	skeleBone.id = index;
+    skeletonNode.m_NodeName = node->mName.data;
+    skeletonNode.m_NumChildren = node->mNumChildren;
 
-    skeleBone.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
-    skeleBone.m_Offset = BoneMap[nodeName].Offset;
+    skeletonNode.id = index;
+    skeletonNode.m_Offset = offset;
 
-	std::cout << skeleBone.m_NodeName << " " << skeleBone.id << std::endl;
+    skeletonNode.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+   
+	std::cout << skeletonNode.m_NodeName << " " << skeletonNode.id << std::endl;
 
 	for (int i = 0; i < node->mNumChildren; i++) {
 
@@ -228,9 +231,8 @@ void CreateSkeleton(const aiNode* node, SkeletonNode skeleBone) {
 
 		CreateSkeleton(node->mChildren[i], newBone);
 
-		skeleBone.m_Children.push_back(newBone);
+        skeletonNode.m_Children.push_back(newBone);
 	}
-
 }
 
 #endif
