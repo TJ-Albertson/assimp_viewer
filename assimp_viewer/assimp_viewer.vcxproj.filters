@@ -35,5 +35,8 @@
     <ClInclude Include="animatie_function.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BoneAnimationChannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

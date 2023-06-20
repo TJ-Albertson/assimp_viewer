@@ -19,6 +19,9 @@ aiNode* aiRootNode;
 struct SkeletonBone {
     std::string mName;
     int id;
+
+    glm::mat4 mTransformation;
+
     int mNumChildren;
     std::vector<SkeletonBone> children;
 };

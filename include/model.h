@@ -12,7 +12,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-
 #include <stb_image.h>
 
 #include <fstream>
@@ -20,6 +19,9 @@
 #include <assimp_glm_helpers.h>
 #include <string>
 #include <vector>
+
+
+#include <animation.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -35,36 +37,6 @@ struct Texture {
 	unsigned int id;
 	std::string type;
 	std::string path;
-};
-
-struct KeyPosition {
-	glm::vec3 position;
-	float timeStamp;
-};
-
-struct KeyRotation {
-	glm::quat orientation;
-	float timeStamp;
-};
-
-struct KeyScale {
-	glm::vec3 scale;
-	float timeStamp;
-};
-
-struct Channel {
-	std::vector<KeyPosition> m_Positions;
-	std::vector<KeyRotation> m_Rotations;
-	std::vector<KeyScale> m_Scales;
-	int m_NumPositions;
-	int m_NumRotations;
-	int m_NumScalings;
-};
-
-struct Animation {
-	float m_Duration;
-	int m_TicksPerSecond;	
-	std::vector<Channel> m_Channels;
 };
 
 struct Mesh {
@@ -87,7 +59,12 @@ struct SkeletonNode {
 struct Model {
 	std::string m_Name;
 	std::vector<Mesh*> m_Meshes;
+
 	std::vector<Animation*> m_Animations;
+
+	glm::mat4 m_FinalBoneMatrices[100];
+
+	int currentAnimationec;
 
 	SkeletonNode* rootSkeleton;
 };

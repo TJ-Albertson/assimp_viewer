@@ -15,6 +15,7 @@
 
 #include <skeleton.h>
 #include <camera.h>
+#include <model.h>
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -45,6 +46,8 @@ int main()
     GLFWwindow* window = initGladGLFW();
     Camera* camera = CreateCameraScalar(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
+    Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
+
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
@@ -56,6 +59,41 @@ int main()
         // -----
         processInput(window, camera);
       
+
+
+        /*
+        
+        // render
+        // ------
+        glClearColor(0.05f, 0.05f, 1.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // don't forget to enable shader before setting uniforms
+        glUseProgram(animShader);
+
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+
+        setShaderMat4(animShader, "projection", projection);
+        setShaderMat4(animShader, "view", view);
+        
+        
+        AnimateModel(deltaTime, vampire->Animations[0], vampire->rootNode, vampire->FinalBoneMatrix);
+
+        for (int i = 0; i < 100; ++i)
+            setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(.5f, .5f, .5f)); // it's a bit too big for our scene, so scale it down
+        setShaderMat4(animShader, "model", model);
+
+        DrawModel(vampire, animShader);
+
+        */
+
+        
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

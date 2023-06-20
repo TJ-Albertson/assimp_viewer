@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -135,11 +135,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\animation.h" />
+    <ClInclude Include="..\include\BoneAnimationChannel.h" />
     <ClInclude Include="..\include\camera.h" />
+    <ClInclude Include="..\include\model.h" />
     <ClInclude Include="..\include\skeleton.h" />
-    <ClInclude Include="animatie_function.h" />
-    <ClInclude Include="animation.h" />
-    <ClInclude Include="model.h" />
+    <ClInclude Include="animate_function.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
