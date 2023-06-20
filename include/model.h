@@ -74,6 +74,8 @@ void processNode(aiNode* node, const aiScene* scene);
 
 void LoadModel(std::string const& path) {
 
+	Model* model;
+
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
