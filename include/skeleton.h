@@ -29,22 +29,22 @@ int nodeId = 0;
 
 aiNode* aiRootNode;
 
-struct SkeletonBone {
-    std::string m_Name;
+struct SkeletonNode {
+    std::string m_NodeName;
     int id;
 
     glm::mat4 m_Transformation;
     glm::mat4 m_Offset;
 
-    int m_NumChildren;
-    std::vector<SkeletonBone> m_Children;
+    unsigned int m_NumChildren;
+    std::vector<SkeletonNode> m_Children;
 };
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
 void BoneCheck(aiNode* node, const aiScene* scene);
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
 
-void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone);
+void CreateSkeleton(const aiNode* node, SkeletonNode skeleBone);
 
 int main()
 {
@@ -66,9 +66,9 @@ int main()
     //for (int i = 0; i < BoneNames.size(); i++)
         //std::cout << BoneNames[i] << std::endl;
 
-    SkeletonBone rootBone;
+    SkeletonNode skeletonRootNode;
 
-    CreateSkeleton(scene->mRootNode, rootBone);
+    CreateSkeleton(scene->mRootNode, skeletonRootNode);
 
     return 1;
 }
@@ -204,7 +204,7 @@ void FindSkeletonRoot();
 // Are there any children in the skelton hierachy that arent't bones?
 
 
-void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
+void CreateSkeleton(const aiNode* node, SkeletonNode skeleBone) {
 
 	std::string nodeName = node->mName.C_Str();
 	int index = -1;
@@ -213,18 +213,18 @@ void CreateSkeleton(const aiNode* node, SkeletonBone skeleBone) {
 		index = BoneMap[nodeName].ID;
 	}
 
-	skeleBone.m_Name = node->mName.data;
+	skeleBone.m_NodeName = node->mName.data;
 	skeleBone.m_NumChildren = node->mNumChildren;
 	skeleBone.id = index;
 
     skeleBone.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
     skeleBone.m_Offset = BoneMap[nodeName].Offset;
 
-	std::cout << skeleBone.m_Name << " " << skeleBone.id << std::endl;
+	std::cout << skeleBone.m_NodeName << " " << skeleBone.id << std::endl;
 
 	for (int i = 0; i < node->mNumChildren; i++) {
 
-		SkeletonBone newBone;
+        SkeletonNode newBone;
 
 		CreateSkeleton(node->mChildren[i], newBone);
 
