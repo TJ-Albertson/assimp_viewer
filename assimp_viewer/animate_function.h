@@ -15,7 +15,6 @@
 float m_CurrentTime;
 float m_DeltaTime;
 
-int numAnimations;
 
 /*
 void PlayAnimation(Animator* animator, Animation* pAnimation)
@@ -78,14 +77,7 @@ void CalculateNodeTransform(Animation* animation, SkeletonNode* node, glm::mat4*
 {
     if (node->id > 0) {
 
-        glm::mat4 animationTransform = FindBoneAndGetTransform(animation, node->m_NodeName, m_CurrentTime);
-
-        glm::mat4 transform = parentTransform * animationTransform * node->m_Offset;
-
-        FinalBoneMatrix[node->id] = transform;
-
-        for (int i = 0; i < node->m_NumChildren; i++)
-            CalculateBoneNodeTransform(animation, &node->m_Children[i], FinalBoneMatrix, transform);
+        CalculateBoneNodeTransform(animation, node, FinalBoneMatrix, parentTransform);
            
     } else {
 
