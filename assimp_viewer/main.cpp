@@ -8,14 +8,21 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <skeleton.h>
 #include <camera.h>
 #include <model.h>
+#include <shader_m.h>
+#include <animator.h>
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -48,6 +55,9 @@ int main()
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
 
+    unsigned int animShader = createShader(filepath("\\resources\\shaders\\anim_model.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
+    unsigned int modelShader = createShader(filepath("\\resources\\shaders\\4.2.texture.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
+
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
@@ -64,21 +74,22 @@ int main()
         glClearColor(0.05f, 0.05f, 1.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /*
+        
 
         // don't forget to enable shader before setting uniforms
         glUseProgram(animShader);
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = GetViewMatrix(*camera);
 
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
         
-        AnimateModel(deltaTime, vampire->Animations[0], vampire->rootNode, vampire->FinalBoneMatrix);
+        AnimateModel(deltaTime, vampire->Animations[0], vampire->rootSkeletonNode, vampire->FinalBoneMatrix);
 
+        /**/
         for (int i = 0; i < 100; ++i)
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
 
@@ -89,7 +100,6 @@ int main()
 
         DrawModel(vampire, animShader);
 
-        */
 
         
 
@@ -197,4 +207,10 @@ void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos
 void scroll_callback(GLFWwindow* window, Camera* camera, double xoffset, double yoffset)
 {
     CameraProcessMouseScroll(camera, yoffset);
+}
+
+std::string filepath(std::string path)
+{
+    std::filesystem::path currentDir = std::filesystem::current_path();
+    return currentDir.string().append(path);
 }

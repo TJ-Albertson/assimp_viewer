@@ -108,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,12 +136,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\animate_function.h" />
     <ClInclude Include="..\include\animation.h" />
     <ClInclude Include="..\include\BoneAnimationChannel.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\model.h" />
     <ClInclude Include="..\include\skeleton.h" />
-    <ClInclude Include="animate_function.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

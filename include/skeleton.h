@@ -44,33 +44,33 @@ void BoneCheckRoot(aiNode* node, const aiScene* scene);
 void BoneCheck(aiNode* node, const aiScene* scene);
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
 
-void CreateSkeleton(const aiNode* node, SkeletonNode skeleBone);
 
-int main()
-{
+void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode);
+
+
     // Create BoneMap
     // Find all necessary Nodes for skeleton (not all nodes necessary are bones)
     // Create Copy of node hiearchy with only necessary nodes for animation
     // Copy nodes will have additional information( BoneID and Offset); If node is not bone then id == -1
 
 
-
+SkeletonNode LoadSkeleton(std::string const& path)
+{
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
     // Used in BoneCheck to find Node associated with Bone
     aiRootNode = scene->mRootNode;
 
-    BoneCheckRoot(scene->mRootNode, scene);
+    CreateBoneMap(scene->mRootNode, scene);
 
-    //for (int i = 0; i < BoneNames.size(); i++)
-        //std::cout << BoneNames[i] << std::endl;
+    BoneCheckRoot(scene->mRootNode, scene);
 
     SkeletonNode skeletonRootNode;
 
     CreateSkeleton(scene->mRootNode, skeletonRootNode);
 
-    return 1;
+    return skeletonRootNode;
 }
 
 
@@ -161,6 +161,7 @@ void BoneCheck(aiNode* node, const aiScene* scene)
     }
 }
 
+
 //For every Mesh in Node; For every Bone in Mesh; Add bone to map
 
 
@@ -204,7 +205,8 @@ void FindSkeletonRoot();
 // Are there any children in the skelton hierachy that arent't bones?
 
 
-void CreateSkeleton(const aiNode* node, SkeletonNode skeletonNode) {
+void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
+{
 
 	std::string nodeName = node->mName.C_Str();
 	int index = -1;

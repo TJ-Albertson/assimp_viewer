@@ -21,7 +21,8 @@
 #include <vector>
 
 
-#include <animation.h>
+#include <animate_function.h>
+#include <skeleton.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -45,14 +46,6 @@ struct Mesh {
 	std::vector<Texture> textures;
 };
 
-struct SkeletonNode {
-	std::string mName;
-	int id;
-	int mNumChildren;
-	glm::mat4 m_LocalTransform;
-	std::vector<SkeletonNode> children;
-};
-
 struct Model {
 	std::string m_Name;
 	std::vector<Mesh*> m_Meshes;
@@ -63,7 +56,7 @@ struct Model {
 
 	int currentAnimationec;
 
-	SkeletonNode* rootSkeleton;
+	SkeletonNode rootSkeletonNode;
 };
 
 // Need to add ID's/ change to index for final bone array
@@ -78,6 +71,8 @@ Model* LoadModel(std::string const& path) {
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+
+	model->rootSkeletonNode = LoadSkeleton(path);
 
 	directory = path.substr(0, path.find_last_of('\\'));
 
@@ -165,9 +160,9 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 
 		std::string boneName = mesh->mBones[j]->mName.C_Str();
 
-		for (int i = 0; i < BoneNames.size(); i++) {
-			if (BoneNames[i] == boneName)
-				boneID = i;
+
+		if (BoneMap[boneName].ID) {
+			boneID = BoneMap[boneName].ID;
 		}
 
 		int numWeights = mesh->mBones[j]->mNumWeights;

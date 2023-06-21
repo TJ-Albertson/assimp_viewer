@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef ANIMATE_FUNCTION
+#define ANIMATE_FUNCTION
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -110,3 +110,5 @@ void AnimateModel(float dt, Animation* animation, SkeletonNode* rootNode, glm::m
 
     CalculateNodeTransform(animation, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }
+
+#endif
