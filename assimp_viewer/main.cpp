@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -22,7 +21,7 @@
 #include <camera.h>
 #include <model.h>
 #include <shader_m.h>
-#include <animator.h>
+#include <animate_function.h>
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -41,9 +40,10 @@ float lastFrame = 0.0f;
 
 GLFWwindow* initGladGLFW();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, Camera* camera, double xoffset, double yoffset);
 void processInput(GLFWwindow* window, Camera* camera);
+std::string filepath(std::string path);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 int main()
 {
@@ -51,7 +51,7 @@ int main()
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
     GLFWwindow* window = initGladGLFW();
-    Camera* camera = CreateCameraScalar(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
 
@@ -67,7 +67,7 @@ int main()
 
         // input
         // -----
-        processInput(window, camera);
+        processInput(window, PlayerCamera);
         
         // render
         // ------
@@ -80,14 +80,14 @@ int main()
         glUseProgram(animShader);
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = GetViewMatrix(*camera);
+        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
         
-        AnimateModel(deltaTime, vampire->Animations[0], vampire->rootSkeletonNode, vampire->FinalBoneMatrix);
+        AnimateModel(deltaTime, vampire->m_Animations[0], &vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
 
         /**/
         for (int i = 0; i < 100; ++i)
@@ -151,6 +151,8 @@ GLFWwindow* initGladGLFW()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+    return window;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -185,7 +187,7 @@ void processInput(GLFWwindow* window, Camera* camera)
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos)
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse) {
         lastX = xpos;
@@ -199,14 +201,14 @@ void mouse_callback(GLFWwindow* window, Camera* camera, double xpos, double ypos
     lastX = xpos;
     lastY = ypos;
 
-    CameraProcessMouseMovement(camera, xoffset, yoffset);
+    CameraProcessMouseMovement(PlayerCamera, xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, Camera* camera, double xoffset, double yoffset)
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    CameraProcessMouseScroll(camera, yoffset);
+    CameraProcessMouseScroll(PlayerCamera, yoffset);
 }
 
 std::string filepath(std::string path)

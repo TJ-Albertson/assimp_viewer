@@ -33,6 +33,10 @@ struct BoneAnimationChannel {
     int m_NumScalings;
 };
 
+glm::mat4 InterpolatePosition(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+glm::mat4 InterpolateRotation(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+
 
 glm::mat4 getBoneAnimationTransformation(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {

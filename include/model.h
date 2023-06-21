@@ -59,26 +59,42 @@ struct Model {
 	SkeletonNode rootSkeletonNode;
 };
 
+
+std::string directory;
 // Need to add ID's/ change to index for final bone array
 
 Model* LoadModel(std::string const& path);
 void processNode(aiNode* node, const aiScene* scene, Model* model);
+Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
+std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene);
+unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
 Model* LoadModel(std::string const& path) {
 
-	Model* model;
+	Model* newModel;
+
+	
+
 
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
-	model->rootSkeletonNode = LoadSkeleton(path);
+	newModel->m_Name = "Vampire";
+
+	for (int i = 0; i < scene->mNumAnimations; i++) {
+		newModel->m_Animations.push_back(scene->mAnimations[i]);
+	}
+	newModel->m_Animations = 
+
+	newModel->rootSkeletonNode = LoadSkeleton(path);
 
 	directory = path.substr(0, path.find_last_of('\\'));
 
-	processNode(scene->mRootNode, scene, model);
+	processNode(scene->mRootNode, scene, newModel);
 
-	return model;
+	return newModel;
 }
 
 void processNode(aiNode* node, const aiScene* scene, Model* model) {
@@ -146,7 +162,7 @@ Mesh* processMesh(aiMesh* mesh, const aiScene* scene) {
 	return &newMesh;
 }
 
-std::vector<std::string> BoneNames; //from skeleton
+
 void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene) {
 
 	int vertexId;
@@ -276,7 +292,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory)
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture struct.
-std::string directory;
+
 std::vector<Texture> textures_loaded;
 std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {

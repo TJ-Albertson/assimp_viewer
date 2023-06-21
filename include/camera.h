@@ -39,7 +39,11 @@ struct Camera {
 	float Zoom;
 };
 
-Camera* CreateCameraVector(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+Camera* PlayerCamera;
+
+
+
+Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
 
 // constructor with scalar values
 Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
@@ -62,7 +66,7 @@ void updateCameraVectors(Camera* camera);
 
 
 // constructor with vectors
-Camera* CreateCameraVector(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH)
+Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
 	Camera camera;
 
@@ -122,7 +126,7 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void CameraProcessMouseMovement(Camera* camera, float xoffset, float yoffset, GLboolean constrainPitch = true)
+void CameraProcessMouseMovement(Camera* camera, float xoffset, float yoffset, GLboolean constrainPitch)
 {
 	xoffset *= camera->MouseSensitivity;
 	yoffset *= camera->MouseSensitivity;

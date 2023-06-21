@@ -3,7 +3,6 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <bone.h>
 #include <glm/glm.hpp>
 #include <map>
 #include <vector>
@@ -72,6 +71,8 @@ int main() {
 
 
 */
+
+void CalculateBoneNodeTransform(Animation* animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform);
 
 void CalculateNodeTransform(Animation* animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
 {

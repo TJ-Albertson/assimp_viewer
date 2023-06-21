@@ -18,12 +18,12 @@ std::vector<std::string> BoneNames;
 
 int BoneID = 0;
 
-struct Bone {
+struct BoneStruct {
     int ID;
     glm::mat4 Offset;
 };
 
-std::map<std::string, Bone> BoneMap;
+std::map<std::string, BoneStruct> BoneMap;
 
 int nodeId = 0;
 
@@ -43,7 +43,7 @@ struct SkeletonNode {
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
 void BoneCheck(aiNode* node, const aiScene* scene);
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
-
+void CreateBoneMap(aiNode* node, const aiScene* scene);
 
 void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode);
 
@@ -183,7 +183,7 @@ void CreateBoneMap(aiNode* node, const aiScene* scene) {
 
                     glm::mat4 glm_offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(offset);
 
-                    Bone newBone = { BoneID++, glm_offset };
+                    BoneStruct newBone = { BoneID++, glm_offset };
 
                     BoneMap[boneNodeName.C_Str()] = newBone;
                 }
