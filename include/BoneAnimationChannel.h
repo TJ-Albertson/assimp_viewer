@@ -25,9 +25,10 @@ struct KeyScale {
 struct BoneAnimationChannel {
     std::string m_NodeName;
 
-    std::vector<KeyPosition>m_Positions;
-    std::vector<KeyRotation> m_Rotations;
-    std::vector<KeyScale> m_Scales;
+    KeyPosition* m_Positions;
+    KeyRotation* m_Rotations;
+    KeyScale* m_Scales;
+    
     int m_NumPositions;
     int m_NumRotations;
     int m_NumScalings;

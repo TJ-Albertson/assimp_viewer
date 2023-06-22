@@ -44,7 +44,6 @@ Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations
         newAnimation.m_TicksPerSecond = aiAnimation->mTicksPerSecond;
         newAnimation.m_NumBoneAnimations = aiAnimation->mNumChannels;
 
-
         newAnimation.m_BoneAnimations = LoadBoneAnimationChannels(aiAnimation->mNumChannels, aiAnimation->mChannels);
 
         m_Animations[i] = newAnimation;
@@ -61,10 +60,67 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
 
         BoneAnimationChannel newBoneChannel;
 
-        newBoneChannel.m_NodeName = aiNodeAnim->mNodeName;
-        new
-        newBoneChannel.m_Positions = aiNodeAnim->mPositionKeys;
-        
+        newBoneChannel.m_NodeName = aiNodeAnim->mNodeName.C_Str();
+        newBoneChannel.m_NumPositions = aiNodeAnim->mNumPositionKeys;
+        newBoneChannel.m_NumRotations = aiNodeAnim->mNumRotationKeys;
+        newBoneChannel.m_NumScalings = aiNodeAnim->mNumScalingKeys;
+
+        KeyPosition* keyPositions = new KeyPosition[aiNodeAnim->mNumPositionKeys];
+        KeyRotation* keyRotations = new KeyRotation[aiNodeAnim->mNumRotationKeys];
+        KeyScale* keyScales = new KeyScale[aiNodeAnim->mNumScalingKeys];
+
+        for (int i = 0; i < aiNodeAnim->mNumPositionKeys; ++i) {
+
+            aiVector3D aiPosition = aiNodeAnim->mPositionKeys[i].mValue;
+
+            float timeStamp = aiNodeAnim->mPositionKeys[i].mTime;
+
+            KeyPosition data;
+
+            data.position = AssimpGLMHelpers::GetGLMVec(aiPosition);
+
+            data.timeStamp = timeStamp;
+
+            keyPositions[i] = data;
+        }
+
+        newBoneChannel.m_Positions = keyPositions;
+
+        for (int i = 0; i < aiNodeAnim->mNumRotationKeys; ++i) {
+
+            aiQuaternion aiOrientation = aiNodeAnim->mRotationKeys[i].mValue;
+
+            float timeStamp = aiNodeAnim->mRotationKeys[i].mTime;
+            
+            KeyRotation data;
+            
+            data.orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
+            
+            data.timeStamp = timeStamp;
+            
+            keyRotations[i] = data;
+        }
+
+        newBoneChannel.m_Rotations = keyRotations;
+
+        for (int keyIndex = 0; keyIndex < aiNodeAnim->mNumScalingKeys; ++keyIndex) {
+            
+            aiVector3D scale = aiNodeAnim->mScalingKeys[keyIndex].mValue;
+            
+            float timeStamp = aiNodeAnim->mScalingKeys[keyIndex].mTime;
+            
+            KeyScale data;
+            
+            data.scale = AssimpGLMHelpers::GetGLMVec(scale);
+            
+            data.timeStamp = timeStamp;
+            
+            keyScales[i] = data;
+        }
+
+        newBoneChannel.m_Scales = keyScales;
+
+        return &newBoneChannel;
     }
 }
 
