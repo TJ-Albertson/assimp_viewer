@@ -55,8 +55,8 @@ int main()
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
 
-    unsigned int animShader = createShader(filepath("\\resources\\shaders\\anim_model.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
-    unsigned int modelShader = createShader(filepath("\\resources\\shaders\\4.2.texture.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
+    unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
+    //unsigned int modelShader = createShader(filepath("\\resources\\shaders\\4.2.texture.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -68,11 +68,13 @@ int main()
         // input
         // -----
         processInput(window, PlayerCamera);
-        
+
         // render
         // ------
         glClearColor(0.05f, 0.05f, 1.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        
 
         
 
@@ -87,7 +89,10 @@ int main()
         setShaderMat4(animShader, "view", view);
         
         
-        AnimateModel(deltaTime, vampire->m_Animations[0], &vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+        std::cout << "!!!!!!!!!!!!!!!!!!!BRUH!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        AnimateModel(deltaTime, *(vampire->m_Animations + 0), &vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+
+        
 
         /**/
         for (int i = 0; i < 100; ++i)

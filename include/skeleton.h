@@ -37,13 +37,15 @@ struct SkeletonNode {
     glm::mat4 m_Offset;
 
     unsigned int m_NumChildren;
-    std::vector<SkeletonNode> m_Children;
+    SkeletonNode* m_Children;
 };
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
 void BoneCheck(aiNode* node, const aiScene* scene);
 void BoneCheckParents(aiNode* boneNode, aiNode* meshNode);
 void CreateBoneMap(aiNode* node, const aiScene* scene);
+
+void CreateBoneMap2(const aiScene* scene);
 
 void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode);
 
@@ -62,7 +64,8 @@ SkeletonNode LoadSkeleton(std::string const& path)
     // Used in BoneCheck to find Node associated with Bone
     aiRootNode = scene->mRootNode;
 
-    CreateBoneMap(scene->mRootNode, scene);
+    //CreateBoneMap(scene->mRootNode, scene);
+    CreateBoneMap2(scene);
 
     BoneCheckRoot(scene->mRootNode, scene);
 
@@ -169,11 +172,11 @@ void BoneCheck(aiNode* node, const aiScene* scene)
 void CreateBoneMap(aiNode* node, const aiScene* scene) {
     if (node->mNumMeshes > 0) {
 
-        for (int i = 0; i < node->mNumMeshes; i++) {
+        for (int i = 0; i < node->mNumMeshes; ++i) {
 
             int meshIndex = node->mMeshes[i];
 
-            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
+            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; ++j) {
 
                 aiString boneNodeName = scene->mMeshes[meshIndex]->mBones[j]->mName;
 
@@ -197,6 +200,61 @@ void CreateBoneMap(aiNode* node, const aiScene* scene) {
     }
 }
 
+void CreateBoneMap2(const aiScene* scene) {
+
+    int mNumMeshes = scene->mNumMeshes;
+
+    std::cout << "---------BoneMap---------" << std::endl;
+    std::cout << " " << std::endl;
+
+    for (int i = 0; i < mNumMeshes; ++i) {
+       
+        aiMesh* mesh = scene->mMeshes[i];
+
+        int mNumBones = mesh->mNumBones;
+
+        for (int j = 0; j < mNumBones; ++j) {
+            
+            aiBone* bone = mesh->mBones[j];
+
+            std::string boneName = bone->mName.C_Str();
+
+            std::cout << " " << boneName << std::endl;
+
+            if (BoneMap.find(boneName) == BoneMap.end()) {
+                
+                aiMatrix4x4 offset = bone->mOffsetMatrix;
+
+                glm::mat4 glm_offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(offset);
+
+                BoneStruct newBone = { BoneID++, glm_offset };
+
+                BoneMap[boneName] = newBone;
+            }
+        }
+    }
+
+    std::cout << " " << std::endl;
+    std::cout << "---------BoneMap---------" << std::endl;
+
+    aiAnimation* aiAnimation = scene->mAnimations[0];
+
+    int mNumChannels = aiAnimation->mNumChannels;
+
+    for (int i = 0; i < mNumChannels; ++i) {
+
+        aiNodeAnim* aiNodeAnim = aiAnimation->mChannels[i];
+
+        std::string boneName = aiNodeAnim->mNodeName.C_Str();
+        std::cout << " " << boneName << std::endl;
+
+        if (BoneMap.find(boneName) == BoneMap.end())
+        {
+            BoneMap[boneName].ID = BoneID++;
+        }
+    }
+}
+
 void FindSkeletonRoot();
 // idea. same as bonecheck/bonecheckroot
 
@@ -210,7 +268,7 @@ void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
 
 	std::string nodeName = node->mName.C_Str();
 	int index = -1;
-    glm::mat4 offset;
+    glm::mat4 offset = glm::mat4(1.0f);
 
 	if (BoneMap.find(nodeName) != BoneMap.end()) {
 		index = BoneMap[nodeName].ID;
@@ -225,7 +283,11 @@ void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
 
     skeletonNode.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
    
-	std::cout << skeletonNode.m_NodeName << " " << skeletonNode.id << std::endl;
+	std::cout << skeletonNode.m_NodeName << std::endl;
+    std::cout << "     ID: "              << skeletonNode.id << std::endl;
+    std::cout << "     m_NumChildren: "   << skeletonNode.m_NumChildren << std::endl;
+
+    skeletonNode.m_Children = new SkeletonNode[node->mNumChildren];
 
 	for (int i = 0; i < node->mNumChildren; i++) {
 
@@ -233,7 +295,7 @@ void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
 
 		CreateSkeleton(node->mChildren[i], newBone);
 
-        skeletonNode.m_Children.push_back(newBone);
+        skeletonNode.m_Children[i] = newBone;
 	}
 }
 

@@ -50,11 +50,9 @@ struct Model {
 	std::string m_Name;
 	std::vector<Mesh*> m_Meshes;
 
-	std::vector<Animation*> m_Animations;
+	Animation* m_Animations;
 
 	glm::mat4 m_FinalBoneMatrices[100];
-
-	int currentAnimationec;
 
 	SkeletonNode rootSkeletonNode;
 };
@@ -72,7 +70,7 @@ unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<u
 
 Model* LoadModel(std::string const& path) {
 
-	Model* newModel;
+	Model newModel;
 
 	
 
@@ -81,20 +79,21 @@ Model* LoadModel(std::string const& path) {
 
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
-	newModel->m_Name = "Vampire";
+	newModel.m_Name = "Vampire";
 
-	for (int i = 0; i < scene->mNumAnimations; i++) {
-		newModel->m_Animations.push_back(scene->mAnimations[i]);
+	newModel.m_Animations = LoadAnimations(scene->mNumAnimations, scene->mAnimations);
+
+	newModel.rootSkeletonNode = LoadSkeleton(path);
+
+	for (int i = 0; i < 100; i++) {
+		newModel.m_FinalBoneMatrices[i] = glm::mat4(1.0f);
 	}
-	newModel->m_Animations = 
 
-	newModel->rootSkeletonNode = LoadSkeleton(path);
+	directory = path.substr(0, path.find_last_of('/'));
 
-	directory = path.substr(0, path.find_last_of('\\'));
+	processNode(scene->mRootNode, scene, &newModel);
 
-	processNode(scene->mRootNode, scene, newModel);
-
-	return newModel;
+	return &newModel;
 }
 
 void processNode(aiNode* node, const aiScene* scene, Model* model) {
@@ -172,7 +171,7 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 
 	for (int j = 0; j < mesh->mNumBones; ++j) {
 
-		unsigned int boneID;
+		unsigned int boneID = 0;
 
 		std::string boneName = mesh->mBones[j]->mName.C_Str();
 

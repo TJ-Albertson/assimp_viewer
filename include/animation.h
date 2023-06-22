@@ -20,107 +20,100 @@ struct Animation {
     BoneAnimationChannel* m_BoneAnimations;
 };
 
-glm::mat4 FindBoneAndGetTransform(Animation* animation, std::string boneNodeName, float animationTime)
+BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNodeAnim** mChannels);
+
+glm::mat4 FindBoneAndGetTransform(Animation animation, std::string boneNodeName, float animationTime)
 {
-    for (int i = 0; i < animation->m_NumBoneAnimations; i++) {
-        if (animation->m_BoneAnimations[i].m_NodeName == boneNodeName) {
-            return getBoneAnimationTransformation(&animation->m_BoneAnimations[i], animationTime);
+    for (int i = 0; i < animation.m_NumBoneAnimations; i++) {
+        if (animation.m_BoneAnimations[i].m_NodeName == boneNodeName) {
+            return getBoneAnimationTransformation(&animation.m_BoneAnimations[i], animationTime);
         }
     }
 }
 
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {
 
-    Animation* m_Animations = new Animation[mNumAnimations];
+    //Animation* m_Animations = new Animation[mNumAnimations];
 
-    for (int i = 0; i < mNumAnimations; i++) {
+    Animation* m_Animations = (Animation *)malloc(mNumAnimations * sizeof(Animation));
+
+    if (m_Animations == NULL) {
+        std::cout << "m_Animations Alloc failed" << std::endl;
+    }
+
+    for (int i = 0; i < mNumAnimations; ++i) {
 
         aiAnimation* aiAnimation = mAnimations[i];
 
-        Animation newAnimation;
+        m_Animations[i].m_Name = aiAnimation->mName.C_Str();
+        m_Animations[i].m_Duration = aiAnimation->mDuration;
+        m_Animations[i].m_TicksPerSecond = aiAnimation->mTicksPerSecond;
+        m_Animations[i].m_NumBoneAnimations = aiAnimation->mNumChannels;
 
-        newAnimation.m_Name = aiAnimation->mName.C_Str();
-        newAnimation.m_Duration = aiAnimation->mDuration;
-        newAnimation.m_TicksPerSecond = aiAnimation->mTicksPerSecond;
-        newAnimation.m_NumBoneAnimations = aiAnimation->mNumChannels;
-
-        newAnimation.m_BoneAnimations = LoadBoneAnimationChannels(aiAnimation->mNumChannels, aiAnimation->mChannels);
-
-        m_Animations[i] = newAnimation;
+        m_Animations[i].m_BoneAnimations = LoadBoneAnimationChannels(aiAnimation->mNumChannels, aiAnimation->mChannels);
     }
+
+    return m_Animations;
 }
 
 BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNodeAnim** mChannels) {
 
-    BoneAnimationChannel* boneAnimationChannel = new BoneAnimationChannel[mNumChannels];
+    //BoneAnimationChannel* boneAnimationChannel = new BoneAnimationChannel[mNumChannels];
+
+    BoneAnimationChannel* boneAnimationChannel = (BoneAnimationChannel *)malloc(mNumChannels * sizeof(BoneAnimationChannel));
 
     for (int i = 0; i < mNumChannels; i++) {
 
         aiNodeAnim* aiNodeAnim = mChannels[i];
 
-        BoneAnimationChannel newBoneChannel;
+        int m_NumPositions = aiNodeAnim->mNumPositionKeys;
+        int m_NumRotations = aiNodeAnim->mNumRotationKeys;
+        int m_NumScalings = aiNodeAnim->mNumScalingKeys;
 
-        newBoneChannel.m_NodeName = aiNodeAnim->mNodeName.C_Str();
-        newBoneChannel.m_NumPositions = aiNodeAnim->mNumPositionKeys;
-        newBoneChannel.m_NumRotations = aiNodeAnim->mNumRotationKeys;
-        newBoneChannel.m_NumScalings = aiNodeAnim->mNumScalingKeys;
+        boneAnimationChannel[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
 
-        KeyPosition* keyPositions = new KeyPosition[aiNodeAnim->mNumPositionKeys];
-        KeyRotation* keyRotations = new KeyRotation[aiNodeAnim->mNumRotationKeys];
-        KeyScale* keyScales = new KeyScale[aiNodeAnim->mNumScalingKeys];
+        boneAnimationChannel[i].m_NumPositions = m_NumPositions;
+        boneAnimationChannel[i].m_NumRotations = m_NumRotations;
+        boneAnimationChannel[i].m_NumScalings = m_NumScalings;
 
-        for (int i = 0; i < aiNodeAnim->mNumPositionKeys; ++i) {
+        KeyPosition* m_Positions = (KeyPosition*)malloc(m_NumPositions * sizeof(KeyPosition));
+        KeyRotation* m_Rotations = (KeyRotation*)malloc(m_NumRotations * sizeof(KeyRotation));
+        KeyScale*    m_Scales    = (KeyScale*)malloc(m_NumScalings * sizeof(KeyScale));
 
-            aiVector3D aiPosition = aiNodeAnim->mPositionKeys[i].mValue;
+        for (int j = 0; j < m_NumPositions; ++j) {
 
-            float timeStamp = aiNodeAnim->mPositionKeys[i].mTime;
+            aiVector3D aiPosition = aiNodeAnim->mPositionKeys[j].mValue;
 
-            KeyPosition data;
+            float timeStamp = aiNodeAnim->mPositionKeys[j].mTime;
 
-            data.position = AssimpGLMHelpers::GetGLMVec(aiPosition);
-
-            data.timeStamp = timeStamp;
-
-            keyPositions[i] = data;
+            m_Positions[j].position = AssimpGLMHelpers::GetGLMVec(aiPosition);
+            m_Positions[j].timeStamp = timeStamp;
         }
+        boneAnimationChannel[i].m_Positions = m_Positions;
 
-        newBoneChannel.m_Positions = keyPositions;
+        for (int j = 0; j < m_NumRotations; ++j) {
 
-        for (int i = 0; i < aiNodeAnim->mNumRotationKeys; ++i) {
+            aiQuaternion aiOrientation = aiNodeAnim->mRotationKeys[j].mValue;
 
-            aiQuaternion aiOrientation = aiNodeAnim->mRotationKeys[i].mValue;
-
-            float timeStamp = aiNodeAnim->mRotationKeys[i].mTime;
+            float timeStamp = aiNodeAnim->mRotationKeys[j].mTime;
             
-            KeyRotation data;
-            
-            data.orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
-            
-            data.timeStamp = timeStamp;
-            
-            keyRotations[i] = data;
+            m_Rotations[j].orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
+            m_Rotations[j].timeStamp = timeStamp;
         }
+        boneAnimationChannel[i].m_Rotations = m_Rotations;
 
-        newBoneChannel.m_Rotations = keyRotations;
-
-        for (int keyIndex = 0; keyIndex < aiNodeAnim->mNumScalingKeys; ++keyIndex) {
+        for (int j = 0; j < m_NumScalings; ++j) {
             
-            aiVector3D scale = aiNodeAnim->mScalingKeys[keyIndex].mValue;
+            aiVector3D scale = aiNodeAnim->mScalingKeys[j].mValue;
             
-            float timeStamp = aiNodeAnim->mScalingKeys[keyIndex].mTime;
+            float timeStamp = aiNodeAnim->mScalingKeys[j].mTime;
             
-            KeyScale data;
-            
-            data.scale = AssimpGLMHelpers::GetGLMVec(scale);
-            
-            data.timeStamp = timeStamp;
-            
-            keyScales[i] = data;
+            m_Scales[j].scale = AssimpGLMHelpers::GetGLMVec(scale);   
+            m_Scales[j].timeStamp = timeStamp;
         }
+        boneAnimationChannel[i].m_Scales = m_Scales;
 
-        newBoneChannel.m_Scales = keyScales;
-
-        return &newBoneChannel;
+        return boneAnimationChannel;
     }
 }
 
