@@ -22,10 +22,11 @@ struct Animation {
 
 BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNodeAnim** mChannels);
 
-glm::mat4 FindBoneAndGetTransform(Animation animation, std::string boneNodeName, float animationTime)
+glm::mat4 FindBoneAndGetTransform(Animation animation, const char* boneNodeName, float animationTime)
 {
-    for (int i = 0; i < animation.m_NumBoneAnimations; i++) {
-        if (animation.m_BoneAnimations[i].m_NodeName == boneNodeName) {
+    for (int i = 0; i < animation.m_NumBoneAnimations; ++i) {
+
+        if (std::strcmp(animation.m_BoneAnimations[i].m_NodeName, boneNodeName) == 0) {
             return getBoneAnimationTransformation(&animation.m_BoneAnimations[i], animationTime);
         }
     }
@@ -61,6 +62,8 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
         int m_NumPositions = aiNodeAnim->mNumPositionKeys;
         int m_NumRotations = aiNodeAnim->mNumRotationKeys;
         int m_NumScalings = aiNodeAnim->mNumScalingKeys;
+
+        
 
         m_BoneAnimations[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
 
@@ -110,7 +113,11 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
             m_Scales[j].timeStamp = timeStamp;
         }
         m_BoneAnimations[i].m_Scales = m_Scales;
+
+        
     }
+
+   
 
     return m_BoneAnimations;
 }

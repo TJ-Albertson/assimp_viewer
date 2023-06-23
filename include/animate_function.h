@@ -91,6 +91,7 @@ void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* 
 
 void CalculateBoneNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
 {
+
     glm::mat4 animationTransform = FindBoneAndGetTransform(animation, node->m_NodeName, m_CurrentTime);
 
     glm::mat4 transform = parentTransform * animationTransform * node->m_Offset;
@@ -103,19 +104,11 @@ void CalculateBoneNodeTransform(Animation animation, SkeletonNode* node, glm::ma
         CalculateBoneNodeTransform(animation, node->m_Children[i], FinalBoneMatrix, transform);
 }
 
-
-
 void AnimateModel(float dt, Animation animation, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix)
 {
-
-    
-
-
     m_DeltaTime = dt;
     m_CurrentTime += animation.m_TicksPerSecond * dt;
     m_CurrentTime = fmod(m_CurrentTime, animation.m_Duration);
-
-   
 
     CalculateNodeTransform(animation, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }

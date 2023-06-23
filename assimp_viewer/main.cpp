@@ -45,6 +45,13 @@ std::string filepath(std::string path);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+
+void printNodes(SkeletonNode* node) {
+    std::cout << "node name: " << node->m_NodeName << std::endl;
+    for (int i = 0; i < node->m_NumChildren; ++i)
+        printNodes(node->m_Children[i]);
+}
+
 int main()
 {
     Assimp::Importer importer;
@@ -54,6 +61,9 @@ int main()
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
+
+
+    printNodes(vampire->rootSkeletonNode);
 
     unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
     //unsigned int modelShader = createShader(filepath("\\resources\\shaders\\4.2.texture.vs"), filepath("\\resources\\shaders\\anim_model.fs"));

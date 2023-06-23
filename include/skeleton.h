@@ -285,11 +285,6 @@ void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode)
     skeletonNode->m_Offset = offset;
 
     skeletonNode->m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
-   
-	std::cout << skeletonNode->m_NodeName << std::endl;
-    std::cout << "     ID: "              << skeletonNode->id << std::endl;
-    std::cout << "     m_NumChildren: "   << skeletonNode->m_NumChildren << std::endl;
-
     skeletonNode->m_Children = (SkeletonNode**)malloc(node->mNumChildren * sizeof(SkeletonNode*));
 
 	for (int i = 0; i < node->mNumChildren; i++) {
