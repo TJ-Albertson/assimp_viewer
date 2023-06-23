@@ -11,7 +11,7 @@
 #include <BoneAnimationChannel.h>
 
 struct Animation {
-    std::string m_Name;
+    const char* m_Name;
 
     float m_Duration;
     int m_TicksPerSecond;
@@ -44,6 +44,8 @@ Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations
     for (int i = 0; i < mNumAnimations; ++i) {
 
         aiAnimation* aiAnimation = mAnimations[i];
+
+
 
         m_Animations[i].m_Name = aiAnimation->mName.C_Str();
         m_Animations[i].m_Duration = aiAnimation->mDuration;

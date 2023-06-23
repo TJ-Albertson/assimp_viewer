@@ -120,11 +120,14 @@ void BoneCheckRoot(aiNode* node, const aiScene* scene)
 {
     if (node->mNumMeshes > 0) {
 
-        for (int i = 0; i < node->mNumMeshes; i++) {
+        int nNumMeshes = node->mNumMeshes;
+
+        for (int i = 0; i < nNumMeshes; ++i) {
 
             int meshIndex = node->mMeshes[i];
+            int numBones = scene->mMeshes[meshIndex]->mNumBones;
 
-            for (int j = 0; j < scene->mMeshes[meshIndex]->mNumBones; j++) {
+            for (int j = 0; j < numBones; ++j) {
                 BoneNames.push_back(scene->mMeshes[meshIndex]->mBones[j]->mName.C_Str());
             }
         }
