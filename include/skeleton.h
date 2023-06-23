@@ -285,6 +285,8 @@ void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode)
     skeletonNode->m_Offset = offset;
 
     skeletonNode->m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+
+
     skeletonNode->m_Children = (SkeletonNode**)malloc(node->mNumChildren * sizeof(SkeletonNode*));
 
 	for (int i = 0; i < node->mNumChildren; i++) {
