@@ -90,7 +90,11 @@ int main()
         
         
         std::cout << "!!!!!!!!!!!!!!!!!!!BRUH!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        AnimateModel(deltaTime, *(vampire->m_Animations + 0), &vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+
+
+
+
+        AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
 
         
 

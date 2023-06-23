@@ -23,7 +23,7 @@ struct KeyScale {
 };
 
 struct BoneAnimationChannel {
-    std::string m_NodeName;
+    const char* m_NodeName;
 
     KeyPosition* m_Positions;
     KeyRotation* m_Rotations;

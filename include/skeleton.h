@@ -30,14 +30,14 @@ int nodeId = 0;
 aiNode* aiRootNode;
 
 struct SkeletonNode {
-    std::string m_NodeName;
+    const char* m_NodeName;
     int id;
 
     glm::mat4 m_Transformation;
     glm::mat4 m_Offset;
 
     unsigned int m_NumChildren;
-    SkeletonNode* m_Children;
+    SkeletonNode** m_Children;
 };
 
 void BoneCheckRoot(aiNode* node, const aiScene* scene);
@@ -47,7 +47,7 @@ void CreateBoneMap(aiNode* node, const aiScene* scene);
 
 void CreateBoneMap2(const aiScene* scene);
 
-void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode);
+void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode);
 
 
     // Create BoneMap
@@ -56,7 +56,7 @@ void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode);
     // Copy nodes will have additional information( BoneID and Offset); If node is not bone then id == -1
 
 
-SkeletonNode LoadSkeleton(std::string const& path)
+SkeletonNode* LoadSkeleton(std::string const& path)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
@@ -69,7 +69,7 @@ SkeletonNode LoadSkeleton(std::string const& path)
 
     BoneCheckRoot(scene->mRootNode, scene);
 
-    SkeletonNode skeletonRootNode;
+    SkeletonNode* skeletonRootNode = (SkeletonNode *)malloc(sizeof(SkeletonNode));
 
     CreateSkeleton(scene->mRootNode, skeletonRootNode);
 
@@ -266,10 +266,10 @@ void FindSkeletonRoot();
 // Are there any children in the skelton hierachy that arent't bones?
 
 
-void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
+void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode)
 {
 
-	std::string nodeName = node->mName.C_Str();
+	std::string nodeName = std::string(node->mName.C_Str());
 	int index = -1;
     glm::mat4 offset = glm::mat4(1.0f);
 
@@ -278,27 +278,27 @@ void CreateSkeleton(const aiNode* node, SkeletonNode& skeletonNode)
         offset = BoneMap[nodeName].Offset;
 	}
 
-    skeletonNode.m_NodeName = node->mName.data;
-    skeletonNode.m_NumChildren = node->mNumChildren;
+    skeletonNode->m_NodeName = node->mName.C_Str();
+    skeletonNode->m_NumChildren = node->mNumChildren;
 
-    skeletonNode.id = index;
-    skeletonNode.m_Offset = offset;
+    skeletonNode->id = index;
+    skeletonNode->m_Offset = offset;
 
-    skeletonNode.m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    skeletonNode->m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
    
-	std::cout << skeletonNode.m_NodeName << std::endl;
-    std::cout << "     ID: "              << skeletonNode.id << std::endl;
-    std::cout << "     m_NumChildren: "   << skeletonNode.m_NumChildren << std::endl;
+	std::cout << skeletonNode->m_NodeName << std::endl;
+    std::cout << "     ID: "              << skeletonNode->id << std::endl;
+    std::cout << "     m_NumChildren: "   << skeletonNode->m_NumChildren << std::endl;
 
-    skeletonNode.m_Children = new SkeletonNode[node->mNumChildren];
+    skeletonNode->m_Children = (SkeletonNode**)malloc(node->mNumChildren * sizeof(SkeletonNode*));
 
 	for (int i = 0; i < node->mNumChildren; i++) {
 
-        SkeletonNode newBone;
+        SkeletonNode* newBone = (SkeletonNode*)malloc(sizeof(SkeletonNode));
 
 		CreateSkeleton(node->mChildren[i], newBone);
 
-        skeletonNode.m_Children[i] = newBone;
+        skeletonNode->m_Children[i] = newBone;
 	}
 }
 

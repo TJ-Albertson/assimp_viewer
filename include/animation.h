@@ -33,19 +33,11 @@ glm::mat4 FindBoneAndGetTransform(Animation animation, std::string boneNodeName,
 
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {
 
-    //Animation* m_Animations = new Animation[mNumAnimations];
-
     Animation* m_Animations = (Animation *)malloc(mNumAnimations * sizeof(Animation));
-
-    if (m_Animations == NULL) {
-        std::cout << "m_Animations Alloc failed" << std::endl;
-    }
 
     for (int i = 0; i < mNumAnimations; ++i) {
 
         aiAnimation* aiAnimation = mAnimations[i];
-
-
 
         m_Animations[i].m_Name = aiAnimation->mName.C_Str();
         m_Animations[i].m_Duration = aiAnimation->mDuration;
@@ -60,11 +52,9 @@ Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations
 
 BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNodeAnim** mChannels) {
 
-    //BoneAnimationChannel* boneAnimationChannel = new BoneAnimationChannel[mNumChannels];
+    BoneAnimationChannel* m_BoneAnimations = (BoneAnimationChannel *)malloc(mNumChannels * sizeof(BoneAnimationChannel));
 
-    BoneAnimationChannel* boneAnimationChannel = (BoneAnimationChannel *)malloc(mNumChannels * sizeof(BoneAnimationChannel));
-
-    for (int i = 0; i < mNumChannels; i++) {
+    for (int i = 0; i < mNumChannels; ++i) {
 
         aiNodeAnim* aiNodeAnim = mChannels[i];
 
@@ -72,11 +62,11 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
         int m_NumRotations = aiNodeAnim->mNumRotationKeys;
         int m_NumScalings = aiNodeAnim->mNumScalingKeys;
 
-        boneAnimationChannel[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
+        m_BoneAnimations[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
 
-        boneAnimationChannel[i].m_NumPositions = m_NumPositions;
-        boneAnimationChannel[i].m_NumRotations = m_NumRotations;
-        boneAnimationChannel[i].m_NumScalings = m_NumScalings;
+        m_BoneAnimations[i].m_NumPositions = m_NumPositions;
+        m_BoneAnimations[i].m_NumRotations = m_NumRotations;
+        m_BoneAnimations[i].m_NumScalings = m_NumScalings;
 
         KeyPosition* m_Positions = (KeyPosition*)malloc(m_NumPositions * sizeof(KeyPosition));
         KeyRotation* m_Rotations = (KeyRotation*)malloc(m_NumRotations * sizeof(KeyRotation));
@@ -88,35 +78,41 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
 
             float timeStamp = aiNodeAnim->mPositionKeys[j].mTime;
 
-            m_Positions[j].position = AssimpGLMHelpers::GetGLMVec(aiPosition);
+            glm::vec3 glm_position = AssimpGLMHelpers::GetGLMVec(aiPosition);
+
+            m_Positions[j].position = glm_position;
             m_Positions[j].timeStamp = timeStamp;
         }
-        boneAnimationChannel[i].m_Positions = m_Positions;
+        m_BoneAnimations[i].m_Positions = m_Positions;
 
         for (int j = 0; j < m_NumRotations; ++j) {
 
             aiQuaternion aiOrientation = aiNodeAnim->mRotationKeys[j].mValue;
 
             float timeStamp = aiNodeAnim->mRotationKeys[j].mTime;
+
+            glm::quat glm_quat = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
             
-            m_Rotations[j].orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
+            m_Rotations[j].orientation = glm_quat;
             m_Rotations[j].timeStamp = timeStamp;
         }
-        boneAnimationChannel[i].m_Rotations = m_Rotations;
+        m_BoneAnimations[i].m_Rotations = m_Rotations;
 
         for (int j = 0; j < m_NumScalings; ++j) {
             
             aiVector3D scale = aiNodeAnim->mScalingKeys[j].mValue;
             
             float timeStamp = aiNodeAnim->mScalingKeys[j].mTime;
+
+            glm::vec3 glm_scale = AssimpGLMHelpers::GetGLMVec(scale);
             
-            m_Scales[j].scale = AssimpGLMHelpers::GetGLMVec(scale);   
+            m_Scales[j].scale = glm_scale;   
             m_Scales[j].timeStamp = timeStamp;
         }
-        boneAnimationChannel[i].m_Scales = m_Scales;
-
-        return boneAnimationChannel;
+        m_BoneAnimations[i].m_Scales = m_Scales;
     }
+
+    return m_BoneAnimations;
 }
 
 #endif

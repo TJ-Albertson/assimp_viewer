@@ -85,7 +85,7 @@ void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* 
         glm::mat4 transform = parentTransform * node->m_Transformation;
 
         for (int i = 0; i < node->m_NumChildren; ++i)
-            CalculateNodeTransform(animation, &node->m_Children[i], FinalBoneMatrix, transform);
+            CalculateNodeTransform(animation, node->m_Children[i], FinalBoneMatrix, transform);
     }
 }
 
@@ -100,7 +100,7 @@ void CalculateBoneNodeTransform(Animation animation, SkeletonNode* node, glm::ma
         FinalBoneMatrix[node->id] = transform;
 
     for (int i = 0; i < node->m_NumChildren; ++i)
-        CalculateBoneNodeTransform(animation, &node->m_Children[i], FinalBoneMatrix, transform);
+        CalculateBoneNodeTransform(animation, node->m_Children[i], FinalBoneMatrix, transform);
 }
 
 
