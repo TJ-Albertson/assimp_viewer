@@ -42,12 +42,13 @@ struct Texture {
 
 struct Mesh {
 	unsigned int* VAO;
+    int numVertices;
 
-	int numIndices;
 	unsigned int* indices;
+    int numIndices;
 	
-	int numTextures;
 	Texture* textures;
+    int numTextures;
 };
 
 struct Model {
@@ -70,9 +71,10 @@ std::string directory;
 Model* LoadModel(std::string const& path);
 void processNode(aiNode* node, const aiScene* scene, Model* model);
 Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene);
-unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, std::string typeName);
+
+void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene);
+unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices);
 
 Model* LoadModel(std::string const& path) {
 
@@ -121,19 +123,16 @@ void processNode(aiNode* node, const aiScene* scene, Model* model) {
 Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	int numVertices = mesh->mNumVertices;
+
+	VertexData* vertices = (VertexData*)malloc(numVertices * sizeof(VertexData));
+
 	int numFaces = mesh->mNumFaces;
 	
 	int numIndices = 0;
 	for (int i = 0; i < numFaces; ++i)
 		numIndices += mesh->mFaces[i].mNumIndices;
 
-
-
-
-	VertexData* vertices = (VertexData*)malloc(numVertices * sizeof(VertexData));
-	unsigned int* indices = (unsigned int *)malloc(numIndices * sizeof(unsigned int));
-
-	std::vector<Texture> textures;
+	unsigned int* indices = (unsigned int*)malloc(numIndices * sizeof(unsigned int));
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		VertexData vertexData;
@@ -153,41 +152,40 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 		vertices[i] = vertexData;
 	}
 
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+	int index = 0;
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
 		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indices.push_back(face.mIndices[j]);
+		for (unsigned int j = 0; j < face.mNumIndices; ++j)
+			indices[index++] = face.mIndices[j];
 	}
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-	int numTextures = material->GetTextureCount(aiTextureType_DIFFUSE);
+	int numDiffuse = material->GetTextureCount(aiTextureType_DIFFUSE);
+	int numSpecular = material->GetTextureCount(aiTextureType_SPECULAR);
+    int numHeight = material->GetTextureCount(aiTextureType_HEIGHT);
+    int numAmbient = material->GetTextureCount(aiTextureType_AMBIENT);
 
+	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
 
+    Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
 
-	std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-	std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-
-	std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-	std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+	loadMaterialTextures(textures, 0, numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
+	loadMaterialTextures(textures, numDiffuse, numDiffuse + numSpecular, material, aiTextureType_SPECULAR, "texture_specular");
+	loadMaterialTextures(textures, numDiffuse + numSpecular, numDiffuse + numSpecular + numHeight, material, aiTextureType_HEIGHT, "texture_normal");
+	loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numTextures, material, aiTextureType_AMBIENT, "texture_height");
 
 	AssignBoneId(vertices, mesh, scene);
 
-	unsigned int* VAO = LoadMeshVertexData(vertices, indices, textures);
+	unsigned int* VAO = LoadMeshVertexData(vertices, indices, numVertices, numIndices);
 
-	Mesh newMesh = { VAO, indices, textures };
+	Mesh newMesh = { VAO, numVertices, indices, numIndices, textures, numTextures };
 
 	return newMesh;
 }
 
 
-void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiScene* scene) {
+void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene) {
 
 	int vertexId;
 
@@ -225,7 +223,7 @@ void AssignBoneId(std::vector<VertexData>& vertexData, aiMesh* mesh, const aiSce
 }
 
 
-unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
 {
 	unsigned int VAO, VBO, EBO;
 
@@ -242,10 +240,10 @@ unsigned int* LoadMeshVertexData(std::vector<VertexData> vertices, std::vector<u
 	// A great thing about structs is that their memory layout is sequential for all its items.
 	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
 	// again translates to 3/2 floats which translates to a byte array.
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	// set the vertex attribute pointers
 	// vertex Positions
@@ -318,18 +316,15 @@ unsigned int TextureFromFile(const char* path, const std::string& directory)
 // the required info is returned as a Texture struct.
 
 std::vector<Texture> textures_loaded;
-Texture* loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+
+void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	int numTextures = mat->GetTextureCount(type);
-
-	Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
-
-	for (unsigned int i = 0; i < numTextures; i++) {
+	for (unsigned int i = startIndex; i < numTextures; ++i) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
-		for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+		for (unsigned int j = 0; j < textures_loaded.size(); ++j) {
 			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
 				textures[i] = (textures_loaded[j]);
 				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -346,7 +341,6 @@ Texture* loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string t
 			textures_loaded.push_back(texture); // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 		}
 	}
-	return textures;
 }
 
 
@@ -361,7 +355,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 
 		Mesh mesh = model->m_Meshes[i];
 
-		for (unsigned int i = 0; i < mesh.textures.size(); i++) {
+		for (unsigned int i = 0; i < mesh.numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
@@ -383,7 +377,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 
 		// draw mesh
 		glBindVertexArray(*mesh.VAO);
-		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.numIndices), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		// always good practice to set everything back to defaults once configured.
