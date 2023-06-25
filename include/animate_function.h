@@ -76,7 +76,7 @@ void CalculateBoneNodeTransform(Animation animation, SkeletonNode* node, glm::ma
 
 void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
 {
-    if (node->id > 0) {
+    if (node->id >= 0) {
 
         CalculateBoneNodeTransform(animation, node, FinalBoneMatrix, parentTransform);
            

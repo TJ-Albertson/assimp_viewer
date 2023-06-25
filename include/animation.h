@@ -41,6 +41,9 @@ Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations
         aiAnimation* aiAnimation = mAnimations[i];
 
         m_Animations[i].m_Name = aiAnimation->mName.C_Str();
+
+
+
         m_Animations[i].m_Duration = aiAnimation->mDuration;
         m_Animations[i].m_TicksPerSecond = aiAnimation->mTicksPerSecond;
         m_Animations[i].m_NumBoneAnimations = aiAnimation->mNumChannels;
@@ -63,9 +66,17 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
         int m_NumRotations = aiNodeAnim->mNumRotationKeys;
         int m_NumScalings = aiNodeAnim->mNumScalingKeys;
 
+        const char* nodemName = aiNodeAnim->mNodeName.C_Str();
+
+        size_t nameLength = aiNodeAnim->mNodeName.length;
+
+        m_BoneAnimations[i].m_NodeName = (char*)malloc(nameLength * sizeof(char));
+
+        std::strcpy(m_BoneAnimations[i].m_NodeName, nodemName);
+
         
 
-        m_BoneAnimations[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
+        //m_BoneAnimations[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
 
         m_BoneAnimations[i].m_NumPositions = m_NumPositions;
         m_BoneAnimations[i].m_NumRotations = m_NumRotations;

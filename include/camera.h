@@ -39,7 +39,7 @@ struct Camera {
 	float Zoom;
 };
 
-Camera* PlayerCamera;
+
 
 
 
@@ -128,6 +128,7 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 void CameraProcessMouseMovement(Camera* camera, float xoffset, float yoffset, GLboolean constrainPitch)
 {
+        
 	xoffset *= camera->MouseSensitivity;
 	yoffset *= camera->MouseSensitivity;
 
@@ -168,6 +169,8 @@ void updateCameraVectors(Camera* camera)
 	// also re-calculate the Right and Up vector
 	camera->Right = glm::normalize(glm::cross(camera->Front, camera->WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 	camera->Up = glm::normalize(glm::cross(camera->Right, camera->Front));
+       
+
 }
 
 #endif

@@ -41,14 +41,14 @@ struct Texture {
 };
 
 struct Mesh {
-	unsigned int* VAO;
-    int numVertices;
+	unsigned int VAO;
+    unsigned int numVertices;
 
 	unsigned int* indices;
-    int numIndices;
+    unsigned int numIndices;
 	
 	Texture* textures;
-    int numTextures;
+    unsigned int numTextures;
 };
 
 struct Model {
@@ -60,7 +60,7 @@ struct Model {
 	int m_NumAnimations;
 	Animation* m_Animations;
 
-	glm::mat4 m_FinalBoneMatrices[100];
+	glm::mat4* m_FinalBoneMatrices;
 	SkeletonNode* rootSkeletonNode;
 };
 
@@ -74,7 +74,8 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, const char* typeName);
 
 void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene);
-unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices);
+unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices);
+
 
 Model* LoadModel(std::string const& path) {
 
@@ -83,18 +84,26 @@ Model* LoadModel(std::string const& path) {
 
 	Model* newModel = (Model*)malloc(sizeof(Model));
 	
-	newModel->m_Name = "Vampire";
+	newModel->m_Name = nullptr;
 
 	newModel->m_NumMeshes = scene->mNumMeshes;
 	newModel->m_Meshes = (Mesh*)malloc(scene->mNumMeshes * sizeof(Mesh));
 
 	newModel->m_NumAnimations = scene->mNumAnimations;
-	newModel->m_Animations = LoadAnimations(scene->mNumAnimations, scene->mAnimations);
+	
+	if (scene->mNumAnimations > 0) {
+		newModel->m_Animations = LoadAnimations(scene->mNumAnimations, scene->mAnimations);
+    } else {
+        newModel->m_Animations = nullptr;
+	}
 
-	newModel->rootSkeletonNode = LoadSkeleton(path);
+	
 
-	for (int i = 0; i < 100; i++) {
-		newModel->m_FinalBoneMatrices[i] = glm::mat4(1.0f);
+	newModel->rootSkeletonNode = LoadSkeleton(scene);
+	newModel->m_FinalBoneMatrices = (glm::mat4*)malloc(100 * sizeof(glm::mat4));
+
+	for (int i = 0; i < 100; ++i) {
+            newModel->m_FinalBoneMatrices[i] = glm::mat4(1.0f);
 	}
 
 	directory = path.substr(0, path.find_last_of('/'));
@@ -116,6 +125,14 @@ void processNode(aiNode* node, const aiScene* scene, Model* model) {
 	}
 }
 
+void SetVertexBoneDataToDefault(VertexData& vertex)
+{
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
+                vertex.m_BoneIDs[i] = -1;
+                vertex.m_Weights[i] = 0.0f;
+        }
+}
+
 Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	int numVertices = mesh->mNumVertices;
@@ -125,13 +142,20 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	int numFaces = mesh->mNumFaces;
 	
 	int numIndices = 0;
-	for (int i = 0; i < numFaces; ++i)
-		numIndices += mesh->mFaces[i].mNumIndices;
+    for (int i = 0; i < numFaces; ++i)
+		numIndices += 3;
 
 	unsigned int* indices = (unsigned int*)malloc(numIndices * sizeof(unsigned int));
 
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+	std::cout << "numVertices: " << numVertices << std::endl;
+        std::cout << "numIndices: " << numIndices << std::endl;
+
+	for (unsigned int i = 0; i < numVertices; ++i) {
+
 		VertexData vertexData;
+
+		SetVertexBoneDataToDefault(vertexData);
+
 		vertexData.Position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
 		vertexData.Normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
 
@@ -164,6 +188,8 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
 
+	std::cout << " numTextures " << numTextures << std::endl;
+
     Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
 
 	loadMaterialTextures(textures, 0, numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
@@ -171,9 +197,35 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	loadMaterialTextures(textures, numDiffuse + numSpecular, numDiffuse + numSpecular + numHeight, material, aiTextureType_HEIGHT, "texture_normal");
 	loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numTextures, material, aiTextureType_AMBIENT, "texture_height");
 
+
+	
+
+
 	AssignBoneId(vertices, mesh, scene);
 
-	unsigned int* VAO = LoadMeshVertexData(vertices, indices, numVertices, numIndices);
+	std::ofstream outputFile("C:/Users/tjalb/OneDrive/Documents/Output/assimp_viewer_output.txt");
+        if (!outputFile) {
+                std::cout << "Failed to open the file." << std::endl;
+        }
+
+        for (int i = 0; i < numVertices; ++i) {
+                outputFile << " " << std::endl;
+                outputFile << "Vertice " << i << std::endl;
+                outputFile << "{" << std::endl;
+                outputFile << "   Position: " << vertices[i].Position.x << ", " << vertices[i].Position.y << ", " << vertices[i].Position.z << std::endl;
+                outputFile << "     Normal: " << vertices[i].Normal.x << ", " << vertices[i].Normal.y << ", " << vertices[i].Normal.z << std::endl;
+                outputFile << "  TexCoords: " << vertices[i].TexCoords.x << ", " << vertices[i].TexCoords.y << std::endl;
+                outputFile << "    Tangent: " << vertices[i].Tangent.x << ", " << vertices[i].Tangent.y << ", " << vertices[i].Tangent.z << std::endl;
+                outputFile << "  Bitangent: " << vertices[i].Bitangent.x << ", " << vertices[i].Bitangent.y << ", " << vertices[i].Bitangent.z << std::endl;
+                outputFile << "  m_BoneIDs: [" << vertices[i].m_BoneIDs[0] << ", " << vertices[i].m_BoneIDs[1] << ", " << vertices[i].m_BoneIDs[2] << ", " << vertices[i].m_BoneIDs[3] << "]" << std::endl;
+                outputFile << "  m_Weights: [" << vertices[i].m_Weights[0] << ", " << vertices[i].m_Weights[1] << ", " << vertices[i].m_Weights[2] << ", " << vertices[i].m_Weights[3] << "]" << std::endl;
+                outputFile << "}" << std::endl;
+        }
+
+        outputFile.close();
+        std::cout << "Data saved to output.txt" << std::endl;
+
+	unsigned int VAO = LoadMeshVertexData(vertices, indices, numVertices, numIndices);
 
 	Mesh newMesh = { VAO, numVertices, indices, numIndices, textures, numTextures };
 
@@ -181,36 +233,34 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 }
 
 
-void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene) {
+void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene) 
+{
+	// each bone
+	for (int i = 0; i < mesh->mNumBones; ++i) {
 
-	int vertexId;
-
-	int boneId;
-	float weight;
-
-	for (int j = 0; j < mesh->mNumBones; ++j) {
-
-		unsigned int boneID = 0;
-
-		std::string boneName = mesh->mBones[j]->mName.C_Str();
-
+		aiBone* bone = mesh->mBones[i];
+		
+		unsigned int boneID = -1;
+		std::string boneName = bone->mName.C_Str();
 
 		if (BoneMap[boneName].ID) {
 			boneID = BoneMap[boneName].ID;
 		}
 
-		int numWeights = mesh->mBones[j]->mNumWeights;
+		int numWeights = bone->mNumWeights;
 
-		for (int k = 0; k < numWeights; ++k) {
+		// each weight
+		for (int j = 0; j < numWeights; ++j) {
 
-			int vertexId = mesh->mBones[j]->mWeights[k].mVertexId;
-			float weight = mesh->mBones[j]->mWeights[k].mWeight;
+			int vertexId = bone->mWeights[j].mVertexId;
+			float weight = bone->mWeights[j].mWeight;
 
-			for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) {
-				if (vertexData[vertexId].m_BoneIDs[i] < 0) {
-
-					vertexData[vertexId].m_Weights[i] = weight;
-					vertexData[vertexId].m_BoneIDs[i] = boneID;
+			// each vertex weight is effecting
+			for (int k = 0; k < MAX_BONE_INFLUENCE; ++k) {
+				if (vertexData[vertexId].m_BoneIDs[k] < 0) 
+				{
+					vertexData[vertexId].m_Weights[k] = weight;
+					vertexData[vertexId].m_BoneIDs[k] = boneID;
 					break;
 				}
 			}
@@ -219,9 +269,11 @@ void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene) {
 }
 
 
-unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
+unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
 {
-	unsigned int VAO, VBO, EBO;
+    unsigned int VAO;
+
+	unsigned int VBO, EBO;
 
 	// initializes all the buffer objects/arrays
 	// now that we have all the required data, set the vertex buffers and its attribute pointers.
@@ -236,7 +288,7 @@ unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, in
 	// A great thing about structs is that their memory layout is sequential for all its items.
 	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
 	// again translates to 3/2 floats which translates to a byte array.
-        glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
@@ -266,7 +318,17 @@ unsigned int* LoadMeshVertexData(VertexData* vertices, unsigned int* indices, in
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, m_Weights));
 	glBindVertexArray(0);
 
-	return &VAO;
+	std::ofstream outputFile("C:/Users/tjalb/OneDrive/Documents/Output/assimp_viewer_VAO_output.txt");
+        if (!outputFile) {
+                std::cout << "Failed to open the file." << std::endl;
+        }
+
+        outputFile << "VAO: " << VAO << std::endl;
+
+        outputFile.close();
+        std::cout << "Data saved to assimp_viewer_VAO_output.txt" << std::endl;
+
+	return VAO;
 }
 
 
@@ -351,11 +413,13 @@ void DrawModel(Model* model, unsigned int shaderID)
 
 		Mesh mesh = model->m_Meshes[i];
 
+		
+
 		for (unsigned int i = 0; i < mesh.numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
-			std::string name = mesh.textures[i].type;
+			std::string name = std::string(mesh.textures[i].type);
 			if (name == "texture_diffuse")
 				number = std::to_string(diffuseNr++);
 			else if (name == "texture_specular")
@@ -372,7 +436,10 @@ void DrawModel(Model* model, unsigned int shaderID)
 		}
 
 		// draw mesh
-		glBindVertexArray(*mesh.VAO);
+
+		std::cout << " *mesh.VAO: " << mesh.VAO << std::endl;
+
+		glBindVertexArray(mesh.VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.numIndices), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 

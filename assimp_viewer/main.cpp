@@ -45,30 +45,40 @@ std::string filepath(std::string path);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+Camera* PlayerCamera;
 
-void printNodes(SkeletonNode* node) {
-    std::cout << "node name: " << node->m_NodeName << std::endl;
-    for (int i = 0; i < node->m_NumChildren; ++i)
-        printNodes(node->m_Children[i]);
-}
 
 int main()
 {
+
+    // "C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae"
+    // "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae"
+
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
+    const aiScene* scene = importer.ReadFile("C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
 
     GLFWwindow* window = initGladGLFW();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-    Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
+    Model* vampire = LoadModel("C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae");
+    Model* container = LoadModel("C:/Users/tjalb/source/repos/game/resources/models/container/container.dae");
 
 
-    printNodes(vampire->rootSkeletonNode);
+    //printNodes(vampire->rootSkeletonNode);
 
-    unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
-    //unsigned int modelShader = createShader(filepath("\\resources\\shaders\\4.2.texture.vs"), filepath("\\resources\\shaders\\anim_model.fs"));
+    std::cout << " " << std::endl;
+    std::cout << " end of print nodes from main " << std::endl;
+    std::cout << " " << std::endl;
+
+    unsigned int animShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
+    unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
+
+    int frame = 0;
 
     while (!glfwWindowShouldClose(window)) {
+
+        std::cout << frame++ << std::endl;
+
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
@@ -78,10 +88,11 @@ int main()
         // input
         // -----
         processInput(window, PlayerCamera);
+       
 
         // render
         // ------
-        glClearColor(0.05f, 0.05f, 1.05f, 1.0f);
+        glClearColor(1.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         
@@ -98,10 +109,6 @@ int main()
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
-        
-        std::cout << "!!!!!!!!!!!!!!!!!!!BRUH!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-
-
 
 
         AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
@@ -119,8 +126,16 @@ int main()
 
         DrawModel(vampire, animShader);
 
+        //std::cout << "PlayerCamera->Front.x: " << PlayerCamera->Front.x << std::endl;
+        glUseProgram(modelShader);
+        setShaderMat4(modelShader, "projection", projection);
+        setShaderMat4(modelShader, "view", view);
 
-        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(container, modelShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -198,6 +213,7 @@ void processInput(GLFWwindow* window, Camera* camera)
         CameraProcessKeyboard(camera, LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         CameraProcessKeyboard(camera, RIGHT, deltaTime);
+
 }
 
 
@@ -208,6 +224,9 @@ void processInput(GLFWwindow* window, Camera* camera)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+
+    
+
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;

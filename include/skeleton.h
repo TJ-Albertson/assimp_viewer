@@ -30,7 +30,7 @@ int nodeId = 0;
 aiNode* aiRootNode;
 
 struct SkeletonNode {
-    const char* m_NodeName;
+    char* m_NodeName;
     int id;
 
     glm::mat4 m_Transformation;
@@ -48,18 +48,42 @@ void CreateBoneMap(aiNode* node, const aiScene* scene);
 void CreateBoneMap2(const aiScene* scene);
 
 void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode);
-
+SkeletonNode* copyNodeTree(const aiNode* root);
 
     // Create BoneMap
     // Find all necessary Nodes for skeleton (not all nodes necessary are bones)
     // Create Copy of node hiearchy with only necessary nodes for animation
     // Copy nodes will have additional information( BoneID and Offset); If node is not bone then id == -1
 
-
-SkeletonNode* LoadSkeleton(std::string const& path)
+void printNodes(SkeletonNode* node)
 {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
+    if (node == NULL) {
+        return;
+    }
+
+    if (node->m_NodeName == NULL) {
+        return;
+    }
+
+    std::cout << "[ " << node->m_NodeName << std::endl;
+    std::cout << "              id: " << node->id << std::endl;
+    std::cout << "     numChildren: " << node->m_NumChildren << std::endl;
+    std::cout << "] " << std::endl;
+    std::cout << " " << std::endl;
+
+    if (node->m_NumChildren > 0) {
+        for (int i = 0; i < node->m_NumChildren; ++i)
+            printNodes(node->m_Children[i]);
+    }
+}
+
+
+SkeletonNode* LoadSkeleton(const aiScene* scene)
+{
+    //Assimp::Importer importer;
+
+    // "C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae"
+    //const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
     // Used in BoneCheck to find Node associated with Bone
     aiRootNode = scene->mRootNode;
@@ -69,9 +93,10 @@ SkeletonNode* LoadSkeleton(std::string const& path)
 
     BoneCheckRoot(scene->mRootNode, scene);
 
-    SkeletonNode* skeletonRootNode = (SkeletonNode *)malloc(sizeof(SkeletonNode));
+    // SkeletonNode* skeletonRootNode = (SkeletonNode *)malloc(sizeof(SkeletonNode));
+    // CreateSkeleton(scene->mRootNode, skeletonRootNode);
 
-    CreateSkeleton(scene->mRootNode, skeletonRootNode);
+    SkeletonNode* skeletonRootNode = copyNodeTree(scene->mRootNode);    
 
     return skeletonRootNode;
 }
@@ -207,9 +232,6 @@ void CreateBoneMap2(const aiScene* scene) {
 
     int mNumMeshes = scene->mNumMeshes;
 
-    std::cout << "---------BoneMap---------" << std::endl;
-    std::cout << " " << std::endl;
-
     for (int i = 0; i < mNumMeshes; ++i) {
        
         aiMesh* mesh = scene->mMeshes[i];
@@ -221,8 +243,6 @@ void CreateBoneMap2(const aiScene* scene) {
             aiBone* bone = mesh->mBones[j];
 
             std::string boneName = bone->mName.C_Str();
-
-            std::cout << " " << boneName << std::endl;
 
             if (BoneMap.find(boneName) == BoneMap.end()) {
                 
@@ -237,9 +257,7 @@ void CreateBoneMap2(const aiScene* scene) {
         }
     }
 
-    std::cout << " " << std::endl;
-    std::cout << "---------BoneMap---------" << std::endl;
-
+    /*
     aiAnimation* aiAnimation = scene->mAnimations[0];
 
     int mNumChannels = aiAnimation->mNumChannels;
@@ -249,13 +267,13 @@ void CreateBoneMap2(const aiScene* scene) {
         aiNodeAnim* aiNodeAnim = aiAnimation->mChannels[i];
 
         std::string boneName = aiNodeAnim->mNodeName.C_Str();
-        std::cout << " " << boneName << std::endl;
 
         if (BoneMap.find(boneName) == BoneMap.end())
         {
             BoneMap[boneName].ID = BoneID++;
         }
     }
+    */
 }
 
 void FindSkeletonRoot();
@@ -278,7 +296,9 @@ void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode)
         offset = BoneMap[nodeName].Offset;
 	}
 
-    skeletonNode->m_NodeName = node->mName.C_Str();
+    
+
+    //skeletonNode->m_NodeName = node->mName.C_Str();
     skeletonNode->m_NumChildren = node->mNumChildren;
 
     skeletonNode->id = index;
@@ -286,17 +306,71 @@ void CreateSkeleton(const aiNode* node, SkeletonNode* skeletonNode)
 
     skeletonNode->m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
 
+    int numChildren = node->mNumChildren;
 
-    skeletonNode->m_Children = (SkeletonNode**)malloc(node->mNumChildren * sizeof(SkeletonNode*));
+    if (numChildren > 0) {
+        skeletonNode->m_Children = (SkeletonNode**)malloc(numChildren * sizeof(SkeletonNode*));
 
-	for (int i = 0; i < node->mNumChildren; i++) {
+        for (int i = 0; i < numChildren; ++i) {
 
-        SkeletonNode* newBone = (SkeletonNode*)malloc(sizeof(SkeletonNode));
+            SkeletonNode* newBone = (SkeletonNode*)malloc(sizeof(SkeletonNode));
 
-		CreateSkeleton(node->mChildren[i], newBone);
+            
+            CreateSkeleton(node->mChildren[i], newBone);
+            skeletonNode->m_Children[i] = newBone;
 
-        skeletonNode->m_Children[i] = newBone;
+
+        }
+    } else {
+        skeletonNode->m_Children = NULL;
+    }
+}
+
+
+SkeletonNode* createNode(const aiNode* node, int mNumChildren)
+{
+    SkeletonNode* newNode = (SkeletonNode*)malloc(sizeof(SkeletonNode));
+
+    std::string nodeName = std::string(node->mName.C_Str());
+	int index = -1;
+    glm::mat4 offset = glm::mat4(1.0f);
+
+	if (BoneMap.find(nodeName) != BoneMap.end()) {
+        index = BoneMap[nodeName].ID;
+        offset = BoneMap[nodeName].Offset;
 	}
+
+    const char* nodemName = node->mName.C_Str();
+
+    size_t nameLength = node->mName.length;
+
+    newNode->m_NodeName = (char*)malloc(nameLength * sizeof(char));
+    
+    std::strcpy(newNode->m_NodeName, nodemName);
+
+    newNode->m_NumChildren = mNumChildren;
+    newNode->id = index;
+    newNode->m_Offset = offset;
+    newNode->m_Transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+
+    newNode->m_Children = (SkeletonNode**)malloc(mNumChildren * sizeof(SkeletonNode*));
+
+    return newNode;
+}
+
+SkeletonNode* copyNodeTree(const aiNode* root)
+{
+    if (root == NULL) {
+        return NULL;
+    }
+
+    SkeletonNode* newRoot = createNode(root, root->mNumChildren);
+
+    for (int i = 0; i < root->mNumChildren; i++) {
+        newRoot->m_Children[i] = copyNodeTree(root->mChildren[i]);
+    }
+
+    return newRoot;
 }
 
 #endif
