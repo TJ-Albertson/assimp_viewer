@@ -68,41 +68,41 @@ void updateCameraVectors(Camera* camera);
 // constructor with vectors
 Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
-	Camera camera;
+        Camera* camera = (Camera*)malloc(sizeof(Camera));
 
-	camera.Front = glm::vec3(0.0f, 0.0f, -1.0f);
-	camera.MovementSpeed = SPEED;
-	camera.MouseSensitivity = SENSITIVITY;
-	camera.Zoom = ZOOM;
+        camera->Front = glm::vec3(0.0f, 0.0f, -1.0f);
+        camera->MovementSpeed = SPEED;
+        camera->MouseSensitivity = SENSITIVITY;
+        camera->Zoom = ZOOM;
 
-	camera.Position = position;
-	camera.WorldUp = up;
-	camera.Yaw = yaw;
-	camera.Pitch = pitch;
+        camera->Position = position;
+        camera->WorldUp = up;
+        camera->Yaw = yaw;
+        camera->Pitch = pitch;
 
-	updateCameraVectors(&camera);
+        updateCameraVectors(camera);
 
-	return &camera;
+        return camera;
 }
 
 // constructor with scalar values
 Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
 {
-	Camera camera;
+        Camera* camera = (Camera*)malloc(sizeof(Camera));
 
-	camera.Front = glm::vec3(0.0f, 0.0f, -1.0f);
-	camera.MovementSpeed = SPEED;
-	camera.MouseSensitivity = SENSITIVITY;
-	camera.Zoom = ZOOM;
+        camera->Front = glm::vec3(0.0f, 0.0f, -1.0f);
+        camera->MovementSpeed = SPEED;
+        camera->MouseSensitivity = SENSITIVITY;
+        camera->Zoom = ZOOM;
 
-	camera.Position = glm::vec3(posX, posY, posZ);
-	camera.WorldUp = glm::vec3(upX, upY, upZ);
-	camera.Yaw = yaw;
-	camera.Pitch = pitch;
+        camera->Position = glm::vec3(posX, posY, posZ);
+        camera->WorldUp = glm::vec3(upX, upY, upZ);
+        camera->Yaw = yaw;
+        camera->Pitch = pitch;
 
-	updateCameraVectors(&camera);
+        updateCameraVectors(camera);
 
-	return &camera;
+        return camera;
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
