@@ -67,6 +67,7 @@ int main()
     unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
     unsigned int modelShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/4.2.texture.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
 
+    bool animationPlaying = false;
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -87,9 +88,9 @@ int main()
         ImGui::NewFrame();
 
         ImGui::Begin("ImGui Window");
-        if (ImGui::Button("Click Me"))
+        if (ImGui::Button("Play Animation"))
         {
-            // Button click logic here
+            animationPlaying = !animationPlaying;
         }
         ImGui::End();
 
@@ -114,7 +115,10 @@ int main()
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
-        AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+        if (animationPlaying) {
+            AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+        }
+        
 
         for (int i = 0; i < 100; ++i)
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
