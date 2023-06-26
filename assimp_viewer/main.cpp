@@ -3,6 +3,10 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -35,7 +39,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-GLFWwindow* initGladGLFW();
+GLFWwindow* InitializeWindow();
 
 std::string filepath(std::string path);
 
@@ -51,7 +55,7 @@ int main()
     // "C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae"
     // "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae"
 
-    GLFWwindow* window = initGladGLFW();
+    GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
@@ -75,6 +79,24 @@ int main()
         // input
         // -----
         processInput(window, PlayerCamera);
+
+
+        // imgui
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("ImGui Window");
+        if (ImGui::Button("Click Me"))
+        {
+            // Button click logic here
+        }
+        ImGui::End();
+
+        ImGui::Render();
+
+
+
 
         // render
         // ------
@@ -115,19 +137,28 @@ int main()
         setShaderMat4(modelShader, "model", model);
         DrawModel(container, modelShader);
 
+
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwTerminate();
     return 0;
 }
 
-GLFWwindow* initGladGLFW()
+GLFWwindow* InitializeWindow()
 {
     // glfw: initialize and configure
     // ------------------------------
@@ -149,7 +180,7 @@ GLFWwindow* initGladGLFW()
     glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -163,6 +194,14 @@ GLFWwindow* initGladGLFW()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+
+    // ImGui initialization
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 
     return window;
 }
