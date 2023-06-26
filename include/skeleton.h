@@ -78,6 +78,52 @@ void printNodes(SkeletonNode* node)
 }
 
 
+
+
+void WriteSkeletonOutput(SkeletonNode* node, std::ofstream& outputFile) {
+
+        outputFile << " " << std::endl;
+        outputFile << node->m_NodeName << std::endl;
+        outputFile << "{" << std::endl;
+        outputFile << "                 id: " << node->id << std::endl;
+        outputFile << "      m_NumChildren: " << node->m_NumChildren << std::endl;
+
+        outputFile << "   m_Transformation: " << std::endl;
+        outputFile << "                         [ " << node->m_Transformation[0][0] << ", " << node->m_Transformation[0][1] << ", " << node->m_Transformation[0][2] << ", " << node->m_Transformation[0][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Transformation[1][0] << ", " << node->m_Transformation[1][1] << ", " << node->m_Transformation[1][2] << ", " << node->m_Transformation[1][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Transformation[2][0] << ", " << node->m_Transformation[2][1] << ", " << node->m_Transformation[2][2] << ", " << node->m_Transformation[2][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Transformation[3][0] << ", " << node->m_Transformation[3][1] << ", " << node->m_Transformation[3][2] << ", " << node->m_Transformation[3][3] << " ]" << std::endl;
+
+        outputFile << "           m_Offset: " << std::endl;
+        outputFile << "                         [ " << node->m_Offset[0][0] << ", " << node->m_Offset[0][1] << ", " << node->m_Offset[0][2] << ", " << node->m_Offset[0][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Offset[1][0] << ", " << node->m_Offset[1][1] << ", " << node->m_Offset[1][2] << ", " << node->m_Offset[1][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Offset[2][0] << ", " << node->m_Offset[2][1] << ", " << node->m_Offset[2][2] << ", " << node->m_Offset[2][3] << " ]" << std::endl;
+        outputFile << "                         [ " << node->m_Offset[3][0] << ", " << node->m_Offset[3][1] << ", " << node->m_Offset[3][2] << ", " << node->m_Offset[3][3] << " ]" << std::endl;
+        outputFile << "}" << std::endl;
+
+        if (node->m_NumChildren > 0) {
+            for (int i = 0; i < node->m_NumChildren; ++i)
+                WriteSkeletonOutput(node->m_Children[i], outputFile);
+        }
+}
+
+void SaveSkeletonOutput(SkeletonNode* node) {
+
+    //C:\Users\tj.albertson.C-P-U\Documents\Output
+     //"C:/Users/tjalb/OneDrive/Documents/Output/assimp_viewer_output.txt"
+
+    std::ofstream outputFile("C:/Users/tj.albertson.C-P-U/Documents/Output/assimp_viewer_skeleton.txt");
+    if (!outputFile) {
+        std::cout << "Failed to open the file for skeleton node" << std::endl;
+    }
+
+    WriteSkeletonOutput(node, outputFile);
+
+    outputFile.close();
+    std::cout << "Data saved to C:/Users/tj.albertson.C-P-U/Documents/Output/assimp_viewer_skeleton.txt" << std::endl;
+}
+
+
 SkeletonNode* LoadSkeleton(const aiScene* scene)
 {
     //Assimp::Importer importer;

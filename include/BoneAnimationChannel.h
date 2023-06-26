@@ -57,7 +57,6 @@ int GetPositionIndex(BoneAnimationChannel* boneAnimationChannel, float animation
         if (animationTime < boneAnimationChannel->m_Positions[index + 1].timeStamp)
             return index;
     }
-    assert(0);
 }
 
 int GetRotationIndex(BoneAnimationChannel* boneAnimationChannel, float animationTime)
@@ -66,7 +65,6 @@ int GetRotationIndex(BoneAnimationChannel* boneAnimationChannel, float animation
         if (animationTime < boneAnimationChannel->m_Rotations[index + 1].timeStamp)
             return index;
     }
-    assert(0);
 }
 
 int GetScaleIndex(BoneAnimationChannel* boneAnimationChannel, float animationTime)
@@ -75,12 +73,7 @@ int GetScaleIndex(BoneAnimationChannel* boneAnimationChannel, float animationTim
         if (animationTime < boneAnimationChannel->m_Scales[index + 1].timeStamp)
             return index;
     }
-    assert(0);
 }
-
-
-
-
 
 
 float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
@@ -95,10 +88,6 @@ float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTi
 
     return scaleFactor;
 }
-
-
-
-
 
 
 glm::mat4 InterpolatePosition(BoneAnimationChannel* boneAnimationChannel, float animationTime)
@@ -154,6 +143,5 @@ glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float a
 
     return glm::scale(glm::mat4(1.0f), finalScale);
 }
-
 
 #endif
