@@ -27,8 +27,8 @@
 #include <animation.h>
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
@@ -95,8 +95,6 @@ int main()
         ImGui::End();
 
         ImGui::Render();
-
-
 
 
         // render
@@ -244,7 +242,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     int rightMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
     if (rightMouseButtonState == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        
+       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         if (firstMouse) {
             lastX = xpos;
@@ -259,9 +258,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         lastY = ypos;
 
         CameraProcessMouseMovement(PlayerCamera, xoffset, yoffset);
+        
     } else if (rightMouseButtonState == GLFW_RELEASE) {
     // Enable the cursor when the right mouse button is released
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        firstMouse = true;
     }
 }
 
