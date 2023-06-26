@@ -17,18 +17,16 @@
 #include <vector>
 #include <filesystem>
 
-#include <skeleton.h>
 #include <camera.h>
 #include <model.h>
 #include <shader_m.h>
-#include <animate_function.h>
+#include <animation.h>
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-// cameradt
-//Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+// camera
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -37,33 +35,27 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
 GLFWwindow* initGladGLFW();
+
+std::string filepath(std::string path);
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, Camera* camera);
-std::string filepath(std::string path);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 Camera* PlayerCamera;
-
 
 int main()
 {
     // "C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae"
     // "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae"
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae", aiProcess_Triangulate);
-
     GLFWwindow* window = initGladGLFW();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
     Model* container = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/models/container/container.dae");
-
-    // SaveSkeletonOutput(vampire->rootSkeletonNode);
-    // printNodes(vampire->rootSkeletonNode);
 
     // unsigned int animShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
     // unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
@@ -83,7 +75,6 @@ int main()
         // input
         // -----
         processInput(window, PlayerCamera);
-       
 
         // render
         // ------
@@ -91,9 +82,6 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         
-
-        
-
         // don't forget to enable shader before setting uniforms
         glUseProgram(animShader);
 
@@ -104,13 +92,8 @@ int main()
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
-
-
         AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
 
-        
-
-        /**/
         for (int i = 0; i < 100; ++i)
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
 
@@ -211,17 +194,10 @@ void processInput(GLFWwindow* window, Camera* camera)
 
 }
 
-
-
-
-
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-
-    
-
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;

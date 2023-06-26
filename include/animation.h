@@ -1,3 +1,10 @@
+/*-------------------------------------------------------------------------------\
+animation.h                                                                      
+
+Functions associated with loading animations and animating the skeleton of a model
+
+\-------------------------------------------------------------------------------*/ 
+
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
@@ -7,11 +14,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-
-#include <BoneAnimationChannel.h>
+#include <bone_animation.h>
+#include <skeleton.h>
 
 struct Animation {
-    const char* m_Name;
+    char* m_Name;
 
     float m_Duration;
     int m_TicksPerSecond;
@@ -20,6 +27,14 @@ struct Animation {
     BoneAnimationChannel* m_BoneAnimations;
 };
 
+float m_CurrentTime;
+float m_DeltaTime;
+
+void AnimateModel(float dt, Animation animation, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix);
+void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform);
+glm::mat4 FindBoneAndGetTransform(Animation animation, const char* boneNodeName, float animationTime);
+
+Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations);
 BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNodeAnim** mChannels);
 
 glm::mat4 FindBoneAndGetTransform(Animation animation, const char* boneNodeName, float animationTime)
@@ -32,6 +47,37 @@ glm::mat4 FindBoneAndGetTransform(Animation animation, const char* boneNodeName,
     }
 }
 
+void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
+{
+    glm::mat4 nodeTransform = node->m_Transformation;
+
+    bool isBoneNode = (node->id >= 0);
+    if (isBoneNode) {
+        nodeTransform = FindBoneAndGetTransform(animation, node->m_NodeName, m_CurrentTime);
+    }
+
+    glm::mat4 globalTransformation = parentTransform * nodeTransform;
+
+    if (isBoneNode) {
+        glm::mat4 finalBoneMatrix = globalTransformation * node->m_Offset;
+        FinalBoneMatrix[node->id] = finalBoneMatrix;
+    }
+
+    for (int i = 0; i < node->m_NumChildren; ++i) {
+        CalculateNodeTransform(animation, node->m_Children[i], FinalBoneMatrix, globalTransformation);
+    }
+}
+
+void AnimateModel(float dt, Animation animation, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix)
+{
+    m_DeltaTime = dt;
+    m_CurrentTime += animation.m_TicksPerSecond * dt;
+    m_CurrentTime = fmod(m_CurrentTime, animation.m_Duration);
+
+    CalculateNodeTransform(animation, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
+}
+
+
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {
 
     Animation* m_Animations = (Animation *)malloc(mNumAnimations * sizeof(Animation));
@@ -40,9 +86,11 @@ Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations
 
         aiAnimation* aiAnimation = mAnimations[i];
 
-        m_Animations[i].m_Name = aiAnimation->mName.C_Str();
+        const char* mName  = aiAnimation->mName.C_Str();
+        size_t mNameLength = aiAnimation->mName.length;
 
-
+        m_Animations[i].m_Name = (char*)malloc(mNameLength * sizeof(char));
+        std::strcpy(m_Animations[i].m_Name, mName);
 
         m_Animations[i].m_Duration = aiAnimation->mDuration;
         m_Animations[i].m_TicksPerSecond = aiAnimation->mTicksPerSecond;
@@ -67,16 +115,10 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
         int m_NumScalings = aiNodeAnim->mNumScalingKeys;
 
         const char* nodemName = aiNodeAnim->mNodeName.C_Str();
-
-        size_t nameLength = aiNodeAnim->mNodeName.length;
+        size_t nameLength     = aiNodeAnim->mNodeName.length;
 
         m_BoneAnimations[i].m_NodeName = (char*)malloc(nameLength * sizeof(char));
-
         std::strcpy(m_BoneAnimations[i].m_NodeName, nodemName);
-
-        
-
-        //m_BoneAnimations[i].m_NodeName = aiNodeAnim->mNodeName.C_Str();
 
         m_BoneAnimations[i].m_NumPositions = m_NumPositions;
         m_BoneAnimations[i].m_NumRotations = m_NumRotations;
@@ -124,12 +166,7 @@ BoneAnimationChannel* LoadBoneAnimationChannels(unsigned int mNumChannels, aiNod
             m_Scales[j].timeStamp = timeStamp;
         }
         m_BoneAnimations[i].m_Scales = m_Scales;
-
-        
     }
-
-   
-
     return m_BoneAnimations;
 }
 

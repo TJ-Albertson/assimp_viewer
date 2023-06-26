@@ -1,5 +1,13 @@
-#ifndef BONEANIMATIONCHANNEL_H
-#define BONEANIMATIONCHANNEL_H
+/*-------------------------------------------------------------------------------\
+bone_animation.h
+
+Functions:
+    get transformation matrix for bone in animation based on time
+
+\-------------------------------------------------------------------------------*/
+
+#ifndef BONE_ANIMATION_H
+#define BONE_ANIMATION_H
 
 #include <vector>
 #include <string>

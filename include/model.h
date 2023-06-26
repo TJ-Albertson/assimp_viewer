@@ -1,9 +1,19 @@
+/*-------------------------------------------------------------------------------\
+model.h
+
+Functions:
+	A bunch of functions for loading textures and vertex data of meshes in model
+
+	Last function to all meshes in model
+
+\-------------------------------------------------------------------------------*/
+
 #ifndef MODEL_H
 #define MODEL_H
 
 #define MAX_BONE_INFLUENCE 4
 
-#include <glad/glad.h> // holds all OpenGL type declarations
+#include <glad/glad.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -11,7 +21,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-
 #include <stb_image.h>
 
 #include <fstream>
@@ -20,8 +29,7 @@
 #include <string>
 #include <vector>
 
-
-#include <animate_function.h>
+#include <animation.h>
 #include <skeleton.h>
 
 struct VertexData {
@@ -64,19 +72,23 @@ struct Model {
 	SkeletonNode* rootSkeletonNode;
 };
 
-
 std::vector<Texture> textures_loaded;
-
 std::string directory;
-// Need to add ID's/ change to index for final bone array
 
 Model* LoadModel(std::string const& path);
+
 void processNode(aiNode* node, const aiScene* scene, Model* model);
 Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
+unsigned int TextureFromFile(const char* path, const std::string& directory);
 void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, const char* typeName);
 
+void SetVertexBoneDataToDefault(VertexData& vertex);
 void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene);
+
 unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices);
+
+void DrawModel(Model* model, unsigned int shaderID);
 
 
 Model* LoadModel(std::string const& path) {
@@ -101,8 +113,6 @@ Model* LoadModel(std::string const& path) {
     } else {
         newModel->m_Animations = nullptr;
 	}
-
-	
 
 	newModel->rootSkeletonNode = LoadSkeleton(scene);
 	newModel->m_FinalBoneMatrices = (glm::mat4*)malloc(100 * sizeof(glm::mat4));
@@ -152,9 +162,6 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	unsigned int* indices = (unsigned int*)malloc(numIndices * sizeof(unsigned int));
 
-	std::cout << "numVertices: " << numVertices << std::endl;
-        std::cout << "numIndices: " << numIndices << std::endl;
-
 	for (unsigned int i = 0; i < numVertices; ++i) {
 
 		VertexData vertexData;
@@ -193,8 +200,6 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
 
-	std::cout << " numTextures " << numTextures << std::endl;
-
     Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
 
 	loadMaterialTextures(textures, 0, numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
@@ -202,33 +207,7 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	loadMaterialTextures(textures, numDiffuse + numSpecular, numDiffuse + numSpecular + numHeight, material, aiTextureType_HEIGHT, "texture_normal");
 	loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numTextures, material, aiTextureType_AMBIENT, "texture_height");
 
-
-	
-
-
 	AssignBoneId(vertices, mesh, scene);
-
-	std::ofstream outputFile("C:/Users/tjalb/OneDrive/Documents/Output/assimp_viewer_output.txt");
-        if (!outputFile) {
-                std::cout << "Failed to open the file." << std::endl;
-        }
-
-        for (int i = 0; i < numVertices; ++i) {
-                outputFile << " " << std::endl;
-                outputFile << "Vertice " << i << std::endl;
-                outputFile << "{" << std::endl;
-                outputFile << "   Position: " << vertices[i].Position.x << ", " << vertices[i].Position.y << ", " << vertices[i].Position.z << std::endl;
-                outputFile << "     Normal: " << vertices[i].Normal.x << ", " << vertices[i].Normal.y << ", " << vertices[i].Normal.z << std::endl;
-                outputFile << "  TexCoords: " << vertices[i].TexCoords.x << ", " << vertices[i].TexCoords.y << std::endl;
-                outputFile << "    Tangent: " << vertices[i].Tangent.x << ", " << vertices[i].Tangent.y << ", " << vertices[i].Tangent.z << std::endl;
-                outputFile << "  Bitangent: " << vertices[i].Bitangent.x << ", " << vertices[i].Bitangent.y << ", " << vertices[i].Bitangent.z << std::endl;
-                outputFile << "  m_BoneIDs: [" << vertices[i].m_BoneIDs[0] << ", " << vertices[i].m_BoneIDs[1] << ", " << vertices[i].m_BoneIDs[2] << ", " << vertices[i].m_BoneIDs[3] << "]" << std::endl;
-                outputFile << "  m_Weights: [" << vertices[i].m_Weights[0] << ", " << vertices[i].m_Weights[1] << ", " << vertices[i].m_Weights[2] << ", " << vertices[i].m_Weights[3] << "]" << std::endl;
-                outputFile << "}" << std::endl;
-        }
-
-        outputFile.close();
-        std::cout << "Data saved to output.txt" << std::endl;
 
 	unsigned int VAO = LoadMeshVertexData(vertices, indices, numVertices, numIndices);
 
