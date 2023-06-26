@@ -380,6 +380,8 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 	for (unsigned int i = startIndex; i < numTextures; ++i) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
+
+		
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); ++j) {
@@ -394,6 +396,9 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 			Texture texture;
 			texture.id = TextureFromFile(str.C_Str(), directory);
 			texture.type = typeName;
+
+			std::cout << "texture path: " << str.C_Str() << std::endl;
+
 			texture.path = str.C_Str();
 			textures[i] = texture;
 			textures_loaded.push_back(texture); // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
@@ -436,8 +441,6 @@ void DrawModel(Model* model, unsigned int shaderID)
 		}
 
 		// draw mesh
-
-		std::cout << " *mesh.VAO: " << mesh.VAO << std::endl;
 
 		glBindVertexArray(mesh.VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.numIndices), GL_UNSIGNED_INT, 0);

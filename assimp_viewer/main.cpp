@@ -73,11 +73,8 @@ int main()
     unsigned int animShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
     unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
 
-    int frame = 0;
 
     while (!glfwWindowShouldClose(window)) {
-
-        std::cout << frame++ << std::endl;
 
         // per-frame time logic
         // --------------------
