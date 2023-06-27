@@ -16,6 +16,9 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{1ed05059-2bb6-41dc-8efc-76dbbe50e918}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{7c2f03b0-a749-4629-acdb-59e74098ba90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -65,5 +68,28 @@
     <ClInclude Include="..\include\log_file_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\grid.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\grid.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\4.2.texture.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\4.2.texture.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\anim_model.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\anim_model.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

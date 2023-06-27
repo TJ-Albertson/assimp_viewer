@@ -25,6 +25,7 @@
 #include <model.h>
 #include <shader_m.h>
 #include <animation.h>
+#include <grid.h>
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -61,13 +62,22 @@ int main()
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
     Model* container = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/models/container/container.dae");
 
+    unsigned int grid_VAO = LoadGrid();
+
     // unsigned int animShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
     // unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
 
     unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
     unsigned int modelShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/4.2.texture.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
 
+    unsigned int gridShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.vs", "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.fs");
+
     bool animationPlaying = false;
+
+    glm::vec3 axis = glm::vec3(1.0f, 0.0f, 0.0f); // Rotation axis (Z-axis in this case)
+    float angle = glm::radians(90.0f); // Rotation angle (90 degrees)
+
+    glm::quat rotation = glm::angleAxis(angle, axis);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -99,16 +109,35 @@ int main()
 
         // render
         // ------
-        glClearColor(1.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = GetViewMatrix(*PlayerCamera);
+
+
+        glUseProgram(gridShader);
+        setShaderMat4(gridShader, "projection", projection);
+        setShaderMat4(gridShader, "view", view);
+
+        glm::mat4 grid = glm::mat4(1.0f);
+        grid = glm::translate(grid, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        grid = glm::rotate(grid, angle, axis);
+        setShaderMat4(gridShader, "model", grid);
+        
+        setShaderVec4(gridShader, "clearColor", glm::vec4(1.05f, 0.05f, 0.05f, 1.0f));
+
+        glBindVertexArray(grid_VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         
         // don't forget to enable shader before setting uniforms
         glUseProgram(animShader);
 
-        // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = GetViewMatrix(*PlayerCamera);
+      
 
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
@@ -196,6 +225,8 @@ GLFWwindow* InitializeWindow()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+
 
 
     // ImGui initialization
