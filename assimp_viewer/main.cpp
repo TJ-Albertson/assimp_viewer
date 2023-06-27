@@ -30,6 +30,7 @@
 // settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
+const float RENDER_DISTANCE = 100.0f;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
@@ -79,6 +80,8 @@ int main()
 
     glm::quat rotation = glm::angleAxis(angle, axis);
 
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     while (!glfwWindowShouldClose(window)) {
 
         // per-frame time logic
@@ -114,7 +117,7 @@ int main()
 
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
 
@@ -122,15 +125,11 @@ int main()
         setShaderMat4(gridShader, "projection", projection);
         setShaderMat4(gridShader, "view", view);
 
-        glm::mat4 grid = glm::mat4(1.0f);
-        grid = glm::translate(grid, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        grid = glm::rotate(grid, angle, axis);
-        setShaderMat4(gridShader, "model", grid);
-        
-        setShaderVec4(gridShader, "clearColor", glm::vec4(1.05f, 0.05f, 0.05f, 1.0f));
+        //setShaderMat4(gridShader, "model", grid);
 
         glBindVertexArray(grid_VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 3);
         glBindVertexArray(0);
 
         
