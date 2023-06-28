@@ -51,33 +51,24 @@ Camera* PlayerCamera;
 
 int main()
 {
-    // "C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae"
-    // "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae"
-
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-    /*
-    Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
-    Model* container = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/models/container/container.dae");
-    unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
-    unsigned int modelShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/4.2.texture.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
-    unsigned int gridShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.vs", "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.fs");
-    */
-
     unsigned int grid_VAO = LoadGrid();
 
-    Model* vampire   = LoadModel("C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae");
-    Model* container = LoadModel("C:/Users/tjalb/source/repos/game/resources/models/container/container.dae");
+    Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
    
-    unsigned int animShader  = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.vs",  "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.fs");
-    unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.fs");
+    unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
+    unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
 
-    unsigned int gridShader  = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/grid.vs", "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/grid.fs");
+    unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
 
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -278,5 +269,21 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 std::string filepath(std::string path)
 {
     std::filesystem::path currentDir = std::filesystem::current_path();
-    return currentDir.string().append(path);
+
+    std::string projectPath = currentDir.string();
+
+    for (char& c : projectPath) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+
+    std::string toRemove = "/assimp_viewer";
+
+    size_t pos = projectPath.rfind(toRemove);
+    if (pos != std::string::npos) {
+        projectPath.erase(pos, toRemove.length());
+    }
+ 
+    return projectPath.append(path);
 }

@@ -31,7 +31,7 @@ Functions:
 
 #include <animation.h>
 #include <skeleton.h>
-#include <scene.h>
+//#include <scene.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -99,6 +99,12 @@ Model* LoadModel(std::string const& path) {
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	{
+		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+		return NULL;
+	}
+
 
 	Model* newModel = (Model*)malloc(sizeof(Model));
 

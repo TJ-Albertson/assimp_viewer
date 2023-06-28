@@ -1,0 +1,54 @@
+environment
+	position: static
+	animation: static or dynamic
+	collision: yes or no
+	
+
+enemies
+
+npc
+
+interactable physics objects
+
+
+
+environment:
+	base ground/wall:
+		position: static
+		animated: no
+		collision-det: yes
+
+	grass:
+		position: static
+		animated: yes
+		collision-det: yes
+
+	common light sources:
+		position: static
+		animated: no
+		collision-det: no
+
+	
+player:
+	walk/run  2D analog movement x-z plane
+	jump      1D digital movement y plane
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Vertex contains boneID and WEIGHT
+
+ANIMATION DATA IS BONE TRANSLATION/ROTATION/SCALE and TIME
+
+	
