@@ -3,10 +3,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -26,6 +22,7 @@
 #include <shader_m.h>
 #include <animation.h>
 #include <grid.h>
+#include <gui.h>
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -39,7 +36,7 @@ bool firstMouse = true;
 
 // timing
 float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+float previousTime;
 
 GLFWwindow* InitializeWindow();
 
@@ -60,83 +57,63 @@ int main()
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
+    /*
     Model* vampire = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/objects/vampire/dancing_vampire.dae");
     Model* container = LoadModel("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/models/container/container.dae");
+    unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
+    unsigned int modelShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/4.2.texture.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
+    unsigned int gridShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.vs", "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.fs");
+    */
 
     unsigned int grid_VAO = LoadGrid();
 
-    // unsigned int animShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
-    // unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/game/resources/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/game/resources/shaders/anim_model.fs");
+    Model* vampire   = LoadModel("C:/Users/tjalb/source/repos/game/resources/objects/vampire/dancing_vampire.dae");
+    Model* container = LoadModel("C:/Users/tjalb/source/repos/game/resources/models/container/container.dae");
+   
+    unsigned int animShader  = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.vs",  "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.fs");
+    unsigned int modelShader = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/4.2.texture.vs", "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/anim_model.fs");
 
-    unsigned int animShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
-    unsigned int modelShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/4.2.texture.vs", "C:/Users/tj.albertson.C-P-U/source/repos/TJ-Albertson/game/resources/shaders/anim_model.fs");
+    unsigned int gridShader  = createShader("C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/grid.vs", "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/shaders/grid.fs");
 
-    unsigned int gridShader = createShader("C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.vs", "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/shaders/grid.fs");
-
-    bool animationPlaying = false;
-
-    glm::vec3 axis = glm::vec3(1.0f, 0.0f, 0.0f); // Rotation axis (Z-axis in this case)
-    float angle = glm::radians(90.0f); // Rotation angle (90 degrees)
-
-    glm::quat rotation = glm::angleAxis(angle, axis);
-
+    // Wireframe mode
+    // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    
     while (!glfwWindowShouldClose(window)) {
 
         // per-frame time logic
         // --------------------
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        float currentTime = glfwGetTime();
+        deltaTime = currentTime - previousTime;
+        previousTime = currentTime;
 
         // input
         // -----
         processInput(window, PlayerCamera);
-       
-
-        // imgui
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::Begin("ImGui Window");
-        if (ImGui::Button("Play Animation"))
-        {
-            animationPlaying = !animationPlaying;
-        }
-        ImGui::End();
-
-        ImGui::Render();
-
+      
+        //imgui
+        Main_GUI_Loop(currentTime);
 
         // render
         // ------
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
-
+        // draw grid with instance array
         glUseProgram(gridShader);
         setShaderMat4(gridShader, "projection", projection);
         setShaderMat4(gridShader, "view", view);
-
-        //setShaderMat4(gridShader, "model", grid);
-
         glBindVertexArray(grid_VAO);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 3);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
 
         
-        // don't forget to enable shader before setting uniforms
         glUseProgram(animShader);
-
-      
 
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
@@ -145,7 +122,6 @@ int main()
             AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
         }
         
-
         for (int i = 0; i < 100; ++i)
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
 
@@ -156,24 +132,22 @@ int main()
 
         DrawModel(vampire, animShader);
 
-        //std::cout << "PlayerCamera->Front.x: " << PlayerCamera->Front.x << std::endl;
+
+
         glUseProgram(modelShader);
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(container, modelShader);
 
 
-
-
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -226,9 +200,8 @@ GLFWwindow* InitializeWindow()
     glEnable(GL_DEPTH_TEST);
 
 
-
-
     // ImGui initialization
+    // -----------------------------
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -253,7 +226,6 @@ void processInput(GLFWwindow* window, Camera* camera)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         CameraProcessKeyboard(camera, FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

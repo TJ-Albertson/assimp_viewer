@@ -1,31 +1,36 @@
-#ifndef GRID
-#define GRID
+#ifndef GRID_H
+#define GRID_H
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 float vertices[] = {
-    -10.0f,  10.0f,   // Bottom-left vertex
-     10.0f, -10.0f,   // Bottom-right vertex
+    -10.0f, 10.0f, // Bottom-left vertex
+    10.0f, -10.0f, // Bottom-right vertex
     -10.0f, -10.0f,
 
-    -10.0f,  10.0f,    // Top-left vertex
-     10.0f, -10.0f,   // Bottom-right vertex
-     10.0f,  10.0f,    // Top-right vertex
-    
+    -10.0f, 10.0f, // Top-left vertex
+    10.0f, -10.0f, // Bottom-right vertex
+    10.0f, 10.0f, // Top-right vertex
 };
 
-unsigned int LoadGrid() {
+unsigned int LoadGrid()
+{
+    const int numRows = 5;
+    const int numCols = 5;
+    glm::vec2 translations[numRows * numCols * 4];
 
-    glm::vec2 translations[5];
-
-    float offset = 0.0f;
-    for (int i = 0; i < 5; i++) {
-        translations[i] = glm::vec2(offset, 0.0f);
-        offset += 25.0f;
+    int index = 0;
+    for (int row = -5; row < numRows; row++) {
+        for (int col = -5; col < numCols; col++) {
+            translations[index] = glm::vec2(row * 10.0f, col * 10.0f);
+            index++;
+        }
     }
 
-    unsigned int  VAO, VBO, instanceVBO;
+    // std::cout << "index: " << index << std::endl;
+
+    unsigned int VAO, VBO, instanceVBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -52,58 +57,5 @@ unsigned int LoadGrid() {
 
     return VAO;
 }
-
-/*
-
-#version 330 core
-
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec2 offset;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-out vec2 texCoord;
-
-void main()
-{
-    vec2 newPosition = vec2(position.x + offset.x, position.y + offset.y);
-
-    gl_Position = projection * view * vec4(position.x + offset.x, 0.0, position.y + offset.y, 1.0);
-    texCoord = newPosition * 0.5 + 0.5;
-}
-
-
-
-
-
-
-#version 330 core
-
-layout (location = 0) in vec2 position;
-
-uniform mat4 view;
-uniform mat4 projection;
-
-out vec2 texCoord;
-
-void main()
-{
-
-    gl_Position = projection * view * vec4(position.x, 0.0, position.y, 1.0);
-    texCoord = position * 0.5 + 0.5;
-}
-
-
-
-
-
-
-*/
-
-
-
-
 
 #endif // !GRID

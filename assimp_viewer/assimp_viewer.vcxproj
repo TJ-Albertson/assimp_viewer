@@ -148,8 +148,10 @@
     <ClInclude Include="..\include\bone_animation.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\grid.h" />
+    <ClInclude Include="..\include\gui.h" />
     <ClInclude Include="..\include\log_file_functions.h" />
     <ClInclude Include="..\include\model.h" />
+    <ClInclude Include="..\include\scene.h" />
     <ClInclude Include="..\include\skeleton.h" />
   </ItemGroup>
   <ItemGroup>

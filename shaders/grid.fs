@@ -1,6 +1,6 @@
 #version 330 core
 
-const float N = 75.0; // grid ratio
+const float N = 80.0; // grid ratio
 in vec2 texCoord;
 
 out vec4 fragColor;

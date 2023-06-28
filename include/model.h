@@ -31,6 +31,7 @@ Functions:
 
 #include <animation.h>
 #include <skeleton.h>
+#include <scene.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -100,8 +101,13 @@ Model* LoadModel(std::string const& path) {
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
 	Model* newModel = (Model*)malloc(sizeof(Model));
+
+	size_t lastSlashPos = path.find_last_of('/');
+    std::string substring = path.substr(lastSlashPos + 1);
+    size_t dotPos = substring.find('.');
+	std::string nameFromPath = substring.substr(0, dotPos);
 	
-	newModel->m_Name = nullptr;
+	newModel->m_Name = nameFromPath.c_str();
 
 	newModel->m_NumMeshes = scene->mNumMeshes;
 	newModel->m_Meshes = (Mesh*)malloc(scene->mNumMeshes * sizeof(Mesh));
@@ -124,6 +130,8 @@ Model* LoadModel(std::string const& path) {
 	directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene, newModel);
+
+	
 
 	return newModel;
 }
@@ -255,9 +263,7 @@ void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene)
 
 unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
 {
-    unsigned int VAO;
-
-	unsigned int VBO, EBO;
+	unsigned int VAO, VBO, EBO;
 
 	// initializes all the buffer objects/arrays
 	// now that we have all the required data, set the vertex buffers and its attribute pointers.
@@ -301,16 +307,6 @@ unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int
 	glEnableVertexAttribArray(6);
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, m_Weights));
 	glBindVertexArray(0);
-
-	std::ofstream outputFile("C:/Users/tjalb/OneDrive/Documents/Output/assimp_viewer_VAO_output.txt");
-        if (!outputFile) {
-                std::cout << "Failed to open the file." << std::endl;
-        }
-
-        outputFile << "VAO: " << VAO << std::endl;
-
-        outputFile.close();
-        std::cout << "Data saved to assimp_viewer_VAO_output.txt" << std::endl;
 
 	return VAO;
 }
@@ -363,14 +359,10 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		std::cout << "texture path: " << str.C_Str() << std::endl;
 		
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); ++j) {
-
-			std::cout << "textures_loaded[j].path: " << textures_loaded[j].path << std::endl;
-
 			if (std::strcmp(textures_loaded[j].path, str.C_Str()) == 0) {
 				textures[i] = textures_loaded[j];
 				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -382,9 +374,6 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 			Texture texture;
 			texture.id = TextureFromFile(str.C_Str(), directory);
 			texture.type = typeName;
-
-			
-
 			texture.path = str.C_Str();
 			textures[i] = texture;
 			textures_loaded.push_back(texture); // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
