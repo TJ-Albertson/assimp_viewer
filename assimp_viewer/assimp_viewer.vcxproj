@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\include;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\include;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\include\imgui;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\lib\x64\GLFW;C:\Users\tj.albertson.C-P-U\source\repos\assimp_viewer\lib\x64\;C:\Users\tjalb\source\repos\TJ-Albertson\assimp_viewer\lib\x64\assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);assimp.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);assimp.lib;glfw3.lib;nfd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,7 +134,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\include\imgui\imgui.cpp" />
-    <ClCompile Include="..\include\imgui\ImGuiFileDialog.cpp" />
     <ClCompile Include="..\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\include\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\include\imgui\imgui_impl_glfw.cpp" />
