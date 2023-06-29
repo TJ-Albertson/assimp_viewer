@@ -31,7 +31,7 @@ Functions:
 
 #include <animation.h>
 #include <skeleton.h>
-#include <scene.h>
+
 
 struct VertexData {
 	glm::vec3 Position;
@@ -131,7 +131,6 @@ Model* LoadModel(std::string const& path) {
 
 	processNode(scene->mRootNode, scene, newModel);
 
-	
 
 	return newModel;
 }
