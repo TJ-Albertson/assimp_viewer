@@ -22,11 +22,15 @@ void playAnimationButton()
 	ImGui::End();
 }
 
-void DrawTree(const SceneNode& node)
+void DrawTree(const SceneNode* node)
 {
-	for (const auto& child : node.children)
-		DrawTree(child);
+	ImGui::TreeNode(node->name);
 
+		for (int i = 0; i < node->numChildren; ++i)
+			DrawTree(node->children[i]);
+
+	for (const auto& child : node.children)
+		
 }
 
 void DrawRoot(const RootSceneNode& Node) {
