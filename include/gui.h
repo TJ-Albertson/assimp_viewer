@@ -45,6 +45,51 @@ void LoadFile()
     ImGui::End();
 }
 
+void SceneWindow() {
+    bool my_tool_active = true;
+    // Create a window called "My First Tool", with a menu bar.
+    ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Open..", "Ctrl+O")) { 
+
+                nfdchar_t* outPath = NULL;
+                nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+                if (result == NFD_OKAY) {
+
+                    puts("Success!");
+                    puts(outPath);
+                    std::cout << "Path: " << outPath << std::endl;
+
+
+                    free(outPath);
+                }
+                else if (result == NFD_CANCEL) {
+                    puts("User pressed cancel.");
+                }
+                else {
+                    printf("Error: %s\n", NFD_GetError());
+                }
+            }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    // Display contents in a scrolling region
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+    ImGui::BeginChild("Scrolling");
+    for (int n = 0; n < 10; n++)
+        ImGui::Text("Model.%04d: Some text", n);
+    ImGui::EndChild();
+    ImGui::End();
+}
+
 void Main_GUI_Loop(double time)
 {
     double currentTime = time;
@@ -67,6 +112,7 @@ void Main_GUI_Loop(double time)
     ImGui::Text("FPS %d", fps);
 
     playAnimationButton();
+    SceneWindow();
 
     LoadFile();
 

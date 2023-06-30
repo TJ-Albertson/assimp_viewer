@@ -61,7 +61,7 @@ struct Mesh {
 };
 
 struct Model {
-	const char* m_Name;
+	char* m_Name;
 
 	int m_NumMeshes;
 	Mesh* m_Meshes;
@@ -113,7 +113,13 @@ Model* LoadModel(std::string const& path) {
     size_t dotPos = substring.find('.');
 	std::string nameFromPath = substring.substr(0, dotPos);
 	
-	newModel->m_Name = nameFromPath.c_str();
+
+	newModel->m_Name = (char*)malloc(nameFromPath.size() * sizeof(char));
+
+	std::strcpy(newModel->m_Name, nameFromPath.c_str());
+
+
+	//std::cout << "Model Name: " << newModel->m_Name << std::endl;
 
 	newModel->m_NumMeshes = scene->mNumMeshes;
 	newModel->m_Meshes = (Mesh*)malloc(scene->mNumMeshes * sizeof(Mesh));
@@ -136,7 +142,6 @@ Model* LoadModel(std::string const& path) {
 	directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene, newModel);
-
 
 	return newModel;
 }

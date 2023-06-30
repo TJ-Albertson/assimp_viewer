@@ -3,6 +3,7 @@
 
 #include <skeleton.h>
 #include <model.h>
+#include <scene_graph.h>
 
 void LogVertices(int numVertices, VertexData* vertices);
 
@@ -75,6 +76,25 @@ void LogSkeletonNodeHiearchy(SkeletonNode* node) {
 
     outputFile.close();
     std::cout << "Data saved to /assimp_viewer_skeleton.txt" << std::endl;
+}
+
+
+void PrintChildrenNodes(SceneNode* node) {
+
+    std::cout << "NodeName: " << node->name << std::endl;
+
+    for (int i = 0; i < node->numChildren; i++)
+        PrintChildrenNodes(&node->children[i]);
+
+}
+
+void PrintSceneHierarchy(RootSceneNode* rootNode) {
+
+    std::cout << "NodeName: " << rootNode->name << std::endl;
+    std::cout << "      Children: " << rootNode->numChildren << std::endl;
+
+    for (int i = 0; i < rootNode->numChildren; i++)
+        PrintChildrenNodes(&rootNode->children[i]);
 }
 
 
