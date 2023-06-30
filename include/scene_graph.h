@@ -66,7 +66,6 @@ void SearchForParentNode(SceneNode* node, int parentId, Model* model) {
             newArray[newSize].children = (SceneNode*)malloc(sizeof(SceneNode));
 
             node->children = newArray;
-
         }
     }
     else {
@@ -85,7 +84,7 @@ void AddNodeToScene(const int parentId, Model* model) {
             SceneNode newNode;
 
             newNode.name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            std::strcpy(newNode.name, model->m_Name);
+            strcpy(newNode.name, model->m_Name);
            
             newNode.id = 1;
             newNode.model = model;
@@ -97,22 +96,20 @@ void AddNodeToScene(const int parentId, Model* model) {
         }
         else {
 
-            int newSize = rootNode->numChildren++;
-            SceneNode* newArray = (SceneNode*)malloc(newSize * sizeof(SceneNode));
+            int newSize = rootNode->numChildren + 1;
 
-            for (int i = 0; i < newSize; i++) {
-                newArray[i] = rootNode->children[i];
-            }
+            SceneNode* new_array = (SceneNode*)realloc(rootNode->children, newSize * sizeof(SceneNode));
 
-            newArray[newSize].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            std::strcpy(newArray[newSize].name, model->m_Name);
+            new_array[newSize - 1].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
+            strcpy(new_array[newSize - 1].name, model->m_Name);
 
-            newArray[newSize].id = 1;
-            newArray[newSize].model = model;
-            newArray[newSize].numChildren = 0;
-            newArray[newSize].children = (SceneNode*)malloc(sizeof(SceneNode));
-
-            rootNode->children = newArray;
+            new_array[newSize - 1].id = 1;
+            new_array[newSize - 1].model = model;
+            new_array[newSize - 1].numChildren = 0;
+            new_array[newSize - 1].children = (SceneNode*)malloc(sizeof(SceneNode));
+            
+            rootNode->children = new_array;
+            rootNode->numChildren++;
         }
     }
     else {
