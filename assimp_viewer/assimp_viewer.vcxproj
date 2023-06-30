@@ -151,8 +151,9 @@
     <ClInclude Include="..\include\gui.h" />
     <ClInclude Include="..\include\log_file_functions.h" />
     <ClInclude Include="..\include\model.h" />
-    <ClInclude Include="..\include\scene.h" />
+    <ClInclude Include="..\include\scene_graph.h" />
     <ClInclude Include="..\include\skeleton.h" />
+    <ClInclude Include="..\include\test.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\4.2.texture.fs" />

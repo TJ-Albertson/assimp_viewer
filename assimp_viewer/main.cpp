@@ -24,6 +24,9 @@
 #include <grid.h>
 #include <gui.h>
 
+#include <scene_graph.h>
+#include <log_file_functions.h>
+
 // settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
@@ -54,10 +57,17 @@ int main()
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
+    InitSceneNode();
+
     unsigned int grid_VAO = LoadGrid();
 
     Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    AddNodeToScene(0, vampire);
+
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
+    AddNodeToScene(0, container);
+
+    PrintSceneHierarchy(rootNode);
    
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
@@ -67,8 +77,6 @@ int main()
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    
     
     while (!glfwWindowShouldClose(window)) {
 
