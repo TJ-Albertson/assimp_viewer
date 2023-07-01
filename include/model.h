@@ -136,12 +136,13 @@ Model* LoadModel(std::string const& path) {
 	newModel->m_FinalBoneMatrices = (glm::mat4*)malloc(100 * sizeof(glm::mat4));
 
 	for (int i = 0; i < 100; ++i) {
-            newModel->m_FinalBoneMatrices[i] = glm::mat4(1.0f);
+		newModel->m_FinalBoneMatrices[i] = glm::mat4(1.0f);
 	}
 
 	directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene, newModel);
+
 
 	return newModel;
 }
@@ -150,6 +151,8 @@ void processNode(aiNode* node, const aiScene* scene, Model* model) {
 
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+
 		model->m_Meshes[i] = processMesh(mesh, scene);
 	}
 
@@ -176,11 +179,11 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	
 	int numIndices = 0;
     for (int i = 0; i < numFaces; ++i)
-		numIndices += 3;
+		numIndices += mesh->mFaces[i].mNumIndices;
 
 	unsigned int* indices = (unsigned int*)malloc(numIndices * sizeof(unsigned int));
 
-	for (unsigned int i = 0; i < numVertices; ++i) {
+	for (unsigned int i = 0; i < numVertices; i++) {
 
 		VertexData vertexData;
 
@@ -237,15 +240,14 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene) 
 {
-	// each bone
 	for (int i = 0; i < mesh->mNumBones; ++i) {
 
 		aiBone* bone = mesh->mBones[i];
 		
-		unsigned int boneID = -1;
+		int boneID = -1;
 		std::string boneName = bone->mName.C_Str();
 
-		if (BoneMap[boneName].ID) {
+		if (BoneMap.find(boneName) != BoneMap.end()) {
 			boneID = BoneMap[boneName].ID;
 		}
 

@@ -64,8 +64,8 @@ int main()
     Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
     AddNodeToScene(0, vampire);
 
-    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
-    AddNodeToScene(0, container);
+    //Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
+    //AddNodeToScene(0, container);
 
     PrintSceneHierarchy(rootNode);
    
@@ -141,7 +141,7 @@ int main()
         model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(container, modelShader);
+        //DrawModel(container, modelShader);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

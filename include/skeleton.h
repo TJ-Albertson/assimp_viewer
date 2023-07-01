@@ -66,7 +66,9 @@ SkeletonNode* LoadSkeleton(const aiScene* scene)
 
     BoneCheckRoot(scene->mRootNode, scene);
 
-    SkeletonNode* skeletonRootNode = CopyNodeTree(scene->mRootNode);    
+    SkeletonNode* skeletonRootNode = CopyNodeTree(scene->mRootNode);  
+
+     
 
     return skeletonRootNode;
 }
