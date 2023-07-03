@@ -28,8 +28,8 @@
 #include <log_file_functions.h>
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 const float RENDER_DISTANCE = 100.0f;
 
 // camera
@@ -61,8 +61,8 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
-    AddNodeToScene(0, vampire);
+    //Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    //AddNodeToScene(0, vampire);
 
     //Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     //AddNodeToScene(0, container);

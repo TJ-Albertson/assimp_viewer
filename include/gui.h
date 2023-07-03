@@ -53,6 +53,11 @@ void SceneWindow()
                     puts("Success!");
                     puts(outPath);
                     std::cout << "Path: " << outPath << std::endl;
+
+
+                    Model* vampire = LoadModel(outPath);
+                    AddNodeToScene(0, vampire);
+
                     free(outPath);
                 } else if (result == NFD_CANCEL) {
                     puts("User pressed cancel.");
