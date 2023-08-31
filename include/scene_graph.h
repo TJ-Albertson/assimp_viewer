@@ -8,12 +8,22 @@ Plan for this to hold scene children in set of nodes
 #define SCENE_GRAPH_H
 
 #include <model.h>;
+#include <glm/gtc/matrix_transform.hpp>
+
+struct Orientation {
+    glm::vec3 m_Pos = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Rot = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
+};
 
 struct SceneNode {
     char* name;
     int id;
 
     Model* model;
+    unsigned int shaderID;
+    Orientation* orientation;
+
 
     int numChildren;
     SceneNode* children;
@@ -28,7 +38,9 @@ struct RootSceneNode {
 
 RootSceneNode* rootNode;
 
+void InitSceneNode();
 void SearchForParentNode(SceneNode* node, int parentId, Model* model);
+void AddNodeToScene(const int parentId, Model* model);
 
 //change to allocate scene space 10 at a time
 void InitSceneNode()
@@ -118,8 +130,51 @@ void AddNodeToScene(const int parentId, Model* model) {
     }
 }
 
+void LoadSceneModels() {
 
+}
 
+void DrawScene() {
+
+    glm::mat4 matrix = glm::mat4(1.0f);
+    
+    for (int i = 0; i < rootNode->numChildren; ++i) {
+        DrawSceneNode(rootNode->children[i], matrix);
+    }
+}
+
+void DrawSceneNode(SceneNode node, glm::mat4 parentTransform) {
+
+    glm::vec3 position = node.orientation->m_Pos;
+    glm::vec3 rotation = node.orientation->m_Rot;
+    glm::vec3 scale    = node.orientation->m_Scale;
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    glUseProgram(node.shaderID);
+
+    //model = glm::translate(model, node.orientation->m_Pos);
+    //model = glm::scale(model, node.orientation->m_Scale);
+    //model = glm::rotate(model, node.orientation->m_Rot);
+
+    const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Y * X * Z
+    const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
+
+    // translation * rotation * scale (also know as TRS matrix)
+    model = glm::translate(glm::mat4(1.0f), position) * rotationMatrix * glm::scale(glm::mat4(1.0f), scale);
+
+    setShaderMat4(node.shaderID, "model", model);
+
+    DrawModel(node.model, node.shaderID);
+    
+    for (int i = 0; i < node.numChildren; ++i) {
+        DrawSceneNode(node.children[i], model);
+    }
+}
 
 
 #endif

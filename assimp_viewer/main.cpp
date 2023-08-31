@@ -113,7 +113,8 @@ int main()
 
         
         glUseProgram(animShader);
-
+        
+        // (shader, uniformName, value)
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
         
