@@ -28,8 +28,8 @@
 #include <log_file_functions.h>
 
 // settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 720;
 const float RENDER_DISTANCE = 100.0f;
 
 // camera
@@ -61,11 +61,11 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    //Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
-    //AddNodeToScene(0, vampire);
+    Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    AddNodeToScene(0, vampire);
 
-    //Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
-    //AddNodeToScene(0, container);
+    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
+    AddNodeToScene(0, container);
 
     PrintSceneHierarchy(rootNode);
    
@@ -125,7 +125,7 @@ int main()
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(.5f, .5f, .5f)); // it's a bit too big for our scene, so scale it down
         setShaderMat4(animShader, "model", model);
 

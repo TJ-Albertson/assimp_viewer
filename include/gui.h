@@ -40,7 +40,7 @@ void SceneWindow()
 {
     bool my_tool_active = true;
 
-    ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+    ImGui::Begin("Menu", &my_tool_active, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open..", "Ctrl+O")) {
