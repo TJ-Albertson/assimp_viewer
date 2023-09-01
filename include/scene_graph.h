@@ -165,6 +165,7 @@ void AddChildNode(SceneNode* parentNode, SceneNode newNode)
     parentNode->numChildren = newSize;
 }
 
+// pass parent id and node data. will add as child to parent with parent id
 void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Orientation* orientation)
 {
     SceneNode newNode;
@@ -173,6 +174,7 @@ void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Ori
     newNode.id = 1;
     newNode.model = model;
     newNode.shaderID = shaderID;
+    newNode.orientation = orientation;
     newNode.numChildren = 0;
     newNode.children = NULL; // Initialize to NULL, will allocate as needed
 
