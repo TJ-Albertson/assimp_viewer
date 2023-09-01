@@ -74,8 +74,15 @@ int main()
     Model* vampire = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
     AddNodeToScene(0, vampire, animShader);
 
+
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
+
+    Model* skybox = LoadModel(filepath("/resources/models/skybox/skybox.obj"));
+    AddNodeToScene(0, skybox, modelShader);
+
+    //Model* backpack = LoadModel(filepath("resources/objects/cyborg/cyborg.obj"));
+   // AddNodeToScene(0, backpack, modelShader);
 
     // Wireframe mode
     // --------------------
@@ -129,8 +136,8 @@ int main()
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(.5f, .5f, .5f)); // it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); 
+        model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
@@ -141,13 +148,44 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
+
+
+
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(10.0f, 0.0f, 10.0f));
         model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
         setShaderMat4(modelShader, "model", model);
-        //DrawModel(container, modelShader);
+        DrawModel(container, modelShader);
 
-        DrawScene();
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-10.0f, 5.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(skybox, modelShader);
+
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(vampire, modelShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(vampire, modelShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+        setShaderMat4(modelShader, "model", model);
+        //DrawModel(backpack, modelShader);
+
+        //DrawScene();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
