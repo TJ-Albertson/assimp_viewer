@@ -78,7 +78,7 @@ int main()
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
 
-    Model* skybox = LoadModel(filepath("/resources/models/skybox/skybox.obj"));
+    Model* skybox = LoadModel(filepath("/resources/models/skybox/skybox2.dae"));
     AddNodeToScene(0, skybox, modelShader);
 
     //Model* backpack = LoadModel(filepath("resources/objects/cyborg/cyborg.obj"));
