@@ -56,7 +56,7 @@ void SceneWindow()
 
 
                     Model* vampire = LoadModel(outPath);
-                    AddNodeToScene(0, vampire);
+                    AddNodeToScene(0, vampire, 0);
 
                     free(outPath);
                 } else if (result == NFD_CANCEL) {

@@ -40,7 +40,9 @@ RootSceneNode* rootNode;
 
 void InitSceneNode();
 void SearchForParentNode(SceneNode* node, int parentId, Model* model);
-void AddNodeToScene(const int parentId, Model* model);
+void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID);
+void DrawScene();
+void DrawSceneNode(SceneNode node, glm::mat4 parentTransform);
 
 //change to allocate scene space 10 at a time
 void InitSceneNode()
@@ -86,7 +88,8 @@ void SearchForParentNode(SceneNode* node, int parentId, Model* model) {
     }
 }
 
-void AddNodeToScene(const int parentId, Model* model) {
+void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID)
+{
 
     bool parentIsRoot = (parentId == 0);
 
@@ -101,6 +104,7 @@ void AddNodeToScene(const int parentId, Model* model) {
             newNode.id = 1;
             newNode.model = model;
             newNode.numChildren = 0;
+            newNode.shaderID = shaderID;
             newNode.children = (SceneNode*)malloc(sizeof(SceneNode));
 
             rootNode->children[0] = newNode;
@@ -112,11 +116,13 @@ void AddNodeToScene(const int parentId, Model* model) {
 
             SceneNode* new_array = (SceneNode*)realloc(rootNode->children, newSize * sizeof(SceneNode));
 
+
             new_array[newSize - 1].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
             strcpy(new_array[newSize - 1].name, model->m_Name);
 
             new_array[newSize - 1].id = 1;
             new_array[newSize - 1].model = model;
+            new_array[newSize - 1].shaderID = shaderID;
             new_array[newSize - 1].numChildren = 0;
             new_array[newSize - 1].children = (SceneNode*)malloc(sizeof(SceneNode));
             
@@ -129,6 +135,60 @@ void AddNodeToScene(const int parentId, Model* model) {
             SearchForParentNode(&rootNode->children[i], parentId, model);
     }
 }
+
+
+void FindParentNode(SceneNode* node, int parentId, SceneNode newNode)
+{
+    if (node->id == parentId) {
+        AddChildNode(node, newNode);
+    }
+
+    for (int i = 0; i < node->numChildren; i++) {
+        FindParentNode(&node->children[i], parentId, newNode);
+    }
+}
+
+void AddChildNodeRoot(RootSceneNode* parentNode, SceneNode newNode) { }
+
+void AddChildNode(SceneNode* parentNode, SceneNode newNode)
+{
+    int newSize = parentNode->numChildren + 1;
+
+    SceneNode* new_array = (SceneNode*)realloc(parentNode->children, newSize * sizeof(SceneNode));
+    if (new_array == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+
+    new_array[newSize - 1] = newNode;
+    parentNode->children = new_array;
+    parentNode->numChildren = newSize;
+}
+
+void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Orientation* orientation)
+{
+    SceneNode newNode;
+    newNode.name = (char*)malloc(strlen(model->m_Name) + 1); // +1 for null-terminator
+    strcpy(newNode.name, model->m_Name);
+    newNode.id = 1;
+    newNode.model = model;
+    newNode.shaderID = shaderID;
+    newNode.numChildren = 0;
+    newNode.children = NULL; // Initialize to NULL, will allocate as needed
+
+    if (parentId == 0) {
+        AddChildNodeRoot(rootNode, newNode);
+    } else {
+        for (int i = 0; i < rootNode->numChildren; i++) {
+            FindParentNode(&rootNode->children[i], parentId, newNode);
+        }
+    }
+}
+
+
+
+
+
 
 void LoadSceneModels() {
 

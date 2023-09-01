@@ -61,11 +61,7 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    Model* vampire   = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
-    AddNodeToScene(0, vampire);
-
-    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
-    AddNodeToScene(0, container);
+    
 
     PrintSceneHierarchy(rootNode);
    
@@ -73,6 +69,13 @@ int main()
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
 
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
+
+
+    Model* vampire = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    AddNodeToScene(0, vampire, animShader);
+
+    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
+    AddNodeToScene(0, container, modelShader);
 
     // Wireframe mode
     // --------------------
@@ -130,7 +133,7 @@ int main()
         model = glm::scale(model, glm::vec3(.5f, .5f, .5f)); // it's a bit too big for our scene, so scale it down
         setShaderMat4(animShader, "model", model);
 
-        DrawModel(vampire, animShader);
+        //DrawModel(vampire, animShader);
 
 
 
@@ -143,6 +146,8 @@ int main()
         model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
         setShaderMat4(modelShader, "model", model);
         //DrawModel(container, modelShader);
+
+        DrawScene();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
