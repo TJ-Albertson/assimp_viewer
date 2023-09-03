@@ -7,6 +7,11 @@
 
 #include <vector>
 
+enum Camera_Type {
+	FREE,
+	THIRDPERSON
+};
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
 	FORWARD,
@@ -37,9 +42,12 @@ struct Camera {
 	float MovementSpeed;
 	float MouseSensitivity;
 	float Zoom;
+
+	Camera_Type Type;
 };
 
-
+glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::float32_t playerRotation = 90.0f;
 
 
 
@@ -80,6 +88,8 @@ Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pi
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
+		camera->Type = FREE;
+
         updateCameraVectors(camera);
 
         return camera;
@@ -100,6 +110,8 @@ Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float 
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
+		camera->Type = FREE;
+
         updateCameraVectors(camera);
 
         return camera;
@@ -114,15 +126,51 @@ glm::mat4 GetViewMatrix(const Camera camera)
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float deltaTime)
 {
-	float velocity = camera->MovementSpeed * deltaTime;
-	if (direction == FORWARD)
-		camera->Position += camera->Front * velocity;
-	if (direction == BACKWARD)
-		camera->Position -= camera->Front * velocity;
-	if (direction == LEFT)
-		camera->Position -= camera->Right * velocity;
-	if (direction == RIGHT)
-		camera->Position += camera->Right * velocity;
+        if (camera->Type == FREE) {
+            float velocity = camera->MovementSpeed * deltaTime;
+            if (direction == FORWARD)
+                camera->Position += camera->Front * velocity;
+            if (direction == BACKWARD)
+                camera->Position -= camera->Front * velocity;
+            if (direction == LEFT)
+                camera->Position -= camera->Right * velocity;
+            if (direction == RIGHT)
+                camera->Position += camera->Right * velocity;
+
+        } else if (camera->Type == THIRDPERSON) {
+            float velocity = camera->MovementSpeed * deltaTime;
+
+			glm::vec3 camForward = camera->Position - playerPosition;
+            camForward = normalize(camForward);
+            glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
+
+            if (direction == FORWARD) {
+                playerPosition -= camForward;
+                if (playerRotation < 90.0f)
+                    playerRotation += 3;
+                if (playerRotation > 90.0f)
+                    playerRotation -= 3;
+            }
+                
+                if (direction == BACKWARD) {
+                playerPosition += camForward;
+                if (playerRotation < 180.0f)
+                    playerRotation += 3;
+                if (playerRotation > 180.0f)
+                    playerRotation -= 3;
+                }
+                
+            if (direction == LEFT)
+                playerPosition += camRight;
+            if (direction == RIGHT)
+                    playerPosition -= camRight;
+              
+
+			camera->Position.x = playerPosition.x;
+            camera->Position.y = playerPosition.y + 50;
+            camera->Position.z = playerPosition.z - 50;
+
+		}
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -159,15 +207,68 @@ void CameraProcessMouseScroll(Camera* camera, float yoffset)
 // calculates the front vector from the Camera's (updated) Euler Angles
 void updateCameraVectors(Camera* camera)
 {
-	// calculate the new Front vector
-	glm::vec3 front;
-	front.x = cos(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
-	front.y = sin(glm::radians(camera->Pitch));
-	front.z = sin(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
-	camera->Front = glm::normalize(front);
-	// also re-calculate the Right and Up vector
-	camera->Right = glm::normalize(glm::cross(camera->Front, camera->WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	camera->Up = glm::normalize(glm::cross(camera->Right, camera->Front));
+        if (camera->Type == THIRDPERSON) {
+                float radius = 45.0f;
+
+                glm::float32 x = radius * sin(camera->Yaw);
+                glm::float32 z = radius * cos(camera->Yaw);
+
+                glm::float32 y = radius * sin(camera->Pitch);
+
+                //camera->Up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+                //camera->Orientation = -playerPosition;
+
+                //camera->Position = -playerPosition + glm::vec3(x, y, z);
+
+                glm::vec3 cameraFront = glm::normalize(playerPosition - camera->Position);
+                glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));
+                glm::vec3 cameraUp = glm::cross(cameraFront, cameraRight);
+
+                camera->Front = cameraFront;
+                camera->Right = cameraRight;
+                camera->Up = cameraUp;
+
+        } else {
+                // calculate the new Front vector
+                glm::vec3 front;
+                front.x = cos(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
+                front.y = sin(glm::radians(camera->Pitch));
+                front.z = sin(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
+                camera->Front = glm::normalize(front);
+                // also re-calculate the Right and Up vector
+                camera->Right = glm::normalize(glm::cross(camera->Front, camera->WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+                camera->Up = glm::normalize(glm::cross(camera->Right, camera->Front));
+        }
 }
+	
+
+// switch from player to free camera or vice versa
+void switchCamera(Camera* camera)
+{
+        if (camera->Type == FREE) {
+                camera->Type = THIRDPERSON;
+
+                camera->Position.x = playerPosition.x;
+                camera->Position.y = playerPosition.y + 50;
+                camera->Position.z = playerPosition.z - 50;
+
+                glm::vec3 cameraFront = glm::normalize(playerPosition - camera->Position);
+                glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));
+                glm::vec3 cameraUp = glm::cross(cameraFront, cameraRight);
+
+                camera->Front = cameraFront;
+                camera->Right = cameraRight;
+                camera->Up = cameraUp;
+
+                // Makes camera look in the right direction from the right position
+                //glm::vec3 view = glm::lookAt(Position, Orientation, Up);
+
+
+        } else if (camera->Type == THIRDPERSON) {
+                camera->Type = FREE;
+        }
+}
+
 
 #endif

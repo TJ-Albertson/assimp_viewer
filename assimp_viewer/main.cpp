@@ -17,7 +17,7 @@
 #include <vector>
 #include <filesystem>
 
-#include <camera.h>
+
 #include <model.h>
 #include <shader_m.h>
 #include <animation.h>
@@ -50,7 +50,7 @@ void processInput(GLFWwindow* window, Camera* camera);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-Camera* PlayerCamera;
+
 
 int main()
 {
@@ -71,9 +71,8 @@ int main()
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
 
 
-    Model* vampire = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
-    AddNodeToScene(0, vampire, animShader);
-
+    Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
+    AddNodeToScene(0, player, animShader);
 
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
@@ -87,6 +86,9 @@ int main()
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+   
+
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -129,11 +131,11 @@ int main()
         setShaderMat4(animShader, "view", view);
         
         if (animationPlaying) {
-            AnimateModel(deltaTime, vampire->m_Animations[0], vampire->rootSkeletonNode, vampire->m_FinalBoneMatrices);
+            AnimateModel(deltaTime, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
         }
         
         for (int i = 0; i < 100; ++i)
-            setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", vampire->m_FinalBoneMatrices[i]);
+            setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", player->m_FinalBoneMatrices[i]);
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); 
@@ -165,19 +167,15 @@ int main()
         DrawModel(skybox, modelShader);
 
 
-
+        // PLayer
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::translate(model, playerPosition);
+        //model = glm::rotate(model, PlayerCamera->Yaw + glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(vampire, modelShader);
+        DrawModel(player, modelShader);
 
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(vampire, modelShader);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));

@@ -7,6 +7,7 @@
 
 #include <nfd/nfd.h>
 #include <scene_graph.h>
+#include <camera.h>
 
 bool animationPlaying = false;
 double previousTimeFPS;
@@ -15,12 +16,25 @@ int fps = 0;
 
 int nodeId = 0;
 
+Camera* PlayerCamera;
+
 void playAnimationButton()
 {
     ImGui::Begin("ImGui Window");
     if (ImGui::Button("Play Animation")) {
         animationPlaying = !animationPlaying;
     }
+    
+    if (PlayerCamera->Type == 0) {
+        ImGui::Text("Free Camera");
+    } else {
+        ImGui::Text("Thirdperson Camera");
+    }
+    
+    if (ImGui::Button("Switch Camera")) {
+        switchCamera(PlayerCamera);
+    }
+    
     ImGui::End();
 }
 
