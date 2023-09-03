@@ -170,7 +170,9 @@ int main()
         // PLayer
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
-        //model = glm::rotate(model, PlayerCamera->Yaw + glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+        if (PlayerCamera->Type == THIRDPERSON) {
+            model = glm::rotate(model, PlayerCamera->Yaw + glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
         model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(player, modelShader);

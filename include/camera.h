@@ -146,24 +146,28 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
 
             if (direction == FORWARD) {
                 playerPosition -= camForward;
+            }
+
+            if (direction == BACKWARD) {
+                playerPosition += camForward;
+            }
+
+            if (direction == LEFT) {
+                playerPosition += camRight;
+                if (playerRotation < 180.0f)
+                    playerRotation += 3;
+                if (playerRotation > 180.0f)
+                    playerRotation -= 3;
+            }
+
+            if (direction == RIGHT) {
+                playerPosition -= camRight;
                 if (playerRotation < 90.0f)
                     playerRotation += 3;
                 if (playerRotation > 90.0f)
                     playerRotation -= 3;
             }
-                
-                if (direction == BACKWARD) {
-                playerPosition += camForward;
-                if (playerRotation < 180.0f)
-                    playerRotation += 3;
-                if (playerRotation > 180.0f)
-                    playerRotation -= 3;
-                }
-                
-            if (direction == LEFT)
-                playerPosition += camRight;
-            if (direction == RIGHT)
-                    playerPosition -= camRight;
+                    
               
 
 			camera->Position.x = playerPosition.x;
