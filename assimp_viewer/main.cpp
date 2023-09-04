@@ -35,7 +35,7 @@ const float RENDER_DISTANCE = 100.0f;
 // camera
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
+
 
 // timing
 float deltaTime = 0.0f;
@@ -171,7 +171,7 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
         if (PlayerCamera->Type == THIRDPERSON) {
-            model = glm::rotate(model, PlayerCamera->Yaw + glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+           model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
         model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
         setShaderMat4(modelShader, "model", model);
@@ -287,6 +287,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     int rightMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
     if (rightMouseButtonState == GLFW_PRESS) {
+
+       mousePressed = true;
         
        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -308,6 +310,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     // Enable the cursor when the right mouse button is released
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         firstMouse = true;
+        mousePressed = false;
     }
 }
 
