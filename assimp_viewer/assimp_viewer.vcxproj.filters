@@ -80,6 +80,12 @@
     <ClInclude Include="..\include\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\shader_m.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\grid.vs">
@@ -98,6 +104,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="..\shaders\anim_model.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\skybox.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\skybox.vs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

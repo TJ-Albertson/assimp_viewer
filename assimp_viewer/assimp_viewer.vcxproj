@@ -152,7 +152,9 @@
     <ClInclude Include="..\include\log_file_functions.h" />
     <ClInclude Include="..\include\model.h" />
     <ClInclude Include="..\include\scene_graph.h" />
+    <ClInclude Include="..\include\shader_m.h" />
     <ClInclude Include="..\include\skeleton.h" />
+    <ClInclude Include="..\include\skybox.h" />
     <ClInclude Include="..\include\test.h" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +164,8 @@
     <None Include="..\shaders\anim_model.vs" />
     <None Include="..\shaders\grid.fs" />
     <None Include="..\shaders\grid.vs" />
+    <None Include="..\shaders\skybox.fs" />
+    <None Include="..\shaders\skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

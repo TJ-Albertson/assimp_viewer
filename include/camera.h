@@ -224,7 +224,7 @@ void updateCameraVectors(Camera* camera)
                 camera->Position.y = -y + playerPosition.y;
 
 
-                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 10.0f, 0.0f);
+                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 5.0f, 0.0f);
 
                 glm::vec3 cameraFront = glm::normalize(playerHead - camera->Position);
                 glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));

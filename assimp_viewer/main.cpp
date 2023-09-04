@@ -17,12 +17,12 @@
 #include <vector>
 #include <filesystem>
 
-
 #include <model.h>
 #include <shader_m.h>
 #include <animation.h>
 #include <grid.h>
 #include <gui.h>
+#include <skybox.h>
 
 #include <scene_graph.h>
 #include <log_file_functions.h>
@@ -30,7 +30,7 @@
 // settings
 const unsigned int SCR_WIDTH = 960;
 const unsigned int SCR_HEIGHT = 720;
-const float RENDER_DISTANCE = 100.0f;
+const float RENDER_DISTANCE = 1000.0f;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
@@ -51,6 +51,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
+float acceleration = 0.0f;
 
 int main()
 {
@@ -67,7 +68,6 @@ int main()
    
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
-
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
 
 
@@ -77,7 +77,7 @@ int main()
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
 
-    Model* skybox = LoadModel(filepath("/resources/models/skybox/skybox2.dae"));
+    Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     AddNodeToScene(0, skybox, modelShader);
 
     Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
@@ -85,6 +85,9 @@ int main()
 
     Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
     AddNodeToScene(0, grass_plane, modelShader);
+
+
+    LoadSkybox(filepath);
 
     //Model* backpack = LoadModel(filepath("resources/objects/cyborg/cyborg.obj"));
    // AddNodeToScene(0, backpack, modelShader);
@@ -166,11 +169,7 @@ int main()
         DrawModel(container, modelShader);
 
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-10.0f, 5.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(skybox, modelShader);
+        
 
 
         // PLayer
@@ -182,13 +181,14 @@ int main()
         }
         
         if (playerPosition.y > 0.0f) {
-            playerPosition.y -= 0.3f;
+            playerPosition.y -= 0.3f; // acceleration;
+            //acceleration += 0.3f;
         }
 
         if (PlayerCamera->Type == THIRDPERSON) {
            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
-        model = glm::scale(model, glm::vec3(.05f, .05f, .05f));
+        model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(player, modelShader);
 
@@ -208,6 +208,9 @@ int main()
         DrawModel(grass_plane, modelShader);
 
         //DrawScene();
+
+   
+        DrawSkybox(*PlayerCamera, view, projection);   
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
