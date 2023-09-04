@@ -80,6 +80,12 @@ int main()
     Model* skybox = LoadModel(filepath("/resources/models/skybox/skybox2.dae"));
     AddNodeToScene(0, skybox, modelShader);
 
+    Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
+    AddNodeToScene(0, grass, modelShader);
+
+    Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
+    AddNodeToScene(0, grass_plane, modelShader);
+
     //Model* backpack = LoadModel(filepath("resources/objects/cyborg/cyborg.obj"));
    // AddNodeToScene(0, backpack, modelShader);
 
@@ -170,20 +176,36 @@ int main()
         // PLayer
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            playerPosition.y += 5.0f;
+        }
+        
+        if (playerPosition.y > 0.0f) {
+            playerPosition.y -= 0.3f;
+        }
+
         if (PlayerCamera->Type == THIRDPERSON) {
            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
-        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+        model = glm::scale(model, glm::vec3(.05f, .05f, .05f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(player, modelShader);
 
 
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+        model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         setShaderMat4(modelShader, "model", model);
-        //DrawModel(backpack, modelShader);
+        DrawModel(grass, modelShader);
+
+
+        model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(20.0f, 0.0f, 20.0f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(grass_plane, modelShader);
 
         //DrawScene();
 
