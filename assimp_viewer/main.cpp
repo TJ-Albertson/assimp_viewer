@@ -28,14 +28,13 @@
 #include <log_file_functions.h>
 
 // settings
-const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 const float RENDER_DISTANCE = 1000.0f;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-
 
 // timing
 float deltaTime = 0.0f;
@@ -78,14 +77,14 @@ int main()
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
 
-    Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
-    AddNodeToScene(0, skybox, modelShader);
+    //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
+    //AddNodeToScene(0, skybox, modelShader);
 
-    Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
-    AddNodeToScene(0, grass, modelShader);
+   // Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
+    //AddNodeToScene(0, grass, modelShader);
 
-    Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
-    AddNodeToScene(0, grass_plane, modelShader);
+    //Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
+   // AddNodeToScene(0, grass_plane, modelShader);
 
 
     LoadSkybox(filepath);
@@ -199,14 +198,14 @@ int main()
         model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
         model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(grass, modelShader);
+        //DrawModel(grass, modelShader);
 
 
         model = glm::mat4(1.0f);
         //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
         model = glm::scale(model, glm::vec3(20.0f, 0.0f, 20.0f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(grass_plane, modelShader);
+       // DrawModel(grass_plane, modelShader);
 
         //DrawScene();
 
