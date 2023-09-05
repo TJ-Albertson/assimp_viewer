@@ -52,6 +52,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
 float acceleration = 0.0f;
+bool jumpDebounce = false;
 
 int main()
 {
