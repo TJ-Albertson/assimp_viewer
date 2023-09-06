@@ -150,7 +150,54 @@ void collideWithWorld(glm::vec3 sourcePoint, glm::vec3 velocityVector)
 			polygonIntersectionPoint =// nearest point on polygon's perimeter to planeIntersectionPoint;
 		}
 
+		// Invert the velocity vector
 
+		glm::vec3 negativeVelocityVector = -velocityVector;
+                // Using the polygonIntersectionPoint, we need to reverse-intersect
+                // with the sphere (note: the 1.0 below is the unit-sphere’s
+                // radius)
+                double t = intersectSphere(sourcePoint, 1.0,
+                    polygonIntersectionPoint, negativeVelocityVector);
+                // Was there an intersection with the sphere?
+                if (t >= 0.0 && t <= distanceToTravel) {
+                        // Where did we intersect the sphere?
+                        glm::vec3 V = negativeVelocityVector with length set to t;
+                        glm::vec3 intersectionPoint = polygonIntersectionPoint + V;
+                        // Closest intersection thus far?
+                        if (!collisionFound || t < nearestDistance) {
+                            nearestDistance = t;
+                            nearestIntersectionPoint = intersectionPoint;
+                            nearestPolygonIntersectionPoint = polygonIntersectionPoint;
+                            collisionFound = true;
+                        }
+                }
+        }
+        // If we never found a collision, we can safely move to the destination
+        // and bail
+        if (!collisionFound) {
+                sourcePoint += velocityVector;
+                return;
+        }
+        // Move to the nearest collision
+        glm::vec3 V = velocityVector with length set to(nearestDistance - EPSILON);
+        sourcePoint += V;
+        // What's our destination (relative to the point of contact)?
+        Set length of V to(distanceToTravel – nearestDistance);
+        glm::vec3 destinationPoint = nearestPolygonIntersectionPoint + V;
+        // Determine the sliding plane
+        glm::vec3 slidePlaneOrigin = nearestPolygonIntersectionPoint;
+        glm::vec3 slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
+        // We now project the destination point onto the sliding plane
+        double time = intersect(slidePlaneOrigin, slidePlaneNormal,
+            destinationPoint, slidePlaneNormal);
+        Set length of slidePlaneNormal to time;
+        glm::vec3 destinationProjectionNormal = slidePlaneNormal;
+        glm::vec3 newDestinationPoint = destination + destinationProjectionNormal;
+        // Generate the slide vector, which will become our new velocity vector
+        // for the next iteration
+        glm::vec3 newVelocityVector = newDestinationPoint – nearestPolygonIntersectionPoint;
+        // Recursively slide (without adding gravity)
+        collideWithWorld(sourcePoint, newVelocityVector);
 	}
 	
 }
