@@ -23,6 +23,7 @@
 #include <grid.h>
 #include <gui.h>
 #include <skybox.h>
+#include <collision.h>
 
 #include <scene_graph.h>
 #include <log_file_functions.h>
