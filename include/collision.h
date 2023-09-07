@@ -81,7 +81,21 @@ void collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector
 // Function to scale potential colliders to ellipsoid space
 void scalePotentialColliders(double radiusVector)
 {
-    // Implementation specific to your needs
+    for (Polygon& collider : potentialColliders)
+    {
+        // Scale each vertex of the collider
+        for (Point& vertex : collider.vertices)
+        {
+            // Scale along the x, y, and z axes
+            vertex.x *= scaleFactor;
+            vertex.y *= scaleFactor;
+            vertex.z *= scaleFactor;
+        }
+
+        // Recalculate the normal vector of the polygon
+        // This assumes that the polygon's normal was originally unit length
+        collider.normal = normalize(collider.normal);
+    }
 }
 
 // Function to perform collision detection recursively
