@@ -78,6 +78,9 @@ int main()
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
     AddNodeToScene(0, container, modelShader);
 
+    Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
+    AddNodeToScene(0, green_alpha, modelShader);
+
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
 
@@ -170,6 +173,10 @@ int main()
         DrawModel(container, modelShader);
 
 
+
+       
+
+
         
 
 
@@ -210,8 +217,17 @@ int main()
 
         //DrawScene();
 
-   
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(10.0f, 10.0f, 10.0f));
+        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(green_alpha, modelShader);
+
+        // needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection);   
+
+
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -267,6 +283,11 @@ GLFWwindow* InitializeWindow()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+    // alpha values
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 
     // ImGui initialization

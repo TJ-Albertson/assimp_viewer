@@ -14,6 +14,9 @@ const float EPSILON = 1e-6;
 typedef glm::vec3 Point;
 typedef glm::vec3 Vector;
 
+
+float scaleFactor = 2;
+
 struct Polygon
 {
     std::vector<Point> vertices;
