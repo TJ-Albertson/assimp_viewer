@@ -65,11 +65,13 @@ int main()
 
     
 
-    PrintSceneHierarchy(rootNode);
+    
    
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
+
+    unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
 
 
     Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
@@ -84,12 +86,14 @@ int main()
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
 
-   // Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
+    // Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
     //AddNodeToScene(0, grass, modelShader);
 
     //Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
-   // AddNodeToScene(0, grass_plane, modelShader);
+    // AddNodeToScene(0, grass_plane, modelShader);
 
+
+    PrintSceneHierarchy(rootNode);
 
     LoadSkybox(filepath);
 
@@ -101,7 +105,7 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
    
-
+    glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -217,18 +221,38 @@ int main()
 
         //DrawScene();
 
+        glEnable(GL_CULL_FACE);
+        glUseProgram(hitboxShader);
+
+        setShaderMat4(hitboxShader, "projection", projection);
+        setShaderMat4(hitboxShader, "view", view);
+
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+           hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
+        }
+        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+           hitboxColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
+        }
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(10.0f, 10.0f, 10.0f));
         model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(green_alpha, modelShader);
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", hitboxColor);
+        DrawModel(green_alpha, hitboxShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(20.0f, 00.0f, 20.0f));
+        model = glm::scale(model, glm::vec3(1.5f, 3.5f, 1.5f));
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", hitboxColor);
+        DrawModel(green_alpha, hitboxShader);
+
+        glDisable(GL_CULL_FACE);
 
         // needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection);   
-
-
-
+ 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -288,7 +312,7 @@ GLFWwindow* InitializeWindow()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+    
 
     // ImGui initialization
     // -----------------------------

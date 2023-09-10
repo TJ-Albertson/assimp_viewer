@@ -166,6 +166,7 @@
     <None Include="..\shaders\anim_model.vs" />
     <None Include="..\shaders\grid.fs" />
     <None Include="..\shaders\grid.vs" />
+    <None Include="..\shaders\hitbox.fs" />
     <None Include="..\shaders\skybox.fs" />
     <None Include="..\shaders\skybox.vs" />
   </ItemGroup>

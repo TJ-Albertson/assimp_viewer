@@ -118,5 +118,8 @@
     <None Include="..\shaders\skybox.vs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\shaders\hitbox.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
