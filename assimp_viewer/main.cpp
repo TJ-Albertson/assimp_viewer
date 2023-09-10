@@ -25,6 +25,8 @@
 #include <skybox.h>
 #include <collision.h>
 
+#include <utils.h>
+
 #include <scene_graph.h>
 #include <log_file_functions.h>
 
@@ -82,6 +84,8 @@ int main()
 
     Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
     AddNodeToScene(0, green_alpha, modelShader);
+
+    print_faces(filepath("/resources/models/green_alpha/green_alpha.obj"));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);

@@ -158,6 +158,7 @@
     <ClInclude Include="..\include\skeleton.h" />
     <ClInclude Include="..\include\skybox.h" />
     <ClInclude Include="..\include\test.h" />
+    <ClInclude Include="..\include\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\4.2.texture.fs" />
