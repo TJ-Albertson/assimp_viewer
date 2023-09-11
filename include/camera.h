@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vector>
+#include <collision.h>
 
 enum Camera_Type {
 	FREE,
@@ -48,6 +49,8 @@ struct Camera {
 
 glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
+
+glm::vec3 gravityVector = glm::vec3(0.0f, 0.0f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;
@@ -124,6 +127,13 @@ glm::mat4 GetViewMatrix(const Camera camera)
 	return glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 }
 
+void movePlayer(glm::vec3 vector)
+{
+    glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
+    collisionDetection(playerCenter, vector, gravityVector, 2.5f);
+    playerPosition += vector;
+}
+
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float deltaTime)
 {
@@ -148,18 +158,21 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
             float speed = 0.25f;
 
             if (direction == FORWARD) {
-                playerPosition -= (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
+                //playerPosition -= (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
+                movePlayer(-(glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed));
             }
 
             if (direction == BACKWARD) {
-                playerPosition += (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
+                //playerPosition += (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
+                movePlayer((glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed));
             }
            
             if (direction == LEFT) {
                 
                 
                 if (mousePressed) {
-                    playerPosition += (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
+                    //playerPosition += (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
+                    movePlayer((glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed));
                 } else {
                     camera->Yaw -= 0.5f;
                 }
@@ -167,7 +180,8 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
 
             if (direction == RIGHT) {
                 if (mousePressed) {
-                    playerPosition -= (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
+                    //playerPosition -= (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
+                    movePlayer(-(glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed));
                 } else {
                     camera->Yaw += 0.5f;
                 }
