@@ -7,7 +7,6 @@
 
 #include <vector>
 
-
 const float EPSILON = 1e-6;
 
 // Define Point and Vector as glm types
@@ -247,5 +246,76 @@ Point nearestPointOnPolygonPerimeter(const Polygon& polygon, const Point& point)
     return nearestPoint;
 }
 
+void create_hitbox(std::string const& path)
+{
+    const char* file_path = path.c_str();
+
+    FILE* file = fopen(file_path, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    int vertexCount = 0;
+    int normalCount = 0;
+    int faceCount = 0;
+
+    glm::vec3 vertices[1000];
+    glm::vec3 normals[1000];
+
+    Polygon polygons[6];
+
+    char line[256];
+
+    while (fgets(line, sizeof(line), file)) {
+        if (line[0] == 'v') {
+            if (line[1] == ' ') {
+                float x, y, z;
+                sscanf(line, "v %f %f %f", &x, &y, &z);
+                vertices[vertexCount] = glm::vec3(x, y, z);
+                vertexCount++;
+            } else if (line[1] == 'n') {
+                float nx, ny, nz;
+                sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
+                normals[normalCount] = glm::vec3(nx, ny, nz);
+                normalCount++;
+            }
+        } else if (line[0] == 'f') {
+            int point1, point2, point3, point4;
+            sscanf(line, "f %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d", &point1, &point2, &point3, &point4);
+
+            polygons[faceCount].vertices.push_back(vertices[point1 - 1]);
+            polygons[faceCount].vertices.push_back(vertices[point2 - 1]);
+            polygons[faceCount].vertices.push_back(vertices[point3 - 1]);
+            polygons[faceCount].vertices.push_back(vertices[point4 - 1]);
+
+            polygons[faceCount].normal = normals[faceCount];
+
+            faceCount++;
+        }
+    }
+
+    fclose(file);
+
+    for (int i = 0; i < faceCount; ++i) {
+        printf("Face: %d\n", i);
+        printf("    Vertices: ");
+
+        for (int j = 0; j < 4; ++j) {
+            glm::vec3 vertex = polygons[i].vertices[j];
+            printf("{%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
+        }
+        printf("\n    Normal: %.2f %.2f %.2f\n", normals[i].x, normals[i].y, normals[i].z);
+    }
+    printf("\n");
+
+
+    for (int i = 0; i < 6; ++i)
+    {
+        potentialColliders.push_back(polygons[i]);
+    }
+    
+    return;
+}
 
 #endif

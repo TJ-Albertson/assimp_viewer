@@ -25,7 +25,7 @@
 #include <skybox.h>
 #include <collision.h>
 
-#include <utils.h>
+//#include <utils.h>
 
 #include <scene_graph.h>
 #include <log_file_functions.h>
@@ -85,7 +85,11 @@ int main()
     Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
     AddNodeToScene(0, green_alpha, modelShader);
 
-    print_faces(filepath("/resources/models/green_alpha/green_alpha.obj"));
+
+    glm::mat4 hitbox = glm::mat4(1.0f);
+    hitbox = glm::translate(hitbox, glm::vec3(20.0f, 00.0f, 20.0f));
+    hitbox = glm::scale(hitbox, glm::vec3(1.5f, 3.5f, 1.5f));
+    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
@@ -245,10 +249,12 @@ int main()
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(green_alpha, hitboxShader);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(20.0f, 00.0f, 20.0f));
-        model = glm::scale(model, glm::vec3(1.5f, 3.5f, 1.5f));
-        setShaderMat4(hitboxShader, "model", model);
+        //
+        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 5.0f, 0.0f);
+        glm::vec3 sourcePoint = playerCenter;
+        
+        //collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector& gravityVector, double radiusVector)
+        setShaderMat4(hitboxShader, "model", hitbox);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(green_alpha, hitboxShader);
 

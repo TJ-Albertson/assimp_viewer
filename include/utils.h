@@ -2,33 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-typedef struct {
-    float x, y, z;
-} Vertex;
 
-typedef struct {
-    float nx, ny, nz;
-} Normal;
-
-typedef struct {
-    int vertex_index, normal_index;
-} FaceVertex;
-
-typedef struct {
-    FaceVertex vertices[3]; // Each face consists of three vertices with normals
-} Face;
-
-
-struct Polygon2 {
-    glm::vec3* vertices;
+// squares only
+struct Poly {
+    glm::vec3 vertices[4];
     glm::vec3 normal;
 };
-
-
 
 int extract_faces_from_obj(const char* file_path)
 {
@@ -38,8 +20,6 @@ int extract_faces_from_obj(const char* file_path)
         return 1;
     }
 
-    //float vertices[1000][3]; // Assuming no more than 1000 vertices
-    //float normals[1000][3]; // Assuming no more than 1000 normals
     int vertexCount = 0;
     int normalCount = 0;
     int faceCount = 0;
@@ -47,13 +27,7 @@ int extract_faces_from_obj(const char* file_path)
     glm::vec3 vertices[1000];
     glm::vec3 normals[1000];
 
-    // squares only
-    struct Face {
-        glm::vec3 vertices[4];
-        glm::vec3 normal;
-    };
-
-    Face faces[6];
+    Poly faces[6];
 
     char line[256];
 
@@ -81,23 +55,23 @@ int extract_faces_from_obj(const char* file_path)
             
             faces[faceCount].normal = normals[faceCount];
 
-            printf("Face: %d\n", faceCount);
-            printf("    Vertices: %d %d %d %d\n", point1, point2, point3, point4);
-            printf("    Nomal: %f %f %f\n", normals[faceCount].x, normals[faceCount].y, normals[faceCount].z);
-
             faceCount++;
         }
     }
 
     fclose(file);
 
-    /*
-    for (int i; i < faceCount; ++i) {
-        printf("Face %d:\n", i);
-        printf("    Vertices: %asdfsdf\n")
-    }
-    */
+    for (int i = 0; i < faceCount; ++i) {
+        printf("Face: %d\n", i);
+        printf("    Vertices: ");
 
+        for (int j = 0; j < 4; ++j) {
+            glm::vec3 vertex = faces[i].vertices[j];
+            printf("{%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
+        }
+        printf("\n    Normal: %.2f %.2f %.2f\n", normals[i].x, normals[i].y, normals[i].z);
+    }
+    printf("\n");
 
     return 0;
 }
