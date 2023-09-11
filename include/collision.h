@@ -246,7 +246,7 @@ Point nearestPointOnPolygonPerimeter(const Polygon& polygon, const Point& point)
     return nearestPoint;
 }
 
-void create_hitbox(std::string const& path)
+void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 scale)
 {
     const char* file_path = path.c_str();
 
@@ -272,7 +272,7 @@ void create_hitbox(std::string const& path)
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                vertices[vertexCount] = glm::vec3(x, y, z);
+                vertices[vertexCount] = (glm::vec3(x, y, z) + translation) * scale;
                 vertexCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;

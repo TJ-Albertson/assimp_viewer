@@ -89,7 +89,7 @@ int main()
     glm::mat4 hitbox = glm::mat4(1.0f);
     hitbox = glm::translate(hitbox, glm::vec3(20.0f, 00.0f, 20.0f));
     hitbox = glm::scale(hitbox, glm::vec3(1.5f, 3.5f, 1.5f));
-    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"));
+    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"), glm::vec3(20.0f, 00.0f, 20.0f), glm::vec3(1.5f, 3.5f, 1.5f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
