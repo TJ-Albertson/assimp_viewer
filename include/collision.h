@@ -14,7 +14,7 @@ typedef glm::vec3 Point;
 typedef glm::vec3 Vector;
 
 
-float scaleFactor = 2;
+float scaleFactor = 1;
 
 struct Polygon
 {
@@ -114,7 +114,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         return;
     }
 
-    scalePotentialColliders(radiusVector);
+    //scalePotentialColliders(radiusVector);
 
     bool collisionFound = false;
     float nearestDistance = -1.0;

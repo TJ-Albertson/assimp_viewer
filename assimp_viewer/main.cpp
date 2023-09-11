@@ -85,6 +85,9 @@ int main()
     Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
     AddNodeToScene(0, green_alpha, modelShader);
 
+    Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
+    AddNodeToScene(0, sphere, modelShader);
+
 
     glm::mat4 hitbox = glm::mat4(1.0f);
     hitbox = glm::translate(hitbox, glm::vec3(20.0f, 00.0f, 20.0f));
@@ -249,9 +252,17 @@ int main()
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(green_alpha, hitboxShader);
 
-        //
-        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 5.0f, 0.0f);
+
+        // player hitbox
+        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, playerCenter);
+        model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", hitboxColor);
+        DrawModel(sphere, hitboxShader);
         
         //collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector& gravityVector, double radiusVector)
         setShaderMat4(hitboxShader, "model", hitbox);

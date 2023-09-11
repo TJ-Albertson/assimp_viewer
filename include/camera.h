@@ -144,29 +144,32 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
             camForward = normalize(camForward);
             glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
+            float rotationSpeed = 0.10f;
+            float speed = 0.25f;
+
             if (direction == FORWARD) {
-                playerPosition -= glm::vec3(camForward.x, 0.0f, camForward.z);
+                playerPosition -= (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
             }
 
             if (direction == BACKWARD) {
-                playerPosition += glm::vec3(camForward.x, 0.0f, camForward.z);
+                playerPosition += (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
             }
            
             if (direction == LEFT) {
                 
                 
                 if (mousePressed) {
-                    playerPosition += glm::vec3(camRight.x, 0.0f, camRight.z);
+                    playerPosition += (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
                 } else {
-                    camera->Yaw -= 3.0f;
+                    camera->Yaw -= 0.5f;
                 }
             }
 
             if (direction == RIGHT) {
                 if (mousePressed) {
-                    playerPosition -= glm::vec3(camRight.x, 0.0f, camRight.z);
+                    playerPosition -= (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
                 } else {
-                    camera->Yaw += 3.0f;
+                    camera->Yaw += 0.5f;
                 }
             }
 
