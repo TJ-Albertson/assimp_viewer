@@ -28,6 +28,8 @@ struct Polygon2 {
     glm::vec3 normal;
 };
 
+
+
 int extract_faces_from_obj(const char* file_path)
 {
     FILE* file = fopen(file_path, "r");
@@ -36,40 +38,67 @@ int extract_faces_from_obj(const char* file_path)
         return 1;
     }
 
-    float vertices[1000][3]; // Assuming no more than 1000 vertices
-    float normals[1000][3]; // Assuming no more than 1000 normals
+    //float vertices[1000][3]; // Assuming no more than 1000 vertices
+    //float normals[1000][3]; // Assuming no more than 1000 normals
     int vertexCount = 0;
     int normalCount = 0;
+    int faceCount = 0;
+    
+    glm::vec3 vertices[1000];
+    glm::vec3 normals[1000];
+
+    // squares only
+    struct Face {
+        glm::vec3 vertices[4];
+        glm::vec3 normal;
+    };
+
+    Face faces[6];
 
     char line[256];
+
     while (fgets(line, sizeof(line), file)) {
         if (line[0] == 'v') {
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                vertices[vertexCount][0] = x;
-                vertices[vertexCount][1] = y;
-                vertices[vertexCount][2] = z;
+                vertices[vertexCount] = glm::vec3(x, y, z);
                 vertexCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;
                 sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
-                normals[normalCount][0] = nx;
-                normals[normalCount][1] = ny;
-                normals[normalCount][2] = nz;
+                normals[normalCount] = glm::vec3(nx, ny, nz);
                 normalCount++;
             }
         } else if (line[0] == 'f') {
-            int v1, v2, v3, vn1, vn2, vn3;
-            sscanf(line, "f %d//%d %d//%d %d//%d", &v1, &vn1, &v2, &vn2, &v3, &vn3);
+            int point1, point2, point3, point4;
+            sscanf(line, "f %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d", &point1, &point2, &point3, &point4);
 
-            // Print face vertex and normal information
-            printf("Face Vertex Indices: %d %d %d\n", v1, v2, v3);
-            printf("Face Normal Indices: %d %d %d\n", vn1, vn2, vn3);
+            faces[faceCount].vertices[0] = vertices[point1 - 1];
+            faces[faceCount].vertices[1] = vertices[point2 - 1];
+            faces[faceCount].vertices[2] = vertices[point3 - 1];
+            faces[faceCount].vertices[3] = vertices[point4 - 1];
+            
+            faces[faceCount].normal = normals[faceCount];
+
+            printf("Face: %d\n", faceCount);
+            printf("    Vertices: %d %d %d %d\n", point1, point2, point3, point4);
+            printf("    Nomal: %f %f %f\n", normals[faceCount].x, normals[faceCount].y, normals[faceCount].z);
+
+            faceCount++;
         }
     }
 
     fclose(file);
+
+    /*
+    for (int i; i < faceCount; ++i) {
+        printf("Face %d:\n", i);
+        printf("    Vertices: %asdfsdf\n")
+    }
+    */
+
+
     return 0;
 }
 
