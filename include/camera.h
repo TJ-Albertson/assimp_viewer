@@ -130,7 +130,7 @@ glm::mat4 GetViewMatrix(const Camera camera)
 void movePlayer(glm::vec3 vector)
 {
     glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
-    collisionDetection(playerCenter, vector, gravityVector, 2.5f);
+    collisionDetection(playerCenter, vector, gravityVector, 1.0f);
     playerPosition += vector;
 }
 

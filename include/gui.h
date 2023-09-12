@@ -18,6 +18,31 @@ int nodeId = 0;
 
 Camera* PlayerCamera;
 
+void CollisionWindow()
+{
+    ImGui::Begin("Collision");
+
+    ImGui::Text("Player Position: %f  %f  %f", playerPosition.x, playerPosition.y, playerPosition.z);
+
+    ImGui::CollapsingHeader("Polygons");
+    ImGui::BeginChild("Scrolling");
+    
+    for (size_t i = 0; i < potentialColliders.size(); ++i) {
+        ImGui::Text("Face: %d", i);
+        ImGui::Text("    Vertices: ");
+
+        for (int j = 0; j < 4; ++j) {
+            glm::vec3 vertex = potentialColliders[i].vertices[j];
+            ImGui::Text("       {%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
+        }
+        
+         ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
+    }
+    ImGui::EndChild();
+
+    ImGui::End();
+}
+
 void playAnimationButton()
 {
     ImGui::Begin("ImGui Window");
@@ -128,6 +153,7 @@ void Main_GUI_Loop(double time)
 
     playAnimationButton();
     SceneWindow();
+    CollisionWindow();
 
     // Frame End
     ImGui::Render();

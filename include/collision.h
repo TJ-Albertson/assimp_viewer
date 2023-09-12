@@ -16,8 +16,8 @@ typedef glm::vec3 Vector;
 
 float scaleFactor = 1;
 
-struct Polygon
-{
+
+struct Polygon {
     std::vector<Point> vertices;
     Vector normal;
 };
@@ -33,6 +33,28 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 void scalePotentialColliders(double radiusVector);
 bool pointWithinPolygon(const Polygon& polygon, const Point& point);
 Point nearestPointOnPolygonPerimeter(const Polygon& polygon, const Point& point);
+
+
+
+
+void print_colliders(glm::vec3 player_move_vec, glm::vec3 player_center)
+{
+    printf("\nPLAYER MOVE\n");
+    printf("playerCenter: %f  %f  %f\n", player_center.x, player_center.y, player_center.z);
+    printf("player_move_vec: %f  %f  %f\n", player_move_vec.x, player_move_vec.y, player_move_vec.z);
+
+    for (size_t i = 0; i < potentialColliders.size(); ++i) {
+        printf("Face: %d\n", i);
+        printf("    Vertices: ");
+
+        for (int j = 0; j < 4; ++j) {
+            glm::vec3 vertex = potentialColliders[i].vertices[j];
+            printf(" {%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
+        }
+
+        printf("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
+    }
+}
 
 // Function to find the intersection point between a ray and a plane
 double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector)
@@ -105,11 +127,15 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 {
     double distanceToTravel = length(velocityVector);
 
-    if (distanceToTravel < EPSILON)
+    if (distanceToTravel < EPSILON) {
+        printf("distanceToTravel < EPSILON\n");
         return;
+    }
+        
 
     if (potentialColliders.empty())
     {
+        printf("potentialColliders is Empty\n");
         sourcePoint += velocityVector;
         return;
     }
@@ -121,21 +147,29 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Point nearestIntersectionPoint;
     Point nearestPolygonIntersectionPoint;
 
+    int i = -1;
+    printf("------------------------\n");
     for (const Polygon& polygon : potentialColliders)
     {
+        i++;
+        
         const Point& pOrigin = polygon.vertices[0];
         const Vector& pNormal = polygon.normal;
 
         float pDist = intersect(pOrigin, pNormal, sourcePoint, -pNormal);
-        Point sphereIntersectionPoint;
+        Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
         if (pDist < 0.0)
         {
+            printf("Plane %d", i);
+            printf("    pDist < 0.0\n");
             continue;
         }
         else if (pDist <= 1.0)
         {
+            printf("Plane %d", i);
+            printf("    pDist < 1.0\n");
             Vector temp = -pNormal * pDist;
             planeIntersectionPoint = sourcePoint + temp;
         }
@@ -145,7 +179,12 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             float t = intersect(pOrigin, pNormal, sphereIntersectionPoint, velocityVector);
 
             if (t < 0.0)
+            {
+                printf("Plane %d", i);
+                printf("    t < 0.0\n");
                 continue;
+            }
+                
 
             Vector V = velocityVector * t;
             planeIntersectionPoint = sphereIntersectionPoint + V;
@@ -179,8 +218,11 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     if (!collisionFound)
     {
         sourcePoint += velocityVector;
+        //printf("Collision Not Found!\n");
         return;
     }
+
+    printf("Collision Found!\n");
 
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
     sourcePoint += V;
@@ -297,6 +339,7 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
 
     fclose(file);
 
+    /*
     for (int i = 0; i < faceCount; ++i) {
         printf("Face: %d\n", i);
         printf("    Vertices: ");
@@ -308,6 +351,7 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
         printf("\n    Normal: %.2f %.2f %.2f\n", normals[i].x, normals[i].y, normals[i].z);
     }
     printf("\n");
+    */
 
 
     for (int i = 0; i < 6; ++i)

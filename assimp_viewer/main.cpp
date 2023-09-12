@@ -90,9 +90,10 @@ int main()
 
 
     glm::mat4 hitbox = glm::mat4(1.0f);
-    hitbox = glm::translate(hitbox, glm::vec3(20.0f, 00.0f, 20.0f));
-    hitbox = glm::scale(hitbox, glm::vec3(1.5f, 3.5f, 1.5f));
-    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"), glm::vec3(20.0f, 00.0f, 20.0f), glm::vec3(1.5f, 3.5f, 1.5f));
+    hitbox = glm::translate(hitbox, glm::vec3(5.0f, 3.0f, 5.0f));
+    hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
+
+    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
@@ -199,12 +200,13 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            playerPosition.y += 5.0f;
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && playerPosition.y <= 0.0f) {
+            movePlayer(glm::vec3(0.0f, 5.0f, 0.0f));
         }
         
         if (playerPosition.y > 0.0f) {
-            playerPosition.y -= 0.3f; // acceleration;
+            movePlayer(-glm::vec3(0.0f, 0.03f, 0.0f));
+            //playerPosition.y -= 0.03f; // acceleration;
             //acceleration += 0.3f;
         }
 
@@ -245,26 +247,18 @@ int main()
            hitboxColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
         }
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 10.0f, 10.0f));
-        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-        setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", hitboxColor);
-        DrawModel(green_alpha, hitboxShader);
-
-
         // player hitbox
         glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
-        model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
+        //2.5
+        //model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(sphere, hitboxShader);
         
-        //collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector& gravityVector, double radiusVector)
         setShaderMat4(hitboxShader, "model", hitbox);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(green_alpha, hitboxShader);
