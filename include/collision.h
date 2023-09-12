@@ -25,7 +25,7 @@ struct Polygon {
 std::vector<Polygon> potentialColliders;
 
 double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector);
-double intersectSphere(const Point& rO, const Vector& rV, const Point& sO, double sR);
+float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
 
 void collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector& gravityVector, double radiusVector);
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector);
@@ -66,19 +66,23 @@ double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrig
     return -(numer / denom);
 }
 
-
-
 // Function to find the intersection between a ray and a sphere
-double intersectSphere(const Point& rO, const Vector& rV, const Point& sO, double sR)
+float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius)
 {
-    Vector Q = sO - rO;
-    double c = length(Q);
-    double v = dot(Q, rV);
-    double d = sR * sR - (c * c - v * v);
+    Vector Q = sphereOrigin - rayOrigin;
+    float c = Q.length();
+    float v = dot(Q, rayVector); 
+    float d = (sphereRadius * sphereRadius) - ((c * c) - (v * v));
 
     if (d < 0.0)
+    {
+        printf("    no intersection with sphere\n");
         return -1.0;
+    }
+       
+    printf("    INtersection with sphere\n");
 
+  
     return v - sqrt(d);
 }
 
@@ -125,7 +129,7 @@ void scalePotentialColliders(double radiusVector)
 // Function to perform collision detection recursively
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector)
 {
-    double distanceToTravel = length(velocityVector);
+    float distanceToTravel = length(velocityVector);
 
     if (distanceToTravel < EPSILON) {
         printf("distanceToTravel < EPSILON\n");
@@ -148,45 +152,45 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Point nearestPolygonIntersectionPoint;
 
     int i = -1;
-    printf("------------------------\n");
+    printf("\n\n------------------------\n\n");
     for (const Polygon& polygon : potentialColliders)
     {
         i++;
+        printf("Plane %d\n", i);
         
-        const Point& pOrigin = polygon.vertices[0];
-        const Vector& pNormal = polygon.normal;
+        const Point& planeOrigin = polygon.vertices[0];
+        const Vector& planeNormal = polygon.normal;
 
-        float pDist = intersect(pOrigin, pNormal, sourcePoint, -pNormal);
+        float pDist = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
+        printf("    pDist: %f\n", pDist);
         Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
         if (pDist < 0.0)
         {
-            printf("Plane %d", i);
-            printf("    pDist < 0.0\n");
+            printf("    source point behind the plane\n");
             continue;
         }
         else if (pDist <= 1.0)
         {
-            printf("Plane %d", i);
-            printf("    pDist < 1.0\n");
-            Vector temp = -pNormal * pDist;
+            
+            printf("    within the distance of 1.0\n");
+            Vector temp = -planeNormal * pDist;
             planeIntersectionPoint = sourcePoint + temp;
         }
         else
         {
-            sphereIntersectionPoint = sourcePoint - pNormal;
-            float t = intersect(pOrigin, pNormal, sphereIntersectionPoint, velocityVector);
+            sphereIntersectionPoint = sourcePoint - planeNormal;
+            float t = intersect(planeOrigin, planeNormal, sphereIntersectionPoint, glm::normalize(velocityVector));
 
             if (t < 0.0)
             {
-                printf("Plane %d", i);
-                printf("    t < 0.0\n");
+                printf("    traveling away from this polygon\n");
                 continue;
             }
                 
 
-            Vector V = velocityVector * t;
+            Vector V = glm::normalize(velocityVector) * t;
             planeIntersectionPoint = sphereIntersectionPoint + V;
         }
 
@@ -197,11 +201,19 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             polygonIntersectionPoint = nearestPointOnPolygonPerimeter(polygon, planeIntersectionPoint);
         }
 
+        printf("    point within polygon\n");
+
         Vector negativeVelocityVector = -velocityVector;
-        float t = intersectSphere(sourcePoint, negativeVelocityVector, polygonIntersectionPoint, 1.0);
+        //float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
+        float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
+       // float t = intersectSphere(sourcePoint, 1.0f, polygonIntersectionPoint, 1.0f);
+
+        printf("    t: %f\n", t);
+        printf("    distanceToTravel: %f\n", distanceToTravel);
 
         if (t >= 0.0 && t <= distanceToTravel)
         {
+            printf("    t >= 0.0 && t <= distanceToTravel\n");
             Vector V = negativeVelocityVector * t;
             Point intersectionPoint = polygonIntersectionPoint + V;
 
@@ -222,7 +234,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         return;
     }
 
-    printf("Collision Found!\n");
+    printf("!!!!!!!!!!!!!!!!!!!Collision Found!!!!!!!!!!!!!!!!!!!\n");
 
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
     sourcePoint += V;
