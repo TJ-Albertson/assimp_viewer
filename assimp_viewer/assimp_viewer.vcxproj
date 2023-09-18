@@ -144,6 +144,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\3Dutils.h" />
     <ClInclude Include="..\include\animation.h" />
     <ClInclude Include="..\include\bone_animation.h" />
     <ClInclude Include="..\include\camera.h" />

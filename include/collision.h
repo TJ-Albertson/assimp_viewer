@@ -151,7 +151,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Point nearestIntersectionPoint;
     Point nearestPolygonIntersectionPoint;
 
-    int i = -1;
+    int i = 0;
     printf("\n\n------------------------\n\n");
     for (const Polygon& polygon : potentialColliders)
     {

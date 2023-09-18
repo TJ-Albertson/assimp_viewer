@@ -88,6 +88,20 @@ int main()
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
     AddNodeToScene(0, sphere, modelShader);
 
+    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_cube.obj"));
+    AddNodeToScene(0, labeled_alpha_cube, modelShader);
+
+
+
+
+
+    Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
+    AddNodeToScene(0, x_arrow, modelShader);
+    Model* y_arrow = LoadModel(filepath("/resources/models/direction_arrows/y.obj"));
+    AddNodeToScene(0, x_arrow, modelShader);
+    Model* z_arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
+    AddNodeToScene(0, x_arrow, modelShader);
+
 
     glm::mat4 hitbox = glm::mat4(1.0f);
     hitbox = glm::translate(hitbox, glm::vec3(5.0f, 3.0f, 5.0f));
@@ -230,11 +244,31 @@ int main()
         //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
         model = glm::scale(model, glm::vec3(20.0f, 0.0f, 20.0f));
         setShaderMat4(modelShader, "model", model);
-       // DrawModel(grass_plane, modelShader);
+        // DrawModel(grass_plane, modelShader);
 
         //DrawScene();
 
+
+
+
+        model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(5.0f, 3.0f, 5.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(x_arrow, modelShader);
+        DrawModel(y_arrow, modelShader);
+        DrawModel(z_arrow, modelShader);
+
+
+
         glEnable(GL_CULL_FACE);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(5.0f, 3.0f, 5.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(labeled_alpha_cube, modelShader);
+
         glUseProgram(hitboxShader);
 
         setShaderMat4(hitboxShader, "projection", projection);
@@ -253,15 +287,18 @@ int main()
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
-        //2.5
-        //model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
+        // 2.5
+        // model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(sphere, hitboxShader);
         
         setShaderMat4(hitboxShader, "model", hitbox);
         setShaderVec4(hitboxShader, "color", hitboxColor);
-        DrawModel(green_alpha, hitboxShader);
+        //DrawModel(green_alpha, hitboxShader);
+
+
+    
 
         glDisable(GL_CULL_FACE);
 
