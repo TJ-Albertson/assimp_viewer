@@ -71,6 +71,7 @@ float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Poi
 {
     //vector points from rayOrigin to sphereOrigin
     Vector Q = sphereOrigin - rayOrigin;
+    printf("    Vector Q: %f %f %f\n", Q.x, Q.y, Q.z);
 
     float Q_length = Q.length();
 
@@ -86,7 +87,6 @@ float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Poi
        
     printf("    Intersection with sphere\n");
 
-  
     return v - sqrt(d);
 }
 
