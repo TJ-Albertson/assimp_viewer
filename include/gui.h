@@ -28,7 +28,7 @@ void CollisionWindow()
     ImGui::BeginChild("Scrolling");
     
     for (size_t i = 0; i < potentialColliders.size(); ++i) {
-        ImGui::Text("Face: %d", i);
+        ImGui::Text("Face: %d", i+1);
         ImGui::Text("    Vertices: ");
 
         for (int j = 0; j < 4; ++j) {

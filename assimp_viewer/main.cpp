@@ -98,9 +98,9 @@ int main()
     Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
     AddNodeToScene(0, x_arrow, modelShader);
     Model* y_arrow = LoadModel(filepath("/resources/models/direction_arrows/y.obj"));
-    AddNodeToScene(0, x_arrow, modelShader);
+    AddNodeToScene(0, y_arrow, modelShader);
     Model* z_arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
-    AddNodeToScene(0, x_arrow, modelShader);
+    AddNodeToScene(0, z_arrow, modelShader);
 
 
     glm::mat4 hitbox = glm::mat4(1.0f);

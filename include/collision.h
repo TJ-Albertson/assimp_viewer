@@ -24,7 +24,7 @@ struct Polygon {
 
 std::vector<Polygon> potentialColliders;
 
-double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector);
+float intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector);
 float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
 
 void collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector& gravityVector, double radiusVector);
@@ -56,12 +56,12 @@ void print_colliders(glm::vec3 player_move_vec, glm::vec3 player_center)
     }
 }
 
-// Function to find the intersection point between a ray and a plane
-double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector)
+// Function to find the distance between point and plane
+float intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector)
 {
-    double d = -dot(pNormal, pOrigin);
-    double numer = dot(pNormal, rOrigin) + d;
-    double denom = dot(pNormal, rVector);
+    float d = -glm::dot(pNormal, pOrigin);
+    float numer = glm::dot(pNormal, rOrigin) + d;
+    float denom = glm::dot(pNormal, rVector);
 
     return -(numer / denom);
 }
@@ -69,18 +69,22 @@ double intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrig
 // Function to find the intersection between a ray and a sphere
 float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius)
 {
+    //vector points from rayOrigin to sphereOrigin
     Vector Q = sphereOrigin - rayOrigin;
-    float c = Q.length();
-    float v = dot(Q, rayVector); 
-    float d = (sphereRadius * sphereRadius) - ((c * c) - (v * v));
 
+    float Q_length = Q.length();
+
+    float v = glm::dot(Q, rayVector); 
+    float d = (sphereRadius * sphereRadius) - ((Q_length * Q_length) - (v * v));
+
+    printf("    d: %f\n", d);
     if (d < 0.0)
     {
         printf("    no intersection with sphere\n");
         return -1.0;
     }
        
-    printf("    INtersection with sphere\n");
+    printf("    Intersection with sphere\n");
 
   
     return v - sqrt(d);
@@ -103,9 +107,6 @@ void collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector
     sourcePoint *= radiusVector;
 }
 
-// Define Polygon as a data structure representing your polygons
-
-
 // Function to scale potential colliders to ellipsoid space
 void scalePotentialColliders(double radiusVector)
 {
@@ -125,6 +126,18 @@ void scalePotentialColliders(double radiusVector)
         collider.normal = normalize(collider.normal);
     }
 }
+
+// Determine whether plane p intersects sphere s
+/*
+int TestSpherePlane(Sphere s, Plane p)
+{
+    // For a normalized plane (|p.n| = 1), evaluating the plane equation
+    // for a point gives the signed distance of the point to the plane
+    float dist = Dot(s.c, p.n) - p.d;
+    // If sphere center within +/-radius from plane, plane intersects sphere
+    return Abs(dist) <= s.r;
+}
+*/
 
 // Function to perform collision detection recursively
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector)
@@ -156,26 +169,27 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     for (const Polygon& polygon : potentialColliders)
     {
         i++;
-        printf("Plane %d\n", i);
+        printf("Face %d\n", i);
         
         const Point& planeOrigin = polygon.vertices[0];
         const Vector& planeNormal = polygon.normal;
 
-        float pDist = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
-        printf("    pDist: %f\n", pDist);
+        float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
+
+        printf("    point_distance_from_plane: %f\n", point_distance_from_plane);
         Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
-        if (pDist < 0.0)
+        if (point_distance_from_plane < 0.0)
         {
-            printf("    source point behind the plane\n");
+            printf("    source point behind plane\n");
             continue;
         }
-        else if (pDist <= 1.0)
+        else if (point_distance_from_plane <= 1.0)
         {
             
-            printf("    within the distance of 1.0\n");
-            Vector temp = -planeNormal * pDist;
+            printf("    within 1.0f\n");
+            Vector temp = -planeNormal * point_distance_from_plane;
             planeIntersectionPoint = sourcePoint + temp;
         }
         else
@@ -195,6 +209,8 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         }
 
         Point polygonIntersectionPoint = planeIntersectionPoint;
+
+        printf("    planeIntersectionPoint: %f %f %f\n", planeIntersectionPoint.x, planeIntersectionPoint.y, planeIntersectionPoint.z);
 
         if (!pointWithinPolygon(polygon, planeIntersectionPoint))
         {
@@ -245,7 +261,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Point slidePlaneOrigin = nearestPolygonIntersectionPoint;
     Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
     
-    double time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal);
+    float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal);
     
     slidePlaneNormal *= time;
     Vector destinationProjectionNormal = slidePlaneNormal;
