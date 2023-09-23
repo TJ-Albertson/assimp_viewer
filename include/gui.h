@@ -31,7 +31,7 @@ void CollisionWindow()
         ImGui::Text("Face: %d", i+1);
         ImGui::Text("    Vertices: ");
 
-        for (int j = 0; j < 4; ++j) {
+        for (int j = 0; j < 3; ++j) {
             glm::vec3 vertex = potentialColliders[i].vertices[j];
             ImGui::Text("       {%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
         }

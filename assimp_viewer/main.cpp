@@ -65,9 +65,7 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    
-
-    
+ 
    
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
@@ -88,7 +86,7 @@ int main()
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
     AddNodeToScene(0, sphere, modelShader);
 
-    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_cube.obj"));
+    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"));
     AddNodeToScene(0, labeled_alpha_cube, modelShader);
 
 
@@ -107,7 +105,7 @@ int main()
     hitbox = glm::translate(hitbox, glm::vec3(5.0f, 3.0f, 5.0f));
     hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    create_hitbox(filepath("/resources/models/green_alpha/green_alpha.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
@@ -229,7 +227,7 @@ int main()
         }
         model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(player, modelShader);
+        //DrawModel(player, modelShader);
 
 
 
@@ -285,14 +283,36 @@ int main()
         glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
+
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
+
+         // playercenter
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        DrawModel(sphere, hitboxShader);
+
+        // nearestpointpolygon
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, collisionBallPosition);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        setShaderMat4(hitboxShader, "model", model);
+        DrawModel(sphere, hitboxShader);
+
+        // sphere hitbox
         // 2.5
-        // model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(sphere, hitboxShader);
+
+       
+
         
+
         setShaderMat4(hitboxShader, "model", hitbox);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         //DrawModel(green_alpha, hitboxShader);

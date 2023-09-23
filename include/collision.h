@@ -24,6 +24,8 @@ struct Polygon {
 
 std::vector<Polygon> potentialColliders;
 
+glm::vec3 collisionBallPosition;
+
 float intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector);
 float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
 
@@ -34,7 +36,7 @@ void scalePotentialColliders(double radiusVector);
 bool pointWithinPolygon(const Polygon& polygon, const Point& point);
 Point nearestPointOnPolygonPerimeter(const Polygon& polygon, const Point& point);
 
-
+Point ClosestPtPointTriangle(Point p, Point a, Point b, Point c);
 
 
 void print_colliders(glm::vec3 player_move_vec, glm::vec3 player_center)
@@ -66,16 +68,37 @@ float intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigi
     return -(numer / denom);
 }
 
+struct Plane {
+    Vector n; // Plane normal. Points x on the plane satisfy Dot(n,x) = d
+    float d; // d = dot(n,p) for a given point p on the plane
+};
+
+Point ClosestPtPointPlane(Point q, Plane p)
+{
+    float t = (glm::dot(p.n, q) - p.d) / glm::dot(p.n, p.n);
+    return q - t * p.n;
+}
+
+float DistPointPlane(Point q, Plane p)
+{
+    // return Dot(q, p.n) - p.d; if plane equation normalized (||p.n||==1)
+    return (glm::dot(p.n, q) - p.d) / glm::dot(p.n, p.n);
+}
+
 // Function to find the intersection between a ray and a sphere
 float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius)
 {
+
+
+
     //vector points from rayOrigin to sphereOrigin
     Vector Q = sphereOrigin - rayOrigin;
     printf("    Vector Q: %f %f %f\n", Q.x, Q.y, Q.z);
 
-    float Q_length = Q.length();
-
+    float Q_length = glm::length(Q);
+    printf("    Q_length: %f\n", Q_length);
     float v = glm::dot(Q, rayVector); 
+    printf("    v: %f\n", v);
     float d = (sphereRadius * sphereRadius) - ((Q_length * Q_length) - (v * v));
 
     printf("    d: %f\n", d);
@@ -142,7 +165,7 @@ int TestSpherePlane(Sphere s, Plane p)
 // Function to perform collision detection recursively
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector)
 {
-    float distanceToTravel = length(velocityVector);
+    float distanceToTravel = glm::length(velocityVector);
 
     if (distanceToTravel < EPSILON) {
         printf("distanceToTravel < EPSILON\n");
@@ -174,7 +197,14 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         const Point& planeOrigin = polygon.vertices[0];
         const Vector& planeNormal = polygon.normal;
 
-        float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
+        Plane plane;
+        plane.n = planeNormal;
+        plane.d = glm::dot(planeNormal, planeOrigin);
+
+        //Point closest_point_on_plane = ClosestPtPointPlane(sourcePoint, plane);
+
+        //float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
+        float point_distance_from_plane = DistPointPlane(sourcePoint, plane);
 
         printf("    point_distance_from_plane: %f\n", point_distance_from_plane);
         Point sphereIntersectionPoint; 
@@ -200,27 +230,23 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             if (t < 0.0)
             {
                 printf("    traveling away from this polygon\n");
-                continue;
+                //continue;
             }
-                
 
             Vector V = glm::normalize(velocityVector) * t;
             planeIntersectionPoint = sphereIntersectionPoint + V;
         }
 
         Point polygonIntersectionPoint = planeIntersectionPoint;
-
+        
         printf("    planeIntersectionPoint: %f %f %f\n", planeIntersectionPoint.x, planeIntersectionPoint.y, planeIntersectionPoint.z);
 
-        if (!pointWithinPolygon(polygon, planeIntersectionPoint))
-        {
-            polygonIntersectionPoint = nearestPointOnPolygonPerimeter(polygon, planeIntersectionPoint);
-        }
-
-        printf("    point within polygon\n");
+        polygonIntersectionPoint = ClosestPtPointTriangle(sourcePoint, polygon.vertices[1], polygon.vertices[2], polygon.vertices[0]);
+        collisionBallPosition = polygonIntersectionPoint;
+        printf("    polygonIntersectionPoint: %f %f %f\n", polygonIntersectionPoint.x, polygonIntersectionPoint.y, polygonIntersectionPoint.z);
 
         Vector negativeVelocityVector = -velocityVector;
-        //float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
+        //        intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius)
         float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
        // float t = intersectSphere(sourcePoint, 1.0f, polygonIntersectionPoint, 1.0f);
 
@@ -249,6 +275,8 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         //printf("Collision Not Found!\n");
         return;
     }
+        
+    
 
     printf("!!!!!!!!!!!!!!!!!!!Collision Found!!!!!!!!!!!!!!!!!!!\n");
 
@@ -333,7 +361,7 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
     glm::vec3 vertices[1000];
     glm::vec3 normals[1000];
 
-    Polygon polygons[6];
+    Polygon polygons[12];
 
     char line[256];
 
@@ -351,15 +379,19 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
                 normalCount++;
             }
         } else if (line[0] == 'f') {
-            int point1, point2, point3, point4;
-            sscanf(line, "f %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d", &point1, &point2, &point3, &point4);
+            int point1, point2, point3;
+            sscanf(line, "f %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d", &point1, &point2, &point3);
 
             polygons[faceCount].vertices.push_back(vertices[point1 - 1]);
             polygons[faceCount].vertices.push_back(vertices[point2 - 1]);
             polygons[faceCount].vertices.push_back(vertices[point3 - 1]);
-            polygons[faceCount].vertices.push_back(vertices[point4 - 1]);
-
-            polygons[faceCount].normal = normals[faceCount];
+            
+            if (faceCount > 5) {
+                polygons[faceCount].normal = normals[faceCount - 6];
+            } else {
+                polygons[faceCount].normal = normals[faceCount];
+            }
+            
 
             faceCount++;
         }
@@ -382,12 +414,65 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
     */
 
 
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 1; ++i)
     {
         potentialColliders.push_back(polygons[i]);
     }
     
     return;
+}
+
+Point ClosestPtPointTriangle(Point p, Point a, Point b, Point c)
+{
+    // Check if P in vertex region outside A
+    Vector ab = b - a;
+    Vector ac = c - a;
+    Vector ap = p - a;
+    float d1 = glm::dot(ab, ap);
+    float d2 = glm::dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f)
+        return a; // barycentric coordinates (1,0,0)
+
+    // Check if P in vertex region outside B
+    Vector bp = p - b;
+    float d3 = glm::dot(ab, bp);
+    float d4 = glm::dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3)
+        return b; // barycentric coordinates (0,1,0)
+
+    // Check if P in edge region of AB, if so return projection of P onto AB
+    float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        float v = d1 / (d1 - d3);
+        return a + v * ab; // barycentric coordinates (1-v,v,0)
+    }
+
+    // Check if P in vertex region outside C
+    Vector cp = p - c;
+    float d5 = glm::dot(ab, cp);
+    float d6 = glm::dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6)
+        return c; // barycentric coordinates (0,0,1)
+
+    // Check if P in edge region of AC, if so return projection of P onto AC
+    float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        float w = d2 / (d2 - d6);
+        return a + w * ac; // barycentric coordinates (1-w,0,w)
+    }
+
+    // Check if P in edge region of BC, if so return projection of P onto BC
+    float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f && (d4 - d3) >= 0.0f && (d5 - d6) >= 0.0f) {
+        float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+        return b + w * (c - b); // barycentric coordinates (0,1-w,w)
+    }
+
+    // P inside face region. Compute Q through its barycentric coordinates (u,v,w)
+    float denom = 1.0f / (va + vb + vc);
+    float v = vb * denom;
+    float w = vc * denom;
+    return a + ab * v + ac * w; // = u*a + v*b + w*c, u = va * denom = 1.0f-v-w
 }
 
 #endif

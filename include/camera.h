@@ -155,7 +155,7 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
             glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
             float rotationSpeed = 0.10f;
-            float speed = 0.25f;
+            float speed = 0.15f;
 
             if (direction == FORWARD) {
                 //playerPosition -= (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
@@ -291,6 +291,5 @@ void switchCamera(Camera* camera)
                 camera->Type = FREE;
         }
 }
-
 
 #endif
