@@ -226,16 +226,14 @@ int main()
 
             if (playerVelocity > max_speed) playerVelocity = max_speed;
 
-            
-
         } else {
-            //playerVelocity -= friction;
-            //if (playerVelocity < 0) playerVelocity = 0.0f;
-            playerVelocity = 0;
-            directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
+            playerVelocity -= friction;
+            if (playerVelocity < 0) playerVelocity = 0.0f;
+            //playerVelocity = 0;
+            //directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
         }
         vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
-        //printf("vector: %f %f %f\n", vector.x, vector.y, vector.z);
+       
         movePlayer(vector);
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && playerPosition.y <= 0.0f) {
