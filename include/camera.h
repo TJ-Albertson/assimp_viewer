@@ -18,7 +18,11 @@ enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+    FORWARD_RIGHT,
+    FORWARD_LEFT,
+    BACKWARD_RIGHT,
+    BACKWARD_LEFT
 };
 
 // Default camera values
@@ -54,6 +58,12 @@ glm::vec3 gravityVector = glm::vec3(0.0f, 0.0f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;
+
+float rotationSpeed = 0.10f;
+float speed = 1150.0f;
+glm::vec3 directionVector = glm::vec3(1.0f);
+float playerVelocity = 0.0f;
+bool isMoving = false;
 
 Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
 
@@ -129,9 +139,15 @@ glm::mat4 GetViewMatrix(const Camera camera)
 
 void movePlayer(glm::vec3 vector)
 {
+       
     glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
     collisionDetection(playerCenter, vector, gravityVector, 1.0f);
+    
     playerPosition += vector;
+
+
+
+    //playerPosition += velocity;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -154,37 +170,39 @@ void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float delt
             camForward = normalize(camForward);
             glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
-            float rotationSpeed = 0.10f;
-            float speed = 0.15f;
 
             if (direction == FORWARD) {
-                //playerPosition -= (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
-                movePlayer(-(glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed));
+                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
             }
-
             if (direction == BACKWARD) {
-                //playerPosition += (glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed);
-                movePlayer((glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * speed));
+                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
             }
-           
             if (direction == LEFT) {
-                
-                
                 if (mousePressed) {
-                    //playerPosition += (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
-                    movePlayer((glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed));
+                    directionVector = glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
                 } else {
                     camera->Yaw -= 0.5f;
                 }
             }
-
             if (direction == RIGHT) {
                 if (mousePressed) {
-                    //playerPosition -= (glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed);
-                    movePlayer(-(glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z)) * speed));
+                    directionVector = -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
                 } else {
                     camera->Yaw += 0.5f;
                 }
+            }
+
+            if (direction == FORWARD_RIGHT) {
+                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) - glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+            }
+            if (direction == FORWARD_LEFT) {
+                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) + glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+            }
+            if (direction == BACKWARD_RIGHT) {
+                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) - glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+            }
+            if (direction == BACKWARD_LEFT) {
+                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) + glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
             }
 
             playerRotation = glm::atan(camera->Front.x, camera->Front.z);

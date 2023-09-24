@@ -168,7 +168,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     float distanceToTravel = glm::length(velocityVector);
 
     if (distanceToTravel < EPSILON) {
-        printf("distanceToTravel < EPSILON\n");
+        //printf("distanceToTravel < EPSILON\n");
         return;
     }
         
@@ -176,7 +176,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     if (potentialColliders.empty())
     {
         printf("potentialColliders is Empty\n");
-        sourcePoint += velocityVector;
+        //sourcePoint += velocityVector;
         return;
     }
 
@@ -230,7 +230,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             if (t < 0.0)
             {
                 printf("    traveling away from this polygon\n");
-                //continue;
+                continue;
             }
 
             Vector V = glm::normalize(velocityVector) * t;
@@ -248,6 +248,12 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         Vector negativeVelocityVector = -velocityVector;
         //        intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius)
         float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
+
+        if (t != -1.0) {
+            velocityVector = -velocityVector * 0.5f;
+            return;
+        }
+
        // float t = intersectSphere(sourcePoint, 1.0f, polygonIntersectionPoint, 1.0f);
 
         printf("    t: %f\n", t);

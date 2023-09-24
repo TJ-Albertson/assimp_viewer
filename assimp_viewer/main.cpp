@@ -53,7 +53,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-float acceleration = 0.0f;
+float acceleration = 0.15f;
+float max_speed = 10.0f;
+float friction = 2.0f;
+
 bool jumpDebounce = false;
 
 int main()
@@ -212,6 +215,29 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
 
+        glm::vec3 vector;
+
+        if (playerPosition.y > 0.0f) {
+            
+        }
+
+        if (isMoving) {
+            playerVelocity += acceleration;
+
+            if (playerVelocity > max_speed) playerVelocity = max_speed;
+
+            
+
+        } else {
+            //playerVelocity -= friction;
+            //if (playerVelocity < 0) playerVelocity = 0.0f;
+            playerVelocity = 0;
+            directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
+        }
+        vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
+        //printf("vector: %f %f %f\n", vector.x, vector.y, vector.z);
+        movePlayer(vector);
+
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && playerPosition.y <= 0.0f) {
             movePlayer(glm::vec3(0.0f, 5.0f, 0.0f));
         }
@@ -259,6 +285,23 @@ int main()
 
 
 
+         // player hitbox
+        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
+        glm::vec3 sourcePoint = playerCenter;
+
+        glm::mat4 arrowModelMatrix = glm::mat4(1.0f); // Identity matrix
+        arrowModelMatrix = glm::translate(arrowModelMatrix, playerCenter);
+        glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Define the up vector
+        glm::mat4 rotationMatrix = glm::lookAt(glm::vec3(0.0f), glm::vec3(vector.x, vector.y, -vector.z), upVector);
+
+       
+        //arrowModelMatrix = glm::rotate(arrowModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        arrowModelMatrix *= rotationMatrix;
+        setShaderMat4(modelShader, "model", arrowModelMatrix);
+        DrawModel(z_arrow, modelShader);
+
+
         glEnable(GL_CULL_FACE);
 
         model = glm::mat4(1.0f);
@@ -279,9 +322,10 @@ int main()
            hitboxColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
         }
 
-        // player hitbox
-        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
-        glm::vec3 sourcePoint = playerCenter;
+       
+
+
+        
 
 
         model = glm::mat4(1.0f);
@@ -420,6 +464,21 @@ void processInput(GLFWwindow* window, Camera* camera)
         CameraProcessKeyboard(camera, LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         CameraProcessKeyboard(camera, RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, FORWARD_RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, FORWARD_LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, BACKWARD_RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        CameraProcessKeyboard(camera, BACKWARD_LEFT, deltaTime);
+
+    if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
+        isMoving = true;
+    } else {
+        isMoving = false;
+    }
 
 }
 
