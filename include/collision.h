@@ -25,6 +25,7 @@ struct Polygon {
 std::vector<Polygon> potentialColliders;
 
 glm::vec3 collisionBallPosition;
+glm::vec3 sphereIntersectionPointPos;
 
 float intersect(const Point& pOrigin, const Vector& pNormal, const Point& rOrigin, const Vector& rVector);
 float intersectSphere(const Point& rayOrigin, const Vector& rayVector, const Point& sphereOrigin, float sphereRadius);
@@ -38,6 +39,8 @@ Point nearestPointOnPolygonPerimeter(const Polygon& polygon, const Point& point)
 
 Point ClosestPtPointTriangle(Point p, Point a, Point b, Point c);
 int IntersectRaySphere(Point p, Vector d, Point center, float radius, float& t, Point& q);
+
+void collideWithWorldTwo(Point& sourcePoint, Vector& velocityVector);
 
 
 void print_colliders(glm::vec3 player_move_vec, glm::vec3 player_center)
@@ -127,6 +130,7 @@ void collisionDetection(Point& sourcePoint, Vector& velocityVector, const Vector
 
     // Perform collisions
     collideWithWorld(sourcePoint, velocityVector, radiusVector);
+    //collideWithWorldTwo(sourcePoint, velocityVector);
 
     // Un-scale output
     sourcePoint *= radiusVector;
@@ -207,10 +211,11 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
         //Point closest_point_on_plane = ClosestPtPointPlane(sourcePoint, plane);
 
-        //float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
-        float point_distance_from_plane = DistPointPlane(sourcePoint, plane);
+        float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
+        printf("    point_distance_from_plane1: %f\n", point_distance_from_plane);
+        point_distance_from_plane = DistPointPlane(sourcePoint, plane);
 
-        printf("    point_distance_from_plane: %f\n", point_distance_from_plane);
+        printf("    point_distance_from_plane2: %f\n", point_distance_from_plane);
         Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
@@ -241,6 +246,8 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             planeIntersectionPoint = sphereIntersectionPoint + V;
         }
 
+        //sphereIntersectionPointPos = sphereIntersectionPoint;
+
         Point polygonIntersectionPoint = planeIntersectionPoint;
         
         printf("    planeIntersectionPoint: %f %f %f\n", planeIntersectionPoint.x, planeIntersectionPoint.y, planeIntersectionPoint.z);
@@ -267,6 +274,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         printf("    q: %f %f %f\n", q.x, q.y, q.z);
 
         t = t_value;
+        sphereIntersectionPointPos = q;
 
         if (t >= 0.0 && t <= distanceToTravel)
         {
@@ -286,7 +294,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     if (!collisionFound)
     {
-        sourcePoint += velocityVector;
+        //playerPoint += velocityVector;
         //printf("Collision Not Found!\n");
         return;
     }
@@ -303,17 +311,16 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     Point slidePlaneOrigin = nearestPolygonIntersectionPoint;
     Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
-    
+
     float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal);
-    
-    slidePlaneNormal *= time;
+    slidePlaneNormal = glm::normalize(slidePlaneNormal) * time;
     Vector destinationProjectionNormal = slidePlaneNormal;
     Point newDestinationPoint = destinationPoint + destinationProjectionNormal;
     
-    
     Vector newVelocityVector = newDestinationPoint - nearestPolygonIntersectionPoint;
     
-    collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
+
+    collideWithWorld(sourcePoint, velocityVector, radiusVector);
 }
 
 // Function to check if a point is within a polygon
@@ -510,5 +517,146 @@ Point ClosestPtPointTriangle(Point p, Point a, Point b, Point c)
     float w = vc * denom;
     return a + ab * v + ac * w; // = u*a + v*b + w*c, u = va * denom = 1.0f-v-w
 }
+
+
+
+
+
+void collideWithWorldTwo(Point& sourcePoint, Vector& velocityVector)
+{
+    // How far do we need to go?
+    float distanceToTravel = glm::length(velocityVector);
+
+    // Do we need to bother?
+    if (distanceToTravel < EPSILON)
+        return;
+
+    // Whom might we collide with?
+    //List potentialColliders = determine list of potential colliders;
+
+    // If there are none, we can safely move to the destination and bail
+    if (potentialColliders.empty()) {
+        sourcePoint += velocityVector;
+        return;
+    }
+
+    // You’ll need to write this routine to deal with your specific data
+    //scale_potential_colliders_to_ellipsoid_space(radiusVector);
+    // 
+    // Determine the nearest collider from the list potentialColliders
+    bool collisionFound = false;
+    float nearestDistance = -1.0;
+    Point nearestIntersectionPoint;
+    Point nearestPolygonIntersectionPoint;
+
+    for (const Polygon& polygon : potentialColliders) {
+
+        // Plane origin/normal
+        Point pOrigin = polygon.vertices[0];
+        Vector pNormal = polygon.normal;
+
+        // Determine the distance from the plane to the source
+        float pDist = intersect(pOrigin, pNormal, sourcePoint, -pNormal);
+        Point sphereIntersectionPoint;
+        Point planeIntersectionPoint;
+
+        // Is the source point behind the plane?
+        //
+        // [note that you can remove this condition if your visuals are not
+        // using backface culling]
+        if (pDist < 0.0) {
+            continue;
+        }
+
+        // Is the plane embedded (i.e. within the distance of 1.0 for our
+        // unit sphere)?
+        else if (pDist <= 1.0) {
+            // Calculate the plane intersection point
+            Vector temp = -glm::normalize(pNormal) * pDist;
+            planeIntersectionPoint = sourcePoint + temp;
+        } else {
+            // Calculate the sphere intersection point
+            sphereIntersectionPoint = sourcePoint - pNormal;
+
+            // Calculate the plane intersection point
+            float t = intersect(pOrigin, pNormal, sphereIntersectionPoint, glm::normalize(velocityVector));
+
+            // Are we traveling away from this polygon?
+            if (t < 0.0)
+                continue;
+
+            // Calculate the plane intersection point
+            Vector V = glm::normalize(velocityVector) * t;
+            planeIntersectionPoint = sphereIntersectionPoint + V;
+        }
+
+        // Unless otherwise noted, our polygonIntersectionPoint is the
+        // same point as planeIntersectionPoint
+        Point polygonIntersectionPoint = planeIntersectionPoint;
+
+        // So… are they the same?
+        polygonIntersectionPoint = ClosestPtPointTriangle(sourcePoint, polygon.vertices[1], polygon.vertices[2], polygon.vertices[0]);
+
+        // Invert the velocity vector
+        Vector negativeVelocityVector = -velocityVector;
+
+        // Using the polygonIntersectionPoint, we need to reverse-intersect
+        // with the sphere (note: the 1.0 below is the unit-sphere’s
+        // radius)
+        //float t = IntersectRaySphere(sourcePoint, 1.0, polygonIntersectionPoint, negativeVelocityVector);
+        float t;
+        Point q;
+        Vector Q = glm::normalize(sourcePoint - polygonIntersectionPoint);
+        int bruh = IntersectRaySphere(polygonIntersectionPoint, Q, sourcePoint, 1.0f, t, q);
+
+        // Was there an intersection with the sphere?
+        if (t >= 0.0 && t <= distanceToTravel) {
+            // Where did we intersect the sphere?
+            Vector intersectionPoint = q;
+
+            // Closest intersection thus far?
+            if (!collisionFound || t < nearestDistance) {
+                nearestDistance = t;
+                nearestIntersectionPoint = intersectionPoint;
+                nearestPolygonIntersectionPoint = polygonIntersectionPoint;
+                collisionFound = true;
+            }
+        }
+    }
+
+    // If we never found a collision, we can safely move to the destination
+    // and bail
+    if (!collisionFound) {
+        sourcePoint += velocityVector;
+        return;
+    }
+
+    // Move to the nearest collision
+    Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
+    sourcePoint += V;
+
+    // What's our destination (relative to the point of contact)?
+    V = glm::normalize(V) * (distanceToTravel - nearestDistance);
+    Point destinationPoint = nearestPolygonIntersectionPoint + V;
+
+    // Determine the sliding plane
+    Point slidePlaneOrigin = nearestPolygonIntersectionPoint;
+    Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
+
+    // We now project the destination point onto the sliding plane
+    float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal);
+    slidePlaneNormal = glm::normalize(slidePlaneNormal) * time;
+    Vector destinationProjectionNormal = slidePlaneNormal;
+    Point newDestinationPoint = destinationPoint + destinationProjectionNormal;
+
+    // Generate the slide vector, which will become our new velocity vector
+    // for the next iteration
+    Vector newVelocityVector = newDestinationPoint - nearestPolygonIntersectionPoint;
+
+    // Recursively slide (without adding gravity)
+    collideWithWorldTwo(sourcePoint, newVelocityVector);
+}
+
+
 
 #endif

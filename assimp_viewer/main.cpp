@@ -343,6 +343,16 @@ int main()
         setShaderMat4(hitboxShader, "model", model);
         DrawModel(sphere, hitboxShader);
 
+
+         // sphereIntersectionPointPos
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, sphereIntersectionPointPos);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        setShaderMat4(hitboxShader, "model", model);
+        DrawModel(sphere, hitboxShader);
+
+
         // sphere hitbox
         // 2.5
         model = glm::mat4(1.0f);
