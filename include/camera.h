@@ -54,7 +54,7 @@ struct Camera {
 glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
-glm::vec3 gravityVector = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 gravityVector = glm::vec3(0.0f, -0.01f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;
@@ -144,10 +144,6 @@ void movePlayer(glm::vec3 vector)
     collisionDetection(playerCenter, vector, gravityVector, 1.0f);
     
     playerPosition += vector;
-
-
-
-    //playerPosition += velocity;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
