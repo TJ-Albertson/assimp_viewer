@@ -89,7 +89,7 @@ int main()
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
     AddNodeToScene(0, sphere, modelShader);
 
-    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"));
+    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
     AddNodeToScene(0, labeled_alpha_cube, modelShader);
 
 
@@ -108,7 +108,7 @@ int main()
     hitbox = glm::translate(hitbox, glm::vec3(5.0f, 3.0f, 5.0f));
     hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    create_hitbox(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);

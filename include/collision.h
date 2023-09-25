@@ -194,6 +194,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     float nearestDistance = -1.0;
     Point nearestIntersectionPoint;
     Point nearestPolygonIntersectionPoint;
+    bool edge;
 
     int i = 0;
     
@@ -211,11 +212,9 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
         //Point closest_point_on_plane = ClosestPtPointPlane(sourcePoint, plane);
 
-        float point_distance_from_plane = intersect(planeOrigin, planeNormal, sourcePoint, -planeNormal);
-        printf("    point_distance_from_plane1: %f\n", point_distance_from_plane);
-        point_distance_from_plane = DistPointPlane(sourcePoint, plane);
-
+        float point_distance_from_plane = DistPointPlane(sourcePoint, plane);
         printf("    point_distance_from_plane2: %f\n", point_distance_from_plane);
+
         Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
@@ -230,6 +229,12 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
             printf("    within 1.0f\n");
             Vector temp = -planeNormal * point_distance_from_plane;
             planeIntersectionPoint = sourcePoint + temp;
+            float t = intersect(planeOrigin, planeNormal, sphereIntersectionPoint, glm::normalize(velocityVector));
+
+            if (t < 0.0) {
+                printf("    traveling away from this polygon\n");
+                continue;
+            }
         }
         else
         {
@@ -257,28 +262,23 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         printf("    polygonIntersectionPoint: %f %f %f\n", polygonIntersectionPoint.x, polygonIntersectionPoint.y, polygonIntersectionPoint.z);
 
         Vector negativeVelocityVector = -velocityVector;
-        float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
-
-        printf("    t: %f\n", t);
+        //float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
         printf("    distanceToTravel: %f\n", distanceToTravel);
 
         // Intersects ray r = p + td, |d| = 1, with sphere s and, if intersecting,
         // returns t value of intersection and intersection point q
-        float t_value;
+        float t;
         Point q;
         Vector Q = glm::normalize(sourcePoint - polygonIntersectionPoint);
-        int bruh = IntersectRaySphere(polygonIntersectionPoint, Q, sourcePoint, 1.0f, t_value, q);
+        int bruh = IntersectRaySphere(polygonIntersectionPoint, Q, sourcePoint, 1.0f, t, q);
 
         printf("    IntersectRaySphere: %d\n", bruh);
-        printf("    t_value: %f\n", t_value);
+        printf("    t_value: %f\n", t);
         printf("    q: %f %f %f\n", q.x, q.y, q.z);
-
-        t = t_value;
         sphereIntersectionPointPos = q;
 
         if (t >= 0.0 && t <= distanceToTravel)
         {
-         
             Vector V = negativeVelocityVector * t;
             Point intersectionPoint = q; // polygonIntersectionPoint + V;
 
@@ -295,17 +295,21 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     if (!collisionFound)
     {
         //playerPoint += velocityVector;
-        //printf("Collision Not Found!\n");
+        printf("    Collision Not Found!\n");
         return;
     }
         
     
+    
+    printf("    !!!!!!!!!!!!!!!!!!!Collision Found!!!!!!!!!!!!!!!!!!!\n");
 
-    printf("!!!!!!!!!!!!!!!!!!!Collision Found!!!!!!!!!!!!!!!!!!!\n");
-
+    printf("    nearestDistance: %f\n", nearestDistance);
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
     velocityVector = V;
+    printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
 
+
+    /*
     V = nearestPolygonIntersectionPoint - sourcePoint;
     Point destinationPoint = nearestPolygonIntersectionPoint + V;
 
@@ -321,6 +325,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     
 
     collideWithWorld(sourcePoint, velocityVector, radiusVector);
+    */
 }
 
 // Function to check if a point is within a polygon
@@ -457,7 +462,7 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
     */
 
 
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 12; ++i)
     {
         potentialColliders.push_back(polygons[i]);
     }
