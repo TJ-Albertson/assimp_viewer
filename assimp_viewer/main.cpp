@@ -295,7 +295,7 @@ int main()
         glm::mat4 arrowModelMatrix = glm::mat4(1.0f); // Identity matrix
         arrowModelMatrix = glm::translate(arrowModelMatrix, playerCenter);
         glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Define the up vector
-        glm::mat4 rotationMatrix = glm::lookAt(glm::vec3(0.0f), glm::vec3(vector.x, vector.y, -vector.z), upVector);
+        glm::mat4 rotationMatrix = glm::lookAt(glm::vec3(0.0f), glm::vec3(vector.x, vector.y + 0.1f, -vector.z), upVector);
 
        
         //arrowModelMatrix = glm::rotate(arrowModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));

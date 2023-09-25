@@ -325,7 +325,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
     
 
-    collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
+    collideWithWorld(sourcePoint, velocityVector, radiusVector);
 }
 
 // Function to check if a point is within a polygon
