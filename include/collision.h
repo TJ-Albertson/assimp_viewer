@@ -171,6 +171,8 @@ int TestSpherePlane(Sphere s, Plane p)
 // Function to perform collision detection recursively
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector)
 {
+    //assert(velocityVector != nullptr);
+
     float distanceToTravel = glm::length(velocityVector);
     
     if (distanceToTravel < EPSILON) {
@@ -309,13 +311,13 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
 
 
-    V = nearestPolygonIntersectionPoint - sourcePoint;
+    V = glm::normalize(V) * (distanceToTravel - nearestDistance);
     Point destinationPoint = nearestPolygonIntersectionPoint + V;
 
     Point slidePlaneOrigin = nearestPolygonIntersectionPoint;
     Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
 
-    float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal);
+    float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal); 
     slidePlaneNormal = glm::normalize(slidePlaneNormal) * time;
     Vector destinationProjectionNormal = slidePlaneNormal;
     Point newDestinationPoint = destinationPoint + destinationProjectionNormal;
@@ -324,8 +326,9 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
     
+    //assert(1 == 0);
 
-    collideWithWorld(sourcePoint, velocityVector, radiusVector);
+    collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
 }
 
 // Function to check if a point is within a polygon

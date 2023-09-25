@@ -225,6 +225,7 @@ int main()
         model = glm::translate(model, playerPosition);
 
         glm::vec3 vector;
+        
 
         if (playerPosition.y > 0.0f) {
             
@@ -235,6 +236,9 @@ int main()
 
             if (playerVelocity > max_speed) playerVelocity = max_speed;
 
+            
+            
+
         } else {
             playerVelocity -= friction;
             if (playerVelocity < 0) playerVelocity = 0.0f;
@@ -242,8 +246,8 @@ int main()
             //directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
         }
         vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
-       
-        movePlayer(vector);
+        movePlayer(vector); 
+        
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && playerPosition.y <= 0.0f) {
             movePlayer(glm::vec3(0.0f, 5.0f, 0.0f));
