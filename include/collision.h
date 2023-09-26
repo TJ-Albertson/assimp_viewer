@@ -7,7 +7,7 @@
 
 #include <vector>
 
-const float EPSILON = 1e-6;
+const float EPSILON = 1e-2;
 
 // Define Point and Vector as glm types
 typedef glm::vec3 Point;
@@ -296,7 +296,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     if (!collisionFound)
     {
-        //playerPoint += velocityVector;
+        sourcePoint += velocityVector;
         printf("    Collision Not Found!\n");
         return;
     }
@@ -307,9 +307,9 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     printf("    nearestDistance: %f\n", nearestDistance);
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
-    velocityVector = V;
+    //velocityVector = V;
+    sourcePoint += V;
     printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
-
 
     V = glm::normalize(V) * (distanceToTravel - nearestDistance);
     Point destinationPoint = nearestPolygonIntersectionPoint + V;
@@ -318,8 +318,11 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
 
     float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal); 
+
     slidePlaneNormal = glm::normalize(slidePlaneNormal) * time;
+
     Vector destinationProjectionNormal = slidePlaneNormal;
+
     Point newDestinationPoint = destinationPoint + destinationProjectionNormal;
     
     Vector newVelocityVector = newDestinationPoint - nearestPolygonIntersectionPoint;
@@ -327,7 +330,10 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
     
     //assert(1 == 0);
-
+    
+    // its gott be dis>>>>>>
+    // sourcePoint += new VelocityVector
+    //velocityVector = newVelocityVector;
     collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
 }
 

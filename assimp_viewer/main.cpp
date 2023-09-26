@@ -240,7 +240,7 @@ int main()
             
 
         } else {
-            playerVelocity -= friction;
+            //playerVelocity -= friction;
             if (playerVelocity < 0) playerVelocity = 0.0f;
             //playerVelocity = 0;
             //directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
@@ -293,7 +293,7 @@ int main()
 
 
          // player hitbox
-        glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
+        glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
         glm::mat4 arrowModelMatrix = glm::mat4(1.0f); // Identity matrix
