@@ -308,7 +308,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     printf("    nearestDistance: %f\n", nearestDistance);
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
     //velocityVector = V;
-    sourcePoint += V;
+    //sourcePoint += V;
     printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
 
     V = glm::normalize(V) * (distanceToTravel - nearestDistance);
@@ -328,13 +328,19 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Vector newVelocityVector = newDestinationPoint - nearestPolygonIntersectionPoint;
 
     printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
+
     
-    //assert(1 == 0);
     
+    
+    // maybe set this gange to same length of vector but in sliding direction
+    // 
+    // velocity and newVelocityVector are going against each toerh
+    // 
     // its gott be dis>>>>>>
     // sourcePoint += new VelocityVector
     //velocityVector = newVelocityVector;
-    collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
+    sourcePoint += glm::vec3(newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
+    //collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
 }
 
 // Function to check if a point is within a polygon
