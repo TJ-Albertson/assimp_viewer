@@ -183,12 +183,9 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
     if (potentialColliders.empty())
     {
-        printf("potentialColliders is Empty\n");
         //sourcePoint += velocityVector;
         return;
     }
-    printf("\n\n\n\n");
-    printf("velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
 
     //scalePotentialColliders(radiusVector);
 
@@ -203,7 +200,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     for (const Polygon& polygon : potentialColliders)
     {
         i++;
-        printf("Face %d\n", i);
+        //printf("Face %d\n", i);
         
         const Point& planeOrigin = polygon.vertices[0];
         const Vector& planeNormal = polygon.normal;
@@ -215,26 +212,22 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         //Point closest_point_on_plane = ClosestPtPointPlane(sourcePoint, plane);
 
         float point_distance_from_plane = DistPointPlane(sourcePoint, plane);
-        printf("    point_distance_from_plane2: %f\n", point_distance_from_plane);
 
         Point sphereIntersectionPoint; 
         Point planeIntersectionPoint;
 
         if (point_distance_from_plane < 0.0)
         {
-            printf("    source point behind plane\n");
             continue;
         }
         else if (point_distance_from_plane <= 1.0)
         {
-            
-            printf("    within 1.0f\n");
             Vector temp = -planeNormal * point_distance_from_plane;
             planeIntersectionPoint = sourcePoint + temp;
             float t = intersect(planeOrigin, planeNormal, sphereIntersectionPoint, glm::normalize(velocityVector));
 
+
             if (t < 0.0) {
-                printf("    traveling away from this polygon\n");
                 continue;
             }
         }
@@ -245,7 +238,6 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
 
             if (t < 0.0)
             {
-                printf("    traveling away from this polygon\n");
                 continue;
             }
 
@@ -256,16 +248,12 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         //sphereIntersectionPointPos = sphereIntersectionPoint;
 
         Point polygonIntersectionPoint = planeIntersectionPoint;
-        
-        printf("    planeIntersectionPoint: %f %f %f\n", planeIntersectionPoint.x, planeIntersectionPoint.y, planeIntersectionPoint.z);
 
         polygonIntersectionPoint = ClosestPtPointTriangle(sourcePoint, polygon.vertices[1], polygon.vertices[2], polygon.vertices[0]);
         collisionBallPosition = polygonIntersectionPoint;
-        printf("    polygonIntersectionPoint: %f %f %f\n", polygonIntersectionPoint.x, polygonIntersectionPoint.y, polygonIntersectionPoint.z);
 
         Vector negativeVelocityVector = -velocityVector;
         //float t = intersectSphere(polygonIntersectionPoint, negativeVelocityVector, sourcePoint, 1.0f);
-        printf("    distanceToTravel: %f\n", distanceToTravel);
 
         // Intersects ray r = p + td, |d| = 1, with sphere s and, if intersecting,
         // returns t value of intersection and intersection point q
@@ -274,9 +262,6 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
         Vector Q = glm::normalize(sourcePoint - polygonIntersectionPoint);
         int bruh = IntersectRaySphere(polygonIntersectionPoint, Q, sourcePoint, 1.0f, t, q);
 
-        printf("    IntersectRaySphere: %d\n", bruh);
-        printf("    t_value: %f\n", t);
-        printf("    q: %f %f %f\n", q.x, q.y, q.z);
         sphereIntersectionPointPos = q;
 
         if (t >= 0.0 && t <= distanceToTravel)
@@ -297,19 +282,18 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     if (!collisionFound)
     {
         sourcePoint += velocityVector;
-        printf("    Collision Not Found!\n");
         return;
     }
         
     
     
-    printf("    !!!!!!!!!!!!!!!!!!!Collision Found!!!!!!!!!!!!!!!!!!!\n");
 
-    printf("    nearestDistance: %f\n", nearestDistance);
+
+
     Vector V = glm::normalize(velocityVector) * (nearestDistance - EPSILON);
     //velocityVector = V;
     //sourcePoint += V;
-    printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
+    //printf("    velocityVector: %f %f %f\n", velocityVector.x, velocityVector.y, velocityVector.z);
 
     V = glm::normalize(V) * (distanceToTravel - nearestDistance);
     Point destinationPoint = nearestPolygonIntersectionPoint + V;
@@ -327,10 +311,9 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     
     Vector newVelocityVector = newDestinationPoint - nearestPolygonIntersectionPoint;
 
-    printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
-
-    
-    
+    if (i == 26) {
+        printf("    newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
+    }
     
     // maybe set this gange to same length of vector but in sliding direction
     // 
