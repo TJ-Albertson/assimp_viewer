@@ -299,11 +299,11 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     Point destinationPoint = nearestPolygonIntersectionPoint + V;
 
     Point slidePlaneOrigin = nearestPolygonIntersectionPoint;
-
     Vector slidePlaneNormal = nearestPolygonIntersectionPoint - sourcePoint;
 
-    glm::vec3 ray_plane_intersect_point; //= functionToFind where ray intersects plane
     glm::vec3 dest_point = sourcePoint + velocityVector;
+    glm::vec3 ray_plane_intersect_point; //= functionToFindRayIntersectPlane(
+    glm::vec3 dest_point_plane; //= functionToFindDistPointPlane(dest_point, )
 
     float time = intersect(slidePlaneOrigin, slidePlaneNormal, destinationPoint, slidePlaneNormal); 
 
