@@ -108,16 +108,21 @@ int main()
 
 
     glm::mat4 hitbox = glm::mat4(1.0f);
-    hitbox = glm::translate(hitbox, glm::vec3(5.0f, 3.0f, 5.0f));
+    hitbox = glm::translate(hitbox, glm::vec3(5.0f, 1.0f, 5.0f));
     hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(5.0f, 3.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(5.0f, 1.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+    glm::mat4 hitbox2 = glm::mat4(1.0f);
+    hitbox2 = glm::translate(hitbox2, glm::vec3(-5.0f, -0.5f, 5.0f));
+    hitbox2 = glm::scale(hitbox2, glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(-5.0f, -0.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
     glm::mat4 single_tri_mat = glm::mat4(1.0f);
-    single_tri_mat = glm::translate(single_tri_mat, glm::vec3(10.0f, -2.0f, 10.0f));
+    single_tri_mat = glm::translate(single_tri_mat, glm::vec3(10.0f, 0.0f, 10.0f));
     single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
-    create_hitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
+    create_hitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
@@ -127,7 +132,6 @@ int main()
 
     //Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
     // AddNodeToScene(0, grass_plane, modelShader);
-
 
     PrintSceneHierarchy(rootNode);
 
@@ -250,7 +254,7 @@ int main()
         
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            movePlayer(glm::vec3(0.0f, 5.0f, 0.0f));
+            movePlayer(glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
 
@@ -314,6 +318,9 @@ int main()
         //hitboxes
 
         setShaderMat4(modelShader, "model", hitbox);
+        DrawModel(labeled_alpha_cube, modelShader);
+
+        setShaderMat4(modelShader, "model", hitbox2);
         DrawModel(labeled_alpha_cube, modelShader);
         
         setShaderMat4(modelShader, "model", single_tri_mat);

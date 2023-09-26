@@ -339,7 +339,7 @@ void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusV
     // its gott be dis>>>>>>
     // sourcePoint += new VelocityVector
     //velocityVector = newVelocityVector;
-    sourcePoint += glm::vec3(newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
+    sourcePoint += glm::vec3(newVelocityVector.x, 0.0f, newVelocityVector.z);
     //collideWithWorld(sourcePoint, newVelocityVector, radiusVector);
 }
 
