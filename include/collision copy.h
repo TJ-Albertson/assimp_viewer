@@ -313,7 +313,6 @@ int ClosestPtPointTriangle(Point p, Point a, Point b, Point c)
 	return 1;
 }
 
-
 // Intersect segment S(t)=sa+t(sb-sa), 0<=t<=1 against cylinder specified by p, q and r
 int IntersectSegmentCylinder(Point sa, Point sb, Point p, Point q, float r, float& t)
 {
@@ -442,13 +441,14 @@ int CollisionDetection(Sphere s, Vector v, Plane p, Triangle t) {
 
 		if (edge_collision && time < time_of_collision) {
 			time_of_collision = time;
+			//S(t)=sa + t(sb-sa)
+			collision_point = s.c + (time * (v - s.c));
 		}
 	}
 
 	if (edge_collision) {
 		return 1;
 	}
-
 
 	// 4. vertice test
 	int vertex_collision;
@@ -474,14 +474,14 @@ int CollisionDetection(Sphere s, Vector v, Plane p, Triangle t) {
 		return 1;
 	}
 
-	
 	// 5. No collision
 	return 0;
 }
 
 // Adjust direction and magnitude of velocity vector (using slide plane and time of collision)
-void CollisionResponse() {
+void CollisionResponse(Sphere sphere, Vector& vector, Point collision_point) {
 
+	
 }
 
 #endif

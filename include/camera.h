@@ -51,10 +51,10 @@ struct Camera {
 	Camera_Type Type;
 };
 
-glm::vec3 playerPosition = glm::vec3(0.0f, 10.0f, 0.0f);
+glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
-glm::vec3 gravityVector = glm::vec3(0.0f, -0.1f, 0.0f);
+glm::vec3 gravityVector = glm::vec3(0.0f, 0.0f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;
@@ -102,7 +102,7 @@ Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pi
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
-		camera->Type = FREE;
+		camera->Type = THIRDPERSON;
 
         updateCameraVectors(camera);
 
@@ -124,7 +124,7 @@ Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float 
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
-		camera->Type = FREE;
+		camera->Type = THIRDPERSON;
 
         updateCameraVectors(camera);
 
@@ -141,9 +141,15 @@ void movePlayer(glm::vec3 vector)
 {
        
     glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
-    collisionDetection(playerPosition, vector, gravityVector, 1.0f);
     
-    //playerPosition += vector;
+    Sphere s;
+    s.c = playerPosition;
+    s.r = 1.0f;
+
+    int tri = TriangleCollisionDetection(s, vector);
+    //collisionDetection(playerPosition, vector, gravityVector, 1.0f);
+    
+    playerPosition += vector;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -255,7 +261,7 @@ void updateCameraVectors(Camera* camera)
                 camera->Position.y = -y + playerPosition.y;
 
 
-                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 5.0f, 0.0f);
+                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
 
                 glm::vec3 cameraFront = glm::normalize(playerHead - camera->Position);
                 glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));

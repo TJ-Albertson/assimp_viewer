@@ -89,7 +89,7 @@ int main()
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
     AddNodeToScene(0, sphere, modelShader);
 
-    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
+    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"));
     AddNodeToScene(0, labeled_alpha_cube, modelShader);
 
     Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
@@ -111,18 +111,18 @@ int main()
     hitbox = glm::translate(hitbox, glm::vec3(5.0f, 1.0f, 5.0f));
     hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(5.0f, 1.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/models/labeled_alpha_cube/single_tri.obj"), glm::vec3(5.0f, 1.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     glm::mat4 hitbox2 = glm::mat4(1.0f);
     hitbox2 = glm::translate(hitbox2, glm::vec3(-5.0f, -0.5f, 5.0f));
     hitbox2 = glm::scale(hitbox2, glm::vec3(1.0f, 1.0f, 1.0f));
-    create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(-5.0f, -0.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    //create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(-5.0f, -0.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
     glm::mat4 single_tri_mat = glm::mat4(1.0f);
     single_tri_mat = glm::translate(single_tri_mat, glm::vec3(10.0f, 0.0f, 10.0f));
     single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
-    create_hitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
+    //(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
 
     //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
     //AddNodeToScene(0, skybox, modelShader);
@@ -230,7 +230,7 @@ int main()
 
         glm::vec3 vector;
         
-
+        vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
         if (playerPosition.y > 0.0f) {
             
         }
@@ -242,6 +242,7 @@ int main()
 
             
             
+            movePlayer(vector);
 
         } else {
             playerVelocity -= friction;
@@ -250,8 +251,7 @@ int main()
             //directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
         }
         //need 2 fix dis           ?switch to adding new velocity to old? idk
-        vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
-        movePlayer(vector); 
+         
         
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -322,10 +322,10 @@ int main()
         DrawModel(labeled_alpha_cube, modelShader);
 
         setShaderMat4(modelShader, "model", hitbox2);
-        DrawModel(labeled_alpha_cube, modelShader);
+        //DrawModel(labeled_alpha_cube, modelShader);
         
         setShaderMat4(modelShader, "model", single_tri_mat);
-        DrawModel(single_tri, modelShader);
+        //DrawModel(single_tri, modelShader);
 
         glUseProgram(hitboxShader);
 
