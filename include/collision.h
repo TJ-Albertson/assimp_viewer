@@ -168,6 +168,27 @@ int TestSpherePlane(Sphere s, Plane p)
 }
 */
 
+
+/*
+* TODO
+
+1. sphere-plane test
+        5.5.3 Intersecting Moving Sphere Against Plane
+
+2. face test (is P inside T?)
+
+3. edge test (cylinder, curved surface only)
+        5.3.7 Intersecting Ray or Segment Against Cylinder (last bit of test can be omitted, dont need to check endcaps)
+
+4. vertice test (sphere centered at vertice, return closest)
+        5.3.2 Intersecting Ray or Segment Against Sphere
+
+5. if all pass then no intersection
+*/
+
+
+
+
 // Function to perform collision detection recursively
 void collideWithWorld(Point& sourcePoint, Vector& velocityVector, double radiusVector)
 {
@@ -474,6 +495,8 @@ void create_hitbox(std::string const& path, glm::vec3 translation, glm::vec3 sca
     return;
 }
 
+
+// this method breaks when sphere is moving parallel to tri because there is no point on plane to find
 Point ClosestPtPointTriangle(Point p, Point a, Point b, Point c)
 {
     // Check if P in vertex region outside A

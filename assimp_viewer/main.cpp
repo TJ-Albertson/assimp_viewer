@@ -244,11 +244,12 @@ int main()
             
 
         } else {
-            //playerVelocity -= friction;
+            playerVelocity -= friction;
             if (playerVelocity < 0) playerVelocity = 0.0f;
             //playerVelocity = 0;
             //directionVector = glm::vec3(0.001f, 0.001f, 0.001f);
         }
+        //need 2 fix dis           ?switch to adding new velocity to old? idk
         vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
         movePlayer(vector); 
         

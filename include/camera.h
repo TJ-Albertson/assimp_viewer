@@ -141,7 +141,7 @@ void movePlayer(glm::vec3 vector)
 {
        
     glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
-        collisionDetection(playerPosition, vector, gravityVector, 1.0f);
+    collisionDetection(playerPosition, vector, gravityVector, 1.0f);
     
     //playerPosition += vector;
 }
