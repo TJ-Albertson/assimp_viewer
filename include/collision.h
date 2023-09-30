@@ -7,7 +7,7 @@
 
 #include <vector>
 
-const float EPSILON = 1e-6;
+const float EPSILON = 1e-7;
 
 // Define Point and Vector as glm types
 typedef glm::vec3 Point;
