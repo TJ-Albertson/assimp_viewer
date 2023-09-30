@@ -143,8 +143,12 @@ int main()
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    const double debounceDelay = 0.5; // 200 milliseconds
 
-   
+    // Define a variable to keep track of the last time the space key was pressed
+    double lastSpacePressTime = 0.0;
+
+
     glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
     
     while (!glfwWindowShouldClose(window)) {
@@ -255,7 +259,17 @@ int main()
         
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            movePlayer(glm::vec3(0.0f, 1.0f, 0.0f));
+            if (currentTime - lastSpacePressTime >= debounceDelay) {
+                movePlayer(glm::vec3(0.0f, 1.0f, 0.0f));
+                lastSpacePressTime = currentTime;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            if (currentTime - lastSpacePressTime >= debounceDelay) {
+                movePlayer(glm::vec3(0.0f, -1.0f, 0.0f));
+                lastSpacePressTime = currentTime;
+            }
         }
 
 
