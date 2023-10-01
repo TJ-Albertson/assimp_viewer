@@ -51,10 +51,10 @@ struct Camera {
 	Camera_Type Type;
 };
 
-glm::vec3 playerPosition = glm::vec3(0.0f, 10.0f, 0.0f);
+glm::vec3 playerPosition = glm::vec3(0.0f, 2.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
-glm::vec3 gravityVector = glm::vec3(0.0f, -0.01f, 0.0f);
+glm::vec3 gravityVector = glm::vec3(0.0f, -0.02f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;
@@ -155,11 +155,10 @@ void movePlayer(glm::vec3 vector)
     if (tri) {
         printf("   collision_point1: %f %f %f\n", collision_point.x, collision_point.y, collision_point.z);
 
-        collisionBallPosition = collision_point;
+       
         
-        Vector vec_test;
 
-        TriangleCollisionResponse(vector, s, collision_point);
+        //TriangleCollisionResponse(vector, s, collision_point);
     }
     //collisionDetection(playerPosition, vector, gravityVector, 1.0f);
     

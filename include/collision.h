@@ -7,7 +7,7 @@
 
 #include <vector>
 
-const float EPSILON = 1e-7;
+const float EPSILON = 1e-5;
 
 // Define Point and Vector as glm types
 typedef glm::vec3 Point;
@@ -772,8 +772,43 @@ void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d)
 5. if all pass then no intersection
 */
 
-int TriangleCollisionDetection(Sphere s, Vector v, Point& collision_point)
+
+void TriangleCollisionResponse(Vector& v, Sphere s, Point collision_point)
 {
+
+    Vector sliding_plane_normal = (s.c - v) - collision_point;
+    sliding_plane_normal = glm::normalize(sliding_plane_normal);
+
+    Plane sliding_plane;
+    sliding_plane.n = sliding_plane_normal;
+    sliding_plane.d = glm::dot(sliding_plane_normal, collision_point);
+
+    float distance = DistPointPlane((s.c + v), sliding_plane);
+    printf("           distance: %f\n", distance);
+
+
+
+    Vector newDestinationPoint = (s.c + v) - (distance * sliding_plane_normal);
+
+    printf("newDestinationPoint: %f %f %f\n", newDestinationPoint.x, newDestinationPoint.y, newDestinationPoint.z);
+    // collisionBallPosition = newDestinationPoint;
+
+    Vector newVelocityVector = newDestinationPoint - collision_point;
+    printf("  newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
+
+    if (glm::length(newVelocityVector) < EPSILON) {
+        v = glm::normalize(v) * distance;
+        return;
+    }
+
+    v = newVelocityVector;
+}
+
+
+
+int TriangleCollisionDetection(Sphere s, Vector& v, Point& collision_point)
+{
+
     for (int j = 0; j < potentialColliders.size(); ++j) {
 
         Plane p;
@@ -801,7 +836,8 @@ int TriangleCollisionDetection(Sphere s, Vector v, Point& collision_point)
         if (point_in_triangle) {
             // earliest intersection point found
             printf("Collision with Polygon %d Face\n", j);
-            return 1;
+            TriangleCollisionResponse(v, s, collision_point);
+            continue;
         }
 
         // 3. edge test
@@ -840,8 +876,9 @@ int TriangleCollisionDetection(Sphere s, Vector v, Point& collision_point)
             ClosestPtPointSegment(s.c+v, a, b, time, d);
             //printf("d: %f %f %f\n", d.x, d.y, d.z);
             collision_point = d;
+            TriangleCollisionResponse(v, s, collision_point);
             printf("Collision with Polygon %d Edge %d\n", j, edge);
-            return 1;
+            continue;
         }
 
         // 4. vertice test
@@ -876,42 +913,19 @@ int TriangleCollisionDetection(Sphere s, Vector v, Point& collision_point)
         if (vertex_collision) {
             //collision_point += v;
             printf("Collision with Polygon %d Vertex %d\n", j, vertex);
-            return 1;
+            TriangleCollisionResponse(v, s, collision_point);
+            continue;
         }
 
         // 5. No collision
         // printf("NO Collision with Polygon %d\n", j);
     }
-
+    collisionBallPosition = collision_point;
     return 0;
 }
 
 
-void TriangleCollisionResponse(Vector &v, Sphere s, Point collision_point)
-{
 
-    Vector sliding_plane_normal = (s.c - v) - collision_point;
-    sliding_plane_normal = glm::normalize(sliding_plane_normal);
-    
-    Plane sliding_plane;
-    sliding_plane.n = sliding_plane_normal;
-    sliding_plane.d = glm::dot(sliding_plane_normal, collision_point);
-
-    float distance = DistPointPlane((s.c + v), sliding_plane);
-    printf("           distance: %f\n", distance);
-
-    Vector newDestinationPoint = (s.c + v) - (distance * sliding_plane_normal);
-    
-    printf("newDestinationPoint: %f %f %f\n", newDestinationPoint.x, newDestinationPoint.y, newDestinationPoint.z);
-    //collisionBallPosition = newDestinationPoint;
-
-    Vector newVelocityVector = newDestinationPoint - collision_point;
-    printf("  newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
-
-    if (glm::length(newVelocityVector) < EPSILON) return;
-
-    v = newVelocityVector;
-}
 
 
 #endif
