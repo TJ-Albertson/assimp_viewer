@@ -248,23 +248,25 @@ int main()
             }
         }
 
+
+        //need 2 fix dis           ?switch to adding new velocity to old? idk
+        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
+
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             if (!isSpaceKeyPressed) {
                 isSpaceKeyPressed = true;
                 jumpStartTime = currentTime;
-                vector += glm::vec3(0.0f, 1.0f, 0.0f);  // Apply initial y-velocity
+                vector += glm::vec3(0.0f, 0.1f, 0.0f);  // Apply initial y-velocity
             }
             else if (currentTime - jumpStartTime <= maxJumpDuration) {
                 // Keep applying y-velocity within the jump duration
-                vector += glm::vec3(0.0f, 1.0f, 0.0f);
+                vector += glm::vec3(0.0f, 0.1f, 0.0f);
             }
         }
         else {
             isSpaceKeyPressed = false;
         }
 
-        //need 2 fix dis           ?switch to adding new velocity to old? idk
-        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
 
         movePlayer(vector);
 
