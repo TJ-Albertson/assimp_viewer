@@ -780,7 +780,7 @@ void TriangleCollisionResponse(Vector& v, Sphere s, Point collision_point)
         return;
     }
 
-    Vector sliding_plane_normal = (s.c - v) - collision_point;
+    Vector sliding_plane_normal = (s.c) - collision_point;
     sliding_plane_normal = glm::normalize(sliding_plane_normal);
 
     Plane sliding_plane;

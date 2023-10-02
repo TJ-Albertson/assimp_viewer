@@ -246,7 +246,7 @@ int main()
             if (playerVelocity < 0) playerVelocity = 0.0f;
         }
         //need 2 fix dis           ?switch to adding new velocity to old? idk
-        vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
+        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
         printf("    vector: %f\n", vector);
         movePlayer(vector);
 
