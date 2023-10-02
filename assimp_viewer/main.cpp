@@ -95,6 +95,10 @@ int main()
     Model* hill_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane_2.obj"));
     AddNodeToScene(0, hill_plane, modelShader);
 
+    Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
+    AddNodeToScene(0, soid_man, modelShader);
+
+
     glm::mat4 hill_planehitbox = glm::mat4(1.0f);
     hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
     hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -138,6 +142,10 @@ int main()
     const double debounceDelay = 0.5; // 200 milliseconds
     double lastSpacePressTime = 0.0;
     glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
+
+    bool isSpaceKeyPressed = false;
+    float maxJumpDuration = 0.5f;  // Adjust this to control the jump duration (in seconds)
+    float jumpStartTime = 0.0f;
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -230,17 +238,8 @@ int main()
             playerVelocity -= friction;
             if (playerVelocity < 0) playerVelocity = 0.0f;
         }
-        //need 2 fix dis           ?switch to adding new velocity to old? idk
-        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
-        movePlayer(vector);
 
-
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            if (currentTime - lastSpacePressTime >= debounceDelay) {
-                movePlayer(glm::vec3(0.0f, 5.0f, 0.0f));
-                lastSpacePressTime = currentTime;
-            }
-        }
+        
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             if (currentTime - lastSpacePressTime >= debounceDelay) {
@@ -249,14 +248,37 @@ int main()
             }
         }
 
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            if (!isSpaceKeyPressed) {
+                isSpaceKeyPressed = true;
+                jumpStartTime = currentTime;
+                vector += glm::vec3(0.0f, 1.0f, 0.0f);  // Apply initial y-velocity
+            }
+            else if (currentTime - jumpStartTime <= maxJumpDuration) {
+                // Keep applying y-velocity within the jump duration
+                vector += glm::vec3(0.0f, 1.0f, 0.0f);
+            }
+        }
+        else {
+            isSpaceKeyPressed = false;
+        }
+
+        //need 2 fix dis           ?switch to adding new velocity to old? idk
+        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
+
+        movePlayer(vector);
+
+
+        
+
 
         if (PlayerCamera->Type == THIRDPERSON) {
            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
-        model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
+        //model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
         setShaderMat4(modelShader, "model", model);
-        //DrawModel(player, modelShader);
+        DrawModel(soid_man, modelShader);
 
 
 
@@ -468,9 +490,13 @@ void processInput(GLFWwindow* window, Camera* camera)
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         CameraProcessKeyboard(camera, BACKWARD_LEFT, deltaTime);
 
-    if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
-        isMoving = true;
-    } else {
+	if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
+		isMoving = true;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !mousePressed) {
+		isMoving = true;
+    }
+    else {
         isMoving = false;
     }
 
