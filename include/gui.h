@@ -45,7 +45,7 @@ void CollisionWindow()
 
 void playAnimationButton()
 {
-    ImGui::Begin("ImGui Window");
+    ImGui::Begin("Camera");
     if (ImGui::Button("Play Animation")) {
         animationPlaying = !animationPlaying;
     }

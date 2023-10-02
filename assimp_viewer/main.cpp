@@ -68,12 +68,9 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
- 
-   
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
-
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
 
 
@@ -104,8 +101,6 @@ int main()
     CreateHitbox(filepath("/resources/objects/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
-
-
     Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
     AddNodeToScene(0, x_arrow, modelShader);
     Model* y_arrow = LoadModel(filepath("/resources/models/direction_arrows/y.obj"));
@@ -131,31 +126,17 @@ int main()
     single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
     CreateHitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
 
-    //Model* skybox = LoadModel(filepath("/resources/objects/skybox/skybox.obj"));
-    //AddNodeToScene(0, skybox, modelShader);
-
-    // Model* grass = LoadModel(filepath("/resources/objects/grass_cube/grass_cube.obj"));
-    //AddNodeToScene(0, grass, modelShader);
-
-    //Model* grass_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane.obj"));
-    // AddNodeToScene(0, grass_plane, modelShader);
-
     PrintSceneHierarchy(rootNode);
 
     LoadSkybox(filepath);
 
-    //Model* backpack = LoadModel(filepath("resources/objects/cyborg/cyborg.obj"));
-   // AddNodeToScene(0, backpack, modelShader);
-
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
     const double debounceDelay = 0.5; // 200 milliseconds
-
-    // Define a variable to keep track of the last time the space key was pressed
     double lastSpacePressTime = 0.0;
-
-
     glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
     
     while (!glfwWindowShouldClose(window)) {
@@ -182,7 +163,9 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
-        // draw grid with instance array
+
+
+        // Draw Grid, with instance array
         glUseProgram(gridShader);
         setShaderMat4(gridShader, "projection", projection);
         setShaderMat4(gridShader, "view", view);
@@ -229,18 +212,13 @@ int main()
 
 
 
-       
 
 
-        
-
-
-        // PLayer
+        // Player
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
 
         glm::vec3 vector;
-        
         
         if (isMoving) {
             playerVelocity += acceleration;
@@ -254,7 +232,6 @@ int main()
         }
         //need 2 fix dis           ?switch to adding new velocity to old? idk
         vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
-        printf("    vector: %f\n", vector);
         movePlayer(vector);
 
 
@@ -284,26 +261,15 @@ int main()
 
 
         model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
-       // model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(hill_plane, modelShader);
 
-
-        model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(20.0f, 0.0f, 20.0f));
-        setShaderMat4(modelShader, "model", model);
-        // DrawModel(grass_plane, modelShader);
 
         //DrawScene();
 
 
 
-
         model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(5.0f, 3.0f, 5.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(x_arrow, modelShader);
         DrawModel(y_arrow, modelShader);
@@ -322,16 +288,14 @@ int main()
 
        
         //arrowModelMatrix = glm::rotate(arrowModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
         arrowModelMatrix *= rotationMatrix;
         setShaderMat4(modelShader, "model", arrowModelMatrix);
         DrawModel(z_arrow, modelShader);
 
-
+        // Alpha draw start
         glEnable(GL_CULL_FACE);
 
         //hitboxes
-
         setShaderMat4(modelShader, "model", hitbox);
         DrawModel(labeled_alpha_cube, modelShader);
 
@@ -386,28 +350,17 @@ int main()
         DrawModel(sphere, hitboxShader);
 
 
-        // sphere hitbox
-        // 2.5
+        // sphere hitbox 2.5
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", hitboxColor);
         DrawModel(sphere, hitboxShader);
 
-       
-
-        
-
-        setShaderMat4(hitboxShader, "model", hitbox);
-        setShaderVec4(hitboxShader, "color", hitboxColor);
-        //DrawModel(green_alpha, hitboxShader);
-
-
-    
-
+        // Alpha draw end
         glDisable(GL_CULL_FACE);
 
-        // needs to be drawn last; covers up everything after it
+        // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection);   
  
 
