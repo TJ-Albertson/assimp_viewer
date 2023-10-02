@@ -152,7 +152,7 @@ void movePlayer(glm::vec3 vector)
 
     vector += gravityVector;
 
-    int tri = TriangleCollisionDetection(s, vector, collision_point);
+    int tri = CollisionDetection(s, vector, collision_point);
 
     if (tri) {
         printf("   collision_point1: %f %f %f\n", collision_point.x, collision_point.y, collision_point.z);
