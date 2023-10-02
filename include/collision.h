@@ -775,6 +775,10 @@ void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d)
 
 void TriangleCollisionResponse(Vector& v, Sphere s, Point collision_point)
 {
+    if (glm::length(v) < EPSILON) {
+        // printf("distanceToTravel < EPSILON\n");
+        return;
+    }
 
     Vector sliding_plane_normal = (s.c - v) - collision_point;
     sliding_plane_normal = glm::normalize(sliding_plane_normal);
@@ -786,18 +790,18 @@ void TriangleCollisionResponse(Vector& v, Sphere s, Point collision_point)
     float distance = DistPointPlane((s.c + v), sliding_plane);
     printf("           distance: %f\n", distance);
 
-
-
     Vector newDestinationPoint = (s.c + v) - (distance * sliding_plane_normal);
 
     printf("newDestinationPoint: %f %f %f\n", newDestinationPoint.x, newDestinationPoint.y, newDestinationPoint.z);
-    // collisionBallPosition = newDestinationPoint;
+    // collisionBallPosition = newDestinationPoint; 
 
     Vector newVelocityVector = newDestinationPoint - collision_point;
     printf("  newVelocityVector: %f %f %f\n", newVelocityVector.x, newVelocityVector.y, newVelocityVector.z);
 
     if (glm::length(newVelocityVector) < EPSILON) {
-        v = glm::normalize(v) * distance;
+        //v = glm::normalize(v) * distance;
+
+        v = glm::vec3(0.0f, 0.0f, 0.0f);
         return;
     }
 

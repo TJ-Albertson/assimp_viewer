@@ -51,7 +51,7 @@ struct Camera {
 	Camera_Type Type;
 };
 
-glm::vec3 playerPosition = glm::vec3(0.0f, 2.0f, 0.0f);
+glm::vec3 playerPosition = glm::vec3(0.0f, 10.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
 glm::vec3 gravityVector = glm::vec3(0.0f, -0.02f, 0.0f);
@@ -140,7 +140,7 @@ glm::mat4 GetViewMatrix(const Camera camera)
 void movePlayer(glm::vec3 vector)
 {
        
-    glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
+    //glm::vec3 playerCenter = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
     
     Sphere s;
     s.c = playerPosition;

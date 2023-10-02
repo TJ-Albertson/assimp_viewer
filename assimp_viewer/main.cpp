@@ -247,6 +247,7 @@ int main()
         }
         //need 2 fix dis           ?switch to adding new velocity to old? idk
         vector = glm::normalize(directionVector) * playerVelocity * deltaTime;
+        printf("    vector: %f\n", vector);
         movePlayer(vector);
 
 
@@ -352,7 +353,7 @@ int main()
 
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, playerCenter);
+        model = glm::translate(model, playerPosition);
 
          // playercenter
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
