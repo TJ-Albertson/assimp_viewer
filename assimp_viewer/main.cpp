@@ -95,6 +95,13 @@ int main()
     Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
     AddNodeToScene(0, single_tri, modelShader);
 
+    Model* hill_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane_2.obj"));
+    AddNodeToScene(0, hill_plane, modelShader);
+
+    glm::mat4 hill_planehitbox = glm::mat4(1.0f);
+    hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
+    hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
+    create_hitbox(filepath("/resources/objects/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 
@@ -277,10 +284,10 @@ int main()
 
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+        //model = glm::translate(model, glm::vec3(10.0f, 10.0f, 0.0f));
+       // model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         setShaderMat4(modelShader, "model", model);
-        //DrawModel(grass, modelShader);
+        DrawModel(hill_plane, modelShader);
 
 
         model = glm::mat4(1.0f);
