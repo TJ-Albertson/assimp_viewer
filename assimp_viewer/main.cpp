@@ -71,8 +71,8 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
 
@@ -102,28 +102,68 @@ int main()
     AddNodeToScene(0, soid_man, modelShader);
 
 
+
+
+    glm::mat4 hitbox = glm::mat4(1.0f);
+    // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
+    /*
+    * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
+    * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
+    * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
+    * advised to first do scaling operations, then rotations and lastly translations when combining matrices
+    * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
+    * scale, the translation vector would also scale!
+    */
+    //Translation
+    hitbox = glm::translate(hitbox, glm::vec3(10.0f, 1.0f, 15.0f));
+
+    //Rotation
+    glm::vec3 rotationAngles(0.0f, 0.0f, 0.0f);
+
+    glm::quat rotationX = glm::angleAxis(glm::radians(rotationAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::quat rotationY = glm::angleAxis(glm::radians(rotationAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat rotationZ = glm::angleAxis(glm::radians(rotationAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::quat finalRotation = rotationX * rotationY * rotationZ;
+
+    glm::mat4 rotationMatrix = glm::mat4_cast(finalRotation);
+    hitbox = hitbox * rotationMatrix;
+
+    //Scale
+    hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
+
+    CreateHitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), hitbox);
+
+
+
+
+
+
+
+
+    glm::mat4 mapMatrix = glm::mat4(1.0f);
     //map1
     Model* floor = LoadModel(filepath("/resources/models/map/floor.obj"));
     AddNodeToScene(0, floor, modelShader);
-    CreateHitbox(filepath("/resources/models/map/floor.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+    CreateHitbox(filepath("/resources/models/map/floor.obj"), mapMatrix);
 
     Model* wall = LoadModel(filepath("/resources/models/map/wall.obj"));
     AddNodeToScene(0, wall, modelShader);
-    CreateHitbox(filepath("/resources/models/map/wall.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+    CreateHitbox(filepath("/resources/models/map/wall.obj"), mapMatrix);
 
     Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
     AddNodeToScene(0, platforms, modelShader);
-    CreateHitbox(filepath("/resources/models/map/platforms.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+    CreateHitbox(filepath("/resources/models/map/platforms.obj"), mapMatrix);
 
     Model* stairs = LoadModel(filepath("/resources/models/map/stairs.obj"));
     AddNodeToScene(0, stairs, modelShader);
-    CreateHitbox(filepath("/resources/models/map/stairs.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+    CreateHitbox(filepath("/resources/models/map/stairs.obj"), mapMatrix);
     //map1
 
     glm::mat4 hill_planehitbox = glm::mat4(1.0f);
     hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
     hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
-    CreateHitbox(filepath("/resources/models/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    //CreateHitbox(filepath("/resources/models/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
     Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
@@ -134,11 +174,7 @@ int main()
     AddNodeToScene(0, z_arrow, modelShader);
 
 
-    glm::mat4 hitbox = glm::mat4(1.0f);
-    hitbox = glm::translate(hitbox, glm::vec3(5.0f, 1.0f, 5.0f));
-    hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
-
-    CreateHitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(5.0f, 1.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    
 
     glm::mat4 hitbox2 = glm::mat4(1.0f);
     hitbox2 = glm::translate(hitbox2, glm::vec3(-5.0f, -0.5f, 5.0f));

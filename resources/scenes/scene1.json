@@ -1,14 +1,40 @@
 {
-    "filepath": "C:\\file",
-    "hitbox": "C:\file",
-    "shaderId": 0,
-    "translation": "1.0f, 1.0f, 1.0f",
-    "Floor": {
-        "filepath": "C:\file",
-        "hitbox": "C:\file",
+    "floor": {
+        "filepath": "/resources/models/map/floor.obj",
+        "hitbox": "/resources/models/map/floor.obj",
         "shaderId": 0,
-        "translation": "1.0f, 1.0f, 1.0f",
+        "translation": "0.0f, 0.0f, 0.0f",
         "scale": "1.0f, 1.0f, 1.0f",
-        "rotation": "1.0f, 1.0f, 1.0f"
+        "rotation": "0.0f, 0.0f, 0.0f"
+    },
+    "wall": {
+        "filepath": "/resources/models/map/wall.obj",
+        "hitbox": "/resources/models/map/wall.obj",
+        "shaderId": 0,
+        "translation": "0.0f, 0.0f, 0.0f",
+        "scale": "1.0f, 1.0f, 1.0f",
+        "rotation": "0.0f, 0.0f, 0.0f"
+    }
+}
+
+{
+    {
+        "name": "floor1",
+        "filepath": "/resources/models/map/floor.obj",
+        "hitbox": "/resources/models/map/floor.obj",
+        "shaderId": 0,
+        "translation": "0.0f, 0.0f, 0.0f",
+        "scale": "1.0f, 1.0f, 1.0f",
+        "rotation": "0.0f, 0.0f, 0.0f"
+    },
+    ....,
+    {
+        "name": "wall1",
+        "filepath": "/resources/models/map/wall.obj",
+        "hitbox": "/resources/models/map/wall.obj",
+        "shaderId": 0,
+        "translation": "0.0f, 0.0f, 0.0f",
+        "scale": "1.0f, 1.0f, 1.0f",
+        "rotation": "0.0f, 0.0f, 0.0f"
     }
 }

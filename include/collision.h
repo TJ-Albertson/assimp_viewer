@@ -37,7 +37,7 @@ glm::vec3 sphereIntersectionPointPos;
 int CollisionDetection(Sphere s, Vector v);
 void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
 
-void CreateHitbox(std::string const& path, glm::vec3 translation, glm::vec3 scale);
+void CreateHitbox(std::string const& path, glm::mat4 matrix);
 
 Point ClosestPtPointPlane(Point q, Plane p);
 float DistPointPlane(Point q, Plane p);
@@ -198,7 +198,7 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
 }
 
 //Create hitbox from .obj and add to hitbox array. Assumes triangulated
-void CreateHitbox(std::string const& path, glm::vec3 translation, glm::vec3 scale)
+void CreateHitbox(std::string const& path, glm::mat4 matrix)
 {
     const char* file_path = path.c_str();
 
@@ -224,7 +224,8 @@ void CreateHitbox(std::string const& path, glm::vec3 translation, glm::vec3 scal
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                vertices[vertexCount] = (glm::vec3(x, y, z) + translation) * scale;
+                //vertices[vertexCount] = (glm::vec3(x, y, z) + translation) * scale;
+                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(x, y, z, 1.0f));
                 vertexCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;

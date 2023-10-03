@@ -213,7 +213,7 @@ void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID)
 // Read json and load models
 int LoadScene(std::string const& path)
 {
-    const char* filename = path.c_str(); // Replace with your JSON file's name
+    const char* filename = path.c_str();
 
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -238,13 +238,10 @@ int LoadScene(std::string const& path)
     size_t bytes_read = fread(json_buffer, 1, file_size, file);
     json_buffer[bytes_read] = '\0'; // Null-terminate the buffer
 
-    // Close the file
     fclose(file);
 
-    // Now parse the JSON data
     cJSON* root = cJSON_Parse(json_buffer);
     if (root == NULL) {
-        // Handle parsing error
         const char* error_ptr = cJSON_GetErrorPtr();
         if (error_ptr != NULL) {
             fprintf(stderr, "Error before: %s\n", error_ptr);
@@ -253,7 +250,7 @@ int LoadScene(std::string const& path)
         return 1;
     }
 
-    // Now you can access JSON elements
+    // Now access JSON elements
     cJSON* name = cJSON_GetObjectItem(root, "filepath");
     if (cJSON_IsString(name)) {
         printf("filepath: %s\n", name->valuestring);
@@ -264,7 +261,6 @@ int LoadScene(std::string const& path)
         printf("shaderId: %d\n", shaderId->valueint);
     }
 
-    // Don't forget to free the cJSON structure and the buffer when you're done with them
     cJSON_Delete(root);
     free(json_buffer);
 
