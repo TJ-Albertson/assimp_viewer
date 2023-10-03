@@ -10,6 +10,8 @@ Plan for this to hold scene children in set of nodes
 #include <model.h>;
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <cjson/cJSON.h>
+
 struct Orientation {
     glm::vec3 m_Pos = { 0.0f, 0.0f, 0.0f };
     glm::vec3 m_Rot = { 0.0f, 0.0f, 0.0f };
@@ -46,6 +48,9 @@ void DrawSceneNode(SceneNode node, glm::mat4 parentTransform);
 //void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Orientation* orientation);
 void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID);
 void AddChildNode(SceneNode* parentNode, SceneNode newNode);
+
+
+int LoadScene(std::string const& path);
 
 //change to allocate scene space 10 at a time
 void InitSceneNode()
@@ -91,53 +96,7 @@ void SearchForParentNode(SceneNode* node, int parentId, Model* model) {
     }
 }
 
-void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID)
-{
 
-    bool parentIsRoot = (parentId == 0);
-
-    if (parentIsRoot) {
-        if (rootNode->numChildren == 0) {
-
-            SceneNode newNode;
-
-            newNode.name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            strcpy(newNode.name, model->m_Name);
-           
-            newNode.id = 1;
-            newNode.model = model;
-            newNode.numChildren = 0;
-            newNode.shaderID = shaderID;
-            newNode.children = (SceneNode*)malloc(sizeof(SceneNode));
-
-            rootNode->children[0] = newNode;
-            rootNode->numChildren++;
-        }
-        else {
-
-            int newSize = rootNode->numChildren + 1;
-
-            SceneNode* new_array = (SceneNode*)realloc(rootNode->children, newSize * sizeof(SceneNode));
-
-
-            new_array[newSize - 1].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            strcpy(new_array[newSize - 1].name, model->m_Name);
-
-            new_array[newSize - 1].id = 1;
-            new_array[newSize - 1].model = model;
-            new_array[newSize - 1].shaderID = shaderID;
-            new_array[newSize - 1].numChildren = 0;
-            new_array[newSize - 1].children = (SceneNode*)malloc(sizeof(SceneNode));
-            
-            rootNode->children = new_array;
-            rootNode->numChildren++;
-        }
-    }
-    else {
-        for (int i = 0; i < rootNode->numChildren; i++)
-            SearchForParentNode(&rootNode->children[i], parentId, model);
-    }
-}
 
 
 void FindParentNode(SceneNode* node, int parentId, SceneNode newNode)
@@ -206,9 +165,110 @@ void zzzAddNodeToScene(const int parentId, Model* model, unsigned int shaderID, 
 
 
 
+void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID)
+{
 
-void LoadSceneModels() {
+    bool parentIsRoot = (parentId == 0);
 
+    if (parentIsRoot) {
+        if (rootNode->numChildren == 0) {
+
+            SceneNode newNode;
+
+            newNode.name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
+            strcpy(newNode.name, model->m_Name);
+
+            newNode.id = 1;
+            newNode.model = model;
+            newNode.numChildren = 0;
+            newNode.shaderID = shaderID;
+            newNode.children = (SceneNode*)malloc(sizeof(SceneNode));
+
+            rootNode->children[0] = newNode;
+            rootNode->numChildren++;
+        } else {
+
+            int newSize = rootNode->numChildren + 1;
+
+            SceneNode* new_array = (SceneNode*)realloc(rootNode->children, newSize * sizeof(SceneNode));
+
+            new_array[newSize - 1].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
+            strcpy(new_array[newSize - 1].name, model->m_Name);
+
+            new_array[newSize - 1].id = 1;
+            new_array[newSize - 1].model = model;
+            new_array[newSize - 1].shaderID = shaderID;
+            new_array[newSize - 1].numChildren = 0;
+            new_array[newSize - 1].children = (SceneNode*)malloc(sizeof(SceneNode));
+
+            rootNode->children = new_array;
+            rootNode->numChildren++;
+        }
+    } else {
+        for (int i = 0; i < rootNode->numChildren; i++)
+            SearchForParentNode(&rootNode->children[i], parentId, model);
+    }
+}
+
+// Read json and load models
+int LoadScene(std::string const& path)
+{
+    const char* filename = path.c_str(); // Replace with your JSON file's name
+
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file\n");
+        return 1;
+    }
+
+    // Calculate the size of the file
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // Allocate a buffer to store the file contents
+    char* json_buffer = (char*)malloc(file_size + 1);
+    if (json_buffer == NULL) {
+        printf("Error allocating memory\n");
+        fclose(file);
+        return 1;
+    }
+
+    // Read the file into the buffer
+    size_t bytes_read = fread(json_buffer, 1, file_size, file);
+    json_buffer[bytes_read] = '\0'; // Null-terminate the buffer
+
+    // Close the file
+    fclose(file);
+
+    // Now parse the JSON data
+    cJSON* root = cJSON_Parse(json_buffer);
+    if (root == NULL) {
+        // Handle parsing error
+        const char* error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL) {
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+        free(json_buffer);
+        return 1;
+    }
+
+    // Now you can access JSON elements
+    cJSON* name = cJSON_GetObjectItem(root, "filepath");
+    if (cJSON_IsString(name)) {
+        printf("filepath: %s\n", name->valuestring);
+    }
+
+    cJSON* shaderId = cJSON_GetObjectItem(root, "shaderId");
+    if (cJSON_IsNumber(shaderId)) {
+        printf("shaderId: %d\n", shaderId->valueint);
+    }
+
+    // Don't forget to free the cJSON structure and the buffer when you're done with them
+    cJSON_Delete(root);
+    free(json_buffer);
+
+    return 0;
 }
 
 void DrawScene() {

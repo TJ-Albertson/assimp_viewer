@@ -1,0 +1,10 @@
+{
+    "Floor": {
+        "filepath": "C:\file",
+        "hitbox": "C:\file",
+        "shaderId": 0,
+        "translation": "1.0f, 1.0f, 1.0f",
+        "scale": "1.0f, 1.0f, 1.0f",
+        "rotation": "1.0f, 1.0f, 1.0f"
+    }
+}

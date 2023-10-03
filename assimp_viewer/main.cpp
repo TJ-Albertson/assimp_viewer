@@ -153,6 +153,12 @@ int main()
 
     PrintSceneHierarchy(rootNode);
 
+
+    if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
+        printf("LoadScene Failed!\n");
+    }
+
+
     LoadSkybox(filepath);
 
     // Wireframe mode
