@@ -59,6 +59,9 @@ float friction = 2.0f;
 
 bool jumpDebounce = false;
 
+bool isJumping = false;
+float jumpDuration = 0.7f;
+
 int main()
 {
     GLFWwindow* window = InitializeWindow();
@@ -92,7 +95,7 @@ int main()
     Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
     AddNodeToScene(0, single_tri, modelShader);
 
-    Model* hill_plane = LoadModel(filepath("/resources/objects/grass_plane/grass_plane_2.obj"));
+    Model* hill_plane = LoadModel(filepath("/resources/models/grass_plane/grass_plane_2.obj"));
     AddNodeToScene(0, hill_plane, modelShader);
 
     Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
@@ -102,7 +105,7 @@ int main()
     glm::mat4 hill_planehitbox = glm::mat4(1.0f);
     hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
     hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
-    CreateHitbox(filepath("/resources/objects/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    CreateHitbox(filepath("/resources/models/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
     Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
@@ -253,25 +256,24 @@ int main()
         vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            if (!isSpaceKeyPressed) {
-                isSpaceKeyPressed = true;
+            if (currentTime - jumpStartTime >= debounceDelay) {
                 jumpStartTime = currentTime;
-                vector += glm::vec3(0.0f, 0.1f, 0.0f);  // Apply initial y-velocity
-            }
-            else if (currentTime - jumpStartTime <= maxJumpDuration) {
-                // Keep applying y-velocity within the jump duration
-                vector += glm::vec3(0.0f, 0.1f, 0.0f);
+                isJumping = true;
+                vector += glm::vec3(0.0f, 0.5f, 0.0f); // Apply initial y-velocity
             }
         }
-        else {
-            isSpaceKeyPressed = false;
+        if (isJumping) {
+            // Keep applying y-velocity within the jump duration
+            vector += glm::vec3(0.0f, 1.0f - (currentTime - jumpStartTime), 0.0f);
+            
+            if (currentTime - jumpStartTime >= jumpDuration) {
+                isJumping = false; // Stop jumping after jumpDuration
+               // Reset y-velocity when the jump duration is over
+            }
         }
 
 
         movePlayer(vector);
-
-
-        
 
 
         if (PlayerCamera->Type == THIRDPERSON) {
