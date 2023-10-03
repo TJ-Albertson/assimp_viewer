@@ -102,6 +102,20 @@ int main()
     AddNodeToScene(0, soid_man, modelShader);
 
 
+    //map1
+    Model* floor = LoadModel(filepath("/resources/models/map/floor.obj"));
+    AddNodeToScene(0, floor, modelShader);
+    CreateHitbox(filepath("/resources/models/map/floor.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+
+    Model* wall = LoadModel(filepath("/resources/models/map/wall.obj"));
+    AddNodeToScene(0, wall, modelShader);
+    CreateHitbox(filepath("/resources/models/map/wall.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+
+    Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
+    AddNodeToScene(0, platforms, modelShader);
+    CreateHitbox(filepath("/resources/models/map/platforms.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+    //map1
+
     glm::mat4 hill_planehitbox = glm::mat4(1.0f);
     hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
     hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -131,7 +145,7 @@ int main()
     glm::mat4 single_tri_mat = glm::mat4(1.0f);
     single_tri_mat = glm::translate(single_tri_mat, glm::vec3(10.0f, 0.0f, 10.0f));
     single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
-    CreateHitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
+    //CreateHitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
 
     PrintSceneHierarchy(rootNode);
 
@@ -142,12 +156,12 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
-    const double debounceDelay = 0.5; // 200 milliseconds
+    const double debounceDelay = 1.5; // 200 milliseconds
     double lastSpacePressTime = 0.0;
     glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
 
     bool isSpaceKeyPressed = false;
-    float maxJumpDuration = 0.5f;  // Adjust this to control the jump duration (in seconds)
+    float maxJumpDuration = 2.5f;  // Adjust this to control the jump duration (in seconds)
     float jumpStartTime = 0.0f;
     
     while (!glfwWindowShouldClose(window)) {
@@ -175,7 +189,7 @@ int main()
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
 
-
+        /*
         // Draw Grid, with instance array
         glUseProgram(gridShader);
         setShaderMat4(gridShader, "projection", projection);
@@ -184,6 +198,7 @@ int main()
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
+        */
 
         
         glUseProgram(animShader);
@@ -222,7 +237,11 @@ int main()
         DrawModel(container, modelShader);
 
 
-
+        model = glm::mat4(1.0f);
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(wall, modelShader);
+        DrawModel(platforms, modelShader);
+        DrawModel(floor, modelShader);
 
 
         // Player
@@ -329,7 +348,7 @@ int main()
         //DrawModel(labeled_alpha_cube, modelShader);
         
         setShaderMat4(modelShader, "model", single_tri_mat);
-        DrawModel(single_tri, modelShader);
+        //DrawModel(single_tri, modelShader);
 
         glUseProgram(hitboxShader);
 

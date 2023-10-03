@@ -217,7 +217,7 @@ void CreateHitbox(std::string const& path, glm::vec3 translation, glm::vec3 scal
     glm::vec3 vertices[1000];
     glm::vec3 normals[1000];
 
-    Polygon polygons[12];
+    Polygon polygons[100];
 
     char line[256];
 
@@ -235,20 +235,14 @@ void CreateHitbox(std::string const& path, glm::vec3 translation, glm::vec3 scal
                 normalCount++;
             }
         } else if (line[0] == 'f') {
-            int point1, point2, point3;
-            sscanf(line, "f %d/%*d/%*d %d/%*d/%*d %d/%*d/%*d", &point1, &point2, &point3);
+            int vertex_1, vertex_2, vertex_3, vertex_normal;
+            sscanf(line, "f %d/%*d/%d %d/%*d/%*d %d/%*d/%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
 
-            polygons[faceCount].vertices.push_back(vertices[point1 - 1]);
-            polygons[faceCount].vertices.push_back(vertices[point2 - 1]);
-            polygons[faceCount].vertices.push_back(vertices[point3 - 1]);
-
-            if (normalCount == 1) {
-                polygons[faceCount].normal = normals[0];
-            } else if (faceCount > 5) {
-                polygons[faceCount].normal = normals[faceCount - 6];
-            } else {
-                polygons[faceCount].normal = normals[faceCount];
-            }
+            polygons[faceCount].vertices.push_back(vertices[vertex_1 - 1]);
+            polygons[faceCount].vertices.push_back(vertices[vertex_2 - 1]);
+            polygons[faceCount].vertices.push_back(vertices[vertex_3 - 1]);
+            
+            polygons[faceCount].normal = normals[vertex_normal - 1];
 
             faceCount++;
         }
