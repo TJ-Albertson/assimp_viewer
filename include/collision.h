@@ -1,13 +1,11 @@
 ﻿#ifndef COLLISION_H
 #define COLLISION_H
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glad/glad.h>s
 
 #include <vector>
 
-const float EPSILON = 1e-5;
+const float EPSILON = 1e-6;
 float scaleFactor = 1;
 
 // Define Point and Vector as glm types

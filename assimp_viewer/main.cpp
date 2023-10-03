@@ -114,6 +114,10 @@ int main()
     Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
     AddNodeToScene(0, platforms, modelShader);
     CreateHitbox(filepath("/resources/models/map/platforms.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
+
+    Model* stairs = LoadModel(filepath("/resources/models/map/stairs.obj"));
+    AddNodeToScene(0, stairs, modelShader);
+    CreateHitbox(filepath("/resources/models/map/stairs.obj"), glm::vec3(0.0f), glm::vec3(1.0f));
     //map1
 
     glm::mat4 hill_planehitbox = glm::mat4(1.0f);
@@ -241,7 +245,9 @@ int main()
         setShaderMat4(modelShader, "model", model);
         DrawModel(wall, modelShader);
         DrawModel(platforms, modelShader);
+        DrawModel(stairs, modelShader);
         DrawModel(floor, modelShader);
+       
 
 
         // Player

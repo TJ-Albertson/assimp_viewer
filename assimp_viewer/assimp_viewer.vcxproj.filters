@@ -86,9 +86,6 @@
     <ClInclude Include="..\include\shader_m.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\collision copy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
