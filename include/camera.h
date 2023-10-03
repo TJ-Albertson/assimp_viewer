@@ -54,7 +54,7 @@ struct Camera {
 glm::vec3 playerPosition = glm::vec3(0.0f, 10.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
-glm::vec3 gravityVector = glm::vec3(0.0f, -0.05f, 0.0f);
+glm::vec3 gravityVector = glm::vec3(0.0f, -0.15f, 0.0f);
 
 bool firstMouse = true;
 bool mousePressed = false;

@@ -264,7 +264,7 @@ int main()
         }
         if (isJumping) {
             // Keep applying y-velocity within the jump duration
-            vector += glm::vec3(0.0f, 1.0f - (currentTime - jumpStartTime), 0.0f);
+            vector += glm::vec3(0.0f, 0.5f - (currentTime - jumpStartTime), 0.0f);
             
             if (currentTime - jumpStartTime >= jumpDuration) {
                 isJumping = false; // Stop jumping after jumpDuration
