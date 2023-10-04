@@ -72,6 +72,7 @@ int main()
     unsigned int grid_VAO = LoadGrid();
 
     unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    shaderIdArray[0] = modelShader;
     unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
@@ -86,15 +87,7 @@ int main()
 
 
     glm::mat4 hitbox = glm::mat4(1.0f);
-    // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
-    /*
-     * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
-     * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
-     * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
-     * advised to first do scaling operations, then rotations and lastly translations when combining matrices
-     * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
-     * scale, the translation vector would also scale!
-     */
+    
     // Translation
     hitbox = glm::translate(hitbox, glm::vec3(10.0f, 1.0f, 15.0f));
 
@@ -198,7 +191,7 @@ int main()
     single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
     //CreateHitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
 
-    PrintSceneHierarchy(rootNode);
+    //PrintSceneHierarchy(rootNode);
 
 
     if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
@@ -284,7 +277,7 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
-
+        DrawScene(root_node);
 
 
         model = glm::mat4(1.0f);

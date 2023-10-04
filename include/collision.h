@@ -226,19 +226,12 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                glm::vec3 temp = glm::vec3(x, y, z);
-
-                if (path == "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj")
-                    printf("vertex_%d: %f %f %f\n", vertexCount, x, y, z);
-
-                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(temp, 1.0));
-                //vertices[vertexCount] = (glm::vec3(x, y, z) + translation) * scale;
+                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(x, y, z, 1.0f));
                 vertexCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;
                 sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
-                glm::vec3 temp = glm::vec3(nx, ny, nz);
-                normals[normalCount] = glm::normalize(glm::vec3(normalMatrix * glm::vec4(temp, 1.0)));
+                normals[normalCount] = glm::normalize(glm::vec3(normalMatrix * glm::vec4(nx, ny, nz, 1.0)));
                 normalCount++;
             }
         } else if (line[0] == 'f') {
@@ -256,20 +249,6 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
     }
 
     fclose(file);
-
-    /*
-    for (int i = 0; i < faceCount; ++i) {
-        printf("Face: %d\n", i);
-        printf("    Vertices: ");
-
-        for (int j = 0; j < 4; ++j) {
-            glm::vec3 vertex = polygons[i].vertices[j];
-            printf("{%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
-        }
-        printf("\n    Normal: %.2f %.2f %.2f\n", normals[i].x, normals[i].y, normals[i].z);
-    }
-    printf("\n");
-    */
 
     for (int i = 0; i < faceCount; ++i) {
         potentialColliders.push_back(polygons[i]);

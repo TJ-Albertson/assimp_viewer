@@ -83,5 +83,3 @@ int print_faces(std::string path)
     extract_faces_from_obj(file_path);
     return 0;
 }
-
-
