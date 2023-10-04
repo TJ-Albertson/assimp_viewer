@@ -77,10 +77,6 @@ int main()
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
 
 
-
-
-
-
     Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
 
 
@@ -203,7 +199,6 @@ int main()
 
     const double debounceDelay = 1.5; // 200 milliseconds
     double lastSpacePressTime = 0.0;
-    glm::vec4 hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
 
     bool isSpaceKeyPressed = false;
     float maxJumpDuration = 2.5f;  // Adjust this to control the jump duration (in seconds)
@@ -266,13 +261,9 @@ int main()
 
         //DrawModel(vampire, animShader);
 
-
-
         glUseProgram(modelShader);
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
-
-        glUseProgram(animShader);
 
         DrawScene(root_node);
 
@@ -357,8 +348,6 @@ int main()
         DrawModel(hill_plane, modelShader);
 
 
-        //DrawScene();
-
 
 
         model = glm::mat4(1.0f);
@@ -369,10 +358,10 @@ int main()
 
 
 
-         // player hitbox
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
+        // Player direction arrows
         glm::mat4 arrowModelMatrix = glm::mat4(1.0f); // Identity matrix
         arrowModelMatrix = glm::translate(arrowModelMatrix, playerCenter);
         glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Define the up vector
@@ -384,72 +373,25 @@ int main()
         setShaderMat4(modelShader, "model", arrowModelMatrix);
         DrawModel(z_arrow, modelShader);
 
-        // Alpha draw start
+        // BACKFACE CULLING |ON|
         glEnable(GL_CULL_FACE);
 
-        //hitboxes
         setShaderMat4(modelShader, "model", hitbox);
         DrawModel(labeled_alpha_cube, modelShader);
-
-        setShaderMat4(modelShader, "model", hitbox2);
-        //DrawModel(labeled_alpha_cube, modelShader);
-        
-        setShaderMat4(modelShader, "model", single_tri_mat);
-        //DrawModel(single_tri, modelShader);
 
         glUseProgram(hitboxShader);
 
         setShaderMat4(hitboxShader, "projection", projection);
         setShaderMat4(hitboxShader, "view", view);
 
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-           hitboxColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.3f);
-        }
-        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-           hitboxColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.3f);
-        }
-
-       
-
-
-        
-
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, playerPosition);
-
-         // playercenter
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        DrawModel(sphere, hitboxShader);
-
-        // nearestpointpolygon
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, collisionBallPosition);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        setShaderMat4(hitboxShader, "model", model);
-        DrawModel(sphere, hitboxShader);
-
-
-         // sphereIntersectionPointPos
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, sphereIntersectionPointPos);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        setShaderMat4(hitboxShader, "model", model);
-        DrawModel(sphere, hitboxShader);
-
-
-        // sphere hitbox 2.5
+        // Player hitbox
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", hitboxColor);
+        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
         DrawModel(sphere, hitboxShader);
 
-        // Alpha draw end
+        // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
 
         // Needs to be drawn last; covers up everything after it

@@ -1,7 +1,9 @@
 /*-------------------------------------------------------------------------------\
 scene.h
 
-Plan for this to hold scene children in set of nodes
+Functions to load, create and draw scene. 
+Loads from json and creates a node tree.
+Draws the node tree.
 
 \-------------------------------------------------------------------------------*/
 #ifndef SCENE_GRAPH_H
