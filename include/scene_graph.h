@@ -13,88 +13,29 @@ Plan for this to hold scene children in set of nodes
 
 #include <collision.h>
 
-struct Orientation {
-    glm::vec3 m_Pos = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_Rot = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
-};
-
 struct SceneNode {
     char name[24];
     int id;
 
     Model* model;
     unsigned int shaderID;
-    Orientation* orientation;
 
     glm::mat4 m_modelMatrix;
-
-    int numChildren;
-    SceneNode* children;
 
     struct SceneNode* firstChild; // Pointer to the first child node
     struct SceneNode* nextSibling; // Pointer to the next sibling node
 };
 
-struct RootSceneNode {
-    char name[6];
-
-    int numChildren;
-    SceneNode* children;
-};
-
-RootSceneNode* rootNode;
-
-SceneNode* nodes;
-
 SceneNode* root_node;
 
 unsigned int shaderIdArray[10];
 
-void InitSceneNode();
-void SearchForParentNode(SceneNode* node, int parentId, Model* model);
+void AddChild(SceneNode* parent, SceneNode* child);
+int LoadScene(std::string const& path);
 void DrawScene(SceneNode* root);
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform);
 
-//void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Orientation* orientation);
-void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID);
-void AddChildNode(SceneNode* parentNode, SceneNode newNode);
-
-
-int LoadScene(std::string const& path);
-
-//change to allocate scene space 10 at a time
-void InitSceneNode()
-{
-    rootNode = (RootSceneNode*)malloc(sizeof(RootSceneNode));
-    rootNode->numChildren = 0;
-    rootNode->children = (SceneNode*)malloc(sizeof(SceneNode));
-    strcpy(rootNode->name, "Scene");
-}
-
-
-
-SceneNode* createNode(SceneNode node) {
-
-    SceneNode* newNode = (SceneNode*)malloc(sizeof(SceneNode));
-
-    if (newNode == NULL) {
-        perror("Failed to allocate memory for a new node");
-        exit(1);
-    }
-
-    strncpy(newNode->name, node.name, sizeof(newNode->name) - 1);
-    newNode->name[sizeof(newNode->name) - 1] = '\0';
-    newNode->model = node.model;
-    newNode->shaderID = node.shaderID;
-    newNode->m_modelMatrix = node.m_modelMatrix;
-
-    newNode->firstChild = NULL;
-    newNode->nextSibling = NULL;
-    return newNode;
-}
-
-void addChild(SceneNode* parent, SceneNode* child)
+void AddChild(SceneNode* parent, SceneNode* child)
 {
     if (parent == NULL || child == NULL) {
         return;
@@ -108,170 +49,6 @@ void addChild(SceneNode* parent, SceneNode* child)
             sibling = sibling->nextSibling;
         }
         sibling->nextSibling = child;
-    }
-}
-
-void printTree(SceneNode* root)
-{
-    if (root == NULL) {
-        return;
-    }
-
-    printf("Name: %s\n ", root->name);
-
-    SceneNode* child = root->firstChild;
-    while (child != NULL) {
-        printTree(child);
-        child = child->nextSibling;
-    }
-}
-
-void SearchForParentNode(SceneNode* node, int parentId, Model* model) {
-
-    if (parentId == node->id) {
-        if (node->numChildren == 0) {
-
-            //node->children[0].name = model->m_Name;
-            node->children[0].id = 1;
-            node->children[0].model = model;
-            node->children[0].numChildren = 0;
-            node->children[0].children = (SceneNode*)malloc(sizeof(SceneNode));
-        }
-        else {
-
-            int newSize = node->numChildren++;
-            SceneNode* newArray = (SceneNode*)malloc(newSize * sizeof(SceneNode));
-
-            for (int i = 0; i < newSize - 1; i++) {
-                newArray[i] = node->children[i];
-            }
-
-            //newArray[newSize].name = model->m_Name;
-            newArray[newSize].id = 1;
-            newArray[newSize].model = model;
-            newArray[newSize].numChildren = 0;
-            newArray[newSize].children = (SceneNode*)malloc(sizeof(SceneNode));
-
-            node->children = newArray;
-        }
-    }
-    else {
-        for (int i = 0; i < node->numChildren; i++)
-            SearchForParentNode(&node->children[i], parentId, model);
-    }
-}
-
-
-
-
-void FindParentNode(SceneNode* node, int parentId, SceneNode newNode)
-{
-    if (node->id == parentId) {
-        AddChildNode(node, newNode);
-    }
-
-    for (int i = 0; i < node->numChildren; i++) {
-        FindParentNode(&node->children[i], parentId, newNode);
-    }
-}
-void AddChildNodeRoot(RootSceneNode* parentNode, SceneNode newNode)
-{
-    int newSize = parentNode->numChildren + 1;
-
-    SceneNode* new_array = (SceneNode*)realloc(parentNode->children, newSize * sizeof(SceneNode));
-    if (new_array == NULL) {
-        // Handle memory allocation failure
-        return;
-    }
-
-    new_array[newSize - 1] = newNode;
-    parentNode->children = new_array;
-    parentNode->numChildren = newSize;
-}
-
-void AddChildNode(SceneNode* parentNode, SceneNode newNode)
-{
-    int newSize = parentNode->numChildren + 1;
-
-    SceneNode* new_array = (SceneNode*)realloc(parentNode->children, newSize * sizeof(SceneNode));
-    if (new_array == NULL) {
-        // Handle memory allocation failure
-        return;
-    }
-
-    new_array[newSize - 1] = newNode;
-    parentNode->children = new_array;
-    parentNode->numChildren = newSize;
-}
-
-// pass parent id and node data. will add as child to parent with parent id
-void zzzAddNodeToScene(const int parentId, Model* model, unsigned int shaderID, Orientation* orientation)
-{
-    SceneNode newNode;
-    //newNode.name = (char*)malloc(strlen(model->m_Name) + 1); // +1 for null-terminator
-    strcpy(newNode.name, model->m_Name);
-    newNode.id = 1;
-    newNode.model = model;
-    newNode.shaderID = shaderID;
-    newNode.orientation = orientation;
-    newNode.numChildren = 0;
-    newNode.children = NULL; // Initialize to NULL, will allocate as needed
-
-    if (parentId == 0) {
-        AddChildNodeRoot(rootNode, newNode);
-    } else {
-        for (int i = 0; i < rootNode->numChildren; i++) {
-            FindParentNode(&rootNode->children[i], parentId, newNode);
-        }
-    }
-}
-
-
-
-
-
-void AddNodeToScene(const int parentId, Model* model, unsigned int shaderID)
-{
-
-    bool parentIsRoot = (parentId == 0);
-
-    if (parentIsRoot) {
-        if (rootNode->numChildren == 0) {
-
-            SceneNode newNode;
-
-            //newNode.name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            strcpy(newNode.name, model->m_Name);
-
-            newNode.id = 1;
-            newNode.model = model;
-            newNode.numChildren = 0;
-            newNode.shaderID = shaderID;
-            newNode.children = (SceneNode*)malloc(sizeof(SceneNode));
-
-            rootNode->children[0] = newNode;
-            rootNode->numChildren++;
-        } else {
-
-            int newSize = rootNode->numChildren + 1;
-
-            SceneNode* new_array = (SceneNode*)realloc(rootNode->children, newSize * sizeof(SceneNode));
-
-            //new_array[newSize - 1].name = (char*)malloc(strlen(model->m_Name) * sizeof(char));
-            strcpy(new_array[newSize - 1].name, model->m_Name);
-
-            new_array[newSize - 1].id = 1;
-            new_array[newSize - 1].model = model;
-            new_array[newSize - 1].shaderID = shaderID;
-            new_array[newSize - 1].numChildren = 0;
-            new_array[newSize - 1].children = (SceneNode*)malloc(sizeof(SceneNode));
-
-            rootNode->children = new_array;
-            rootNode->numChildren++;
-        }
-    } else {
-        for (int i = 0; i < rootNode->numChildren; i++)
-            SearchForParentNode(&rootNode->children[i], parentId, model);
     }
 }
 
@@ -319,20 +96,6 @@ int LoadScene(std::string const& path)
 
     int num_models = cJSON_GetArraySize(root);
 
-    // Now access JSON elements
-    cJSON* name = cJSON_GetObjectItem(root, "filepath");
-    if (cJSON_IsString(name)) {
-        printf("filepath: %s\n", name->valuestring);
-    }
-
-    cJSON* shaderId = cJSON_GetObjectItem(root, "shaderId");
-    if (cJSON_IsNumber(shaderId)) {
-        printf("shaderId: %d\n", shaderId->valueint);
-    }
-
-    //nodes = (SceneNode*)malloc(num_models * sizeof(SceneNode));
-
-
     root_node = (SceneNode*)malloc(sizeof(SceneNode));
     strncpy(root_node->name, "root_node", sizeof(root_node->name));
     root_node->shaderID = 0;
@@ -356,6 +119,17 @@ int LoadScene(std::string const& path)
         std::string hitbox = cJSON_GetObjectItem(model, "hitbox")->valuestring;
 
         node->model = LoadModel(path);
+
+
+        // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
+        /*
+         * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
+         * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
+         * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
+         * advised to first do scaling operations, then rotations and lastly translations when combining matrices
+         * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
+         * scale, the translation vector would also scale!
+         */
 
         glm::vec3 translation;
         glm::vec3 rotation;
@@ -404,20 +178,8 @@ int LoadScene(std::string const& path)
 
         CreateHitbox(hitbox, model_matrix);
 
-        addChild(root_node, node);
+        AddChild(root_node, node);
     }
-
-    /*
-    for (int i = 0; i < num_models; ++i) {
-        printf("{\n");
-        printf("            Name: %s\n", nodes[i].name);
-        printf("        shaderID: %d\n", nodes[i].shaderID);
-        printf("    matrix[0][0]: %f\n", nodes[i].m_modelMatrix[0][0]);
-        printf("}\n");
-    }
-    */
-
-    printTree(root_node);
 
     cJSON_Delete(root);
     free(json_buffer);
@@ -426,27 +188,16 @@ int LoadScene(std::string const& path)
 }
 
 
-// it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
-/*
- * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
- * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
- * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
- * advised to first do scaling operations, then rotations and lastly translations when combining matrices
- * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
- * scale, the translation vector would also scale!
- */
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 {
-    //glUseProgram(shaderIdArray[node->shaderID]);
+    // This will be changed in future. Plan is to use universal shader program.
+    // From what I've read that is favorable due to the high cost of switching
+    // shader programs.
+    glUseProgram(shaderIdArray[node->shaderID]);
 
-    //try printing mat
-    glm::mat4 model = node->m_modelMatrix; //* parentTransform;
-
-    
+    glm::mat4 model = node->m_modelMatrix * parentTransform;
 
     setShaderMat4(shaderIdArray[node->shaderID], "model", model);
-
-
 
     DrawModel(node->model, shaderIdArray[node->shaderID]);
 
@@ -466,6 +217,22 @@ void DrawScene(SceneNode* root)
         DrawSceneNode(child, matrix);
         child = child->nextSibling;
     }
+}
+
+void PrintTree(SceneNode* root)
+{
+    if (root == NULL) {
+        return;
+    }
+
+    printf("Name: %s\n ", root->name);
+
+    SceneNode* child = root->firstChild;
+    while (child != NULL) {
+        PrintTree(child);
+        child = child->nextSibling;
+    }
+
 }
 
 #endif

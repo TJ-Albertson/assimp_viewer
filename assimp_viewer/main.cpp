@@ -25,7 +25,7 @@
 #include <skybox.h>
 #include <collision.h>
 
-//#include <utils.h>
+#include <utils.h>
 
 #include <scene_graph.h>
 #include <log_file_functions.h>
@@ -67,7 +67,6 @@ int main()
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-    InitSceneNode();
 
     unsigned int grid_VAO = LoadGrid();
 
@@ -83,7 +82,7 @@ int main()
 
 
     Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
-    AddNodeToScene(0, labeled_alpha_cube, modelShader);
+
 
 
     glm::mat4 hitbox = glm::mat4(1.0f);
@@ -113,27 +112,26 @@ int main()
 
 
     Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
-    AddNodeToScene(0, player, animShader);
+
 
     Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
-    AddNodeToScene(0, container, modelShader);
+
 
     Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
-    AddNodeToScene(0, green_alpha, modelShader);
 
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
-    AddNodeToScene(0, sphere, modelShader);
+
 
    
 
     Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
-    AddNodeToScene(0, single_tri, modelShader);
+
 
     Model* hill_plane = LoadModel(filepath("/resources/models/grass_plane/grass_plane_2.obj"));
-    AddNodeToScene(0, hill_plane, modelShader);
+ 
 
     Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
-    AddNodeToScene(0, soid_man, modelShader);
+
 
 
 
@@ -147,20 +145,17 @@ int main()
 
     glm::mat4 mapMatrix = glm::mat4(1.0f);
     //map1
-    Model* floor = LoadModel(filepath("/resources/models/map/floor.obj"));
-    AddNodeToScene(0, floor, modelShader);
-    CreateHitbox(filepath("/resources/models/map/floor.obj"), mapMatrix);
 
     Model* wall = LoadModel(filepath("/resources/models/map/wall.obj"));
-    AddNodeToScene(0, wall, modelShader);
+
     CreateHitbox(filepath("/resources/models/map/wall.obj"), mapMatrix);
 
-    Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
-    AddNodeToScene(0, platforms, modelShader);
-    CreateHitbox(filepath("/resources/models/map/platforms.obj"), mapMatrix);
+    ///Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
+ 
+    //CreateHitbox(filepath("/resources/models/map/platforms.obj"), mapMatrix);
 
     Model* stairs = LoadModel(filepath("/resources/models/map/stairs.obj"));
-    AddNodeToScene(0, stairs, modelShader);
+
     CreateHitbox(filepath("/resources/models/map/stairs.obj"), mapMatrix);
     //map1
 
@@ -171,11 +166,11 @@ int main()
 
 
     Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
-    AddNodeToScene(0, x_arrow, modelShader);
+ 
     Model* y_arrow = LoadModel(filepath("/resources/models/direction_arrows/y.obj"));
-    AddNodeToScene(0, y_arrow, modelShader);
+    
     Model* z_arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
-    AddNodeToScene(0, z_arrow, modelShader);
+   
 
 
     
@@ -277,6 +272,8 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
+        glUseProgram(animShader);
+
         DrawScene(root_node);
 
 
@@ -290,9 +287,7 @@ int main()
         model = glm::mat4(1.0f);
         setShaderMat4(modelShader, "model", model);
         DrawModel(wall, modelShader);
-        DrawModel(platforms, modelShader);
         DrawModel(stairs, modelShader);
-        DrawModel(floor, modelShader);
        
 
 
@@ -618,24 +613,3 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     CameraProcessMouseScroll(PlayerCamera, yoffset);
 }
 
-std::string filepath(std::string path)
-{
-    std::filesystem::path currentDir = std::filesystem::current_path();
-
-    std::string projectPath = currentDir.string();
-
-    for (char& c : projectPath) {
-        if (c == '\\') {
-            c = '/';
-        }
-    }
-
-    std::string toRemove = "/assimp_viewer";
-
-    size_t pos = projectPath.rfind(toRemove);
-    if (pos != std::string::npos) {
-        projectPath.erase(pos, toRemove.length());
-    }
- 
-    return projectPath.append(path);
-}

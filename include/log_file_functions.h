@@ -79,23 +79,4 @@ void LogSkeletonNodeHiearchy(SkeletonNode* node) {
 }
 
 
-void PrintChildrenNodes(SceneNode* node) {
-
-    std::cout << "NodeName: " << node->name << std::endl;
-
-    for (int i = 0; i < node->numChildren; i++)
-        PrintChildrenNodes(&node->children[i]);
-
-}
-
-void PrintSceneHierarchy(RootSceneNode* rootNode) {
-
-    std::cout << "NodeName: " << rootNode->name << std::endl;
-    std::cout << "      Children: " << rootNode->numChildren << std::endl;
-
-    for (int i = 0; i < rootNode->numChildren; i++)
-        PrintChildrenNodes(&rootNode->children[i]);
-}
-
-
 #endif

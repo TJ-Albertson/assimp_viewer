@@ -63,14 +63,19 @@ void playAnimationButton()
     ImGui::End();
 }
 
-void DrawTree(const SceneNode node)
-{
-    if (ImGui::TreeNode(node.name)) {
-        ImGui::Text("m_NumMeshes: %d", node.model->m_NumMeshes);
-        ImGui::Text("m_NumAnimations: %d", node.model->m_NumAnimations);
 
-        for (int i = 0; i < node.numChildren; ++i)
-            DrawTree(node.children[i]);
+void DrawTree(SceneNode* node)
+{
+    if (ImGui::TreeNode(node->name)) {
+        ImGui::Text("m_NumMeshes: %d", node->model->m_NumMeshes);
+        ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
+
+        SceneNode* child = node->firstChild;
+        while (child != NULL) {
+            DrawTree(child);
+            child = child->nextSibling;
+        }
+
         ImGui::TreePop();
     }
 }
@@ -94,8 +99,8 @@ void SceneWindow()
                     std::cout << "Path: " << outPath << std::endl;
 
 
-                    Model* vampire = LoadModel(outPath);
-                    AddNodeToScene(0, vampire, 0);
+                    //Model* vampire = LoadModel(outPath);
+                    //AddNodeToScene(0, vampire, 0);
 
                     free(outPath);
                 } else if (result == NFD_CANCEL) {
@@ -114,8 +119,12 @@ void SceneWindow()
     }
 
     if (ImGui::CollapsingHeader("Scene")) {
-        for (int i = 0; i < rootNode->numChildren; ++i)
-            DrawTree(rootNode->children[i]);
+
+        SceneNode* child = root_node->firstChild;
+        while (child != NULL) {
+            DrawTree(child);
+            child = child->nextSibling;
+        }
     }
 
     if (ImGui::CollapsingHeader("Model")) {

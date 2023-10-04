@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,6 +12,28 @@ struct Poly {
     glm::vec3 vertices[4];
     glm::vec3 normal;
 };
+
+std::string filepath(std::string path)
+{
+    std::filesystem::path currentDir = std::filesystem::current_path();
+
+    std::string projectPath = currentDir.string();
+
+    for (char& c : projectPath) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+
+    std::string toRemove = "/assimp_viewer";
+
+    size_t pos = projectPath.rfind(toRemove);
+    if (pos != std::string::npos) {
+        projectPath.erase(pos, toRemove.length());
+    }
+
+    return projectPath.append(path);
+}
 
 int extract_faces_from_obj(const char* file_path)
 {

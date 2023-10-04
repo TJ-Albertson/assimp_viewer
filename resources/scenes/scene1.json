@@ -16,5 +16,24 @@
         "translation": "-5.0, 0.0, 15.0",
         "scale": "2.0, 2.0, 2.0",
         "rotation": "45.0, 0.0, 0.0"
+    },
+    {
+        "name": "platforms",
+        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/platforms.obj",
+        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/platforms.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "floor",
+        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/floor.obj",
+        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/floor.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
     }
+
 ]
