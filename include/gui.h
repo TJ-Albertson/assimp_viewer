@@ -118,6 +118,24 @@ void SceneWindow()
             }
 
             if (ImGui::MenuItem("Save", "Ctrl+S")) { 
+                nfdchar_t* outPath = NULL;
+                nfdresult_t result = NFD_SaveDialog(".json", NULL, &outPath);
+
+                if (result == NFD_OKAY) {
+                    // The user selected a file and clicked "Save"
+                    // 'outPath' contains the selected file path
+                    printf("Selected file: %s\n", outPath);
+                    // You can free the 'outPath' memory when you're done with it
+                    free(outPath);
+                }
+                else if (result == NFD_CANCEL) {
+                    // The user canceled the dialog
+                    printf("Dialog canceled by the user.\n");
+                }
+                else {
+                    // Handle other error cases
+                    printf("Error: %s\n", NFD_GetError());
+                }
             
             }
             if (ImGui::MenuItem("Close", "Ctrl+W")) {
