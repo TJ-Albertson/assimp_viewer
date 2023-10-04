@@ -77,6 +77,48 @@ int main()
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
 
 
+
+
+
+
+    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
+    AddNodeToScene(0, labeled_alpha_cube, modelShader);
+
+
+    glm::mat4 hitbox = glm::mat4(1.0f);
+    // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
+    /*
+     * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
+     * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
+     * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
+     * advised to first do scaling operations, then rotations and lastly translations when combining matrices
+     * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
+     * scale, the translation vector would also scale!
+     */
+    // Translation
+    hitbox = glm::translate(hitbox, glm::vec3(10.0f, 1.0f, 15.0f));
+
+    // Rotation
+    glm::vec3 rotationAngles(45.0f, 35.0f, 0.0f);
+
+    glm::quat rotationX = glm::angleAxis(glm::radians(rotationAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::quat rotationY = glm::angleAxis(glm::radians(rotationAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat rotationZ = glm::angleAxis(glm::radians(rotationAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::quat finalRotation = rotationX * rotationY * rotationZ;
+
+    glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
+    hitbox = hitbox * rotationMatrix;
+
+    // Scale
+    hitbox = glm::scale(hitbox, glm::vec3(1.5f, 1.5f, 1.5f));
+
+    CreateHitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), hitbox);
+
+
+
+
+
     Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
     AddNodeToScene(0, player, animShader);
 
@@ -89,8 +131,7 @@ int main()
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
     AddNodeToScene(0, sphere, modelShader);
 
-    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
-    AddNodeToScene(0, labeled_alpha_cube, modelShader);
+   
 
     Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
     AddNodeToScene(0, single_tri, modelShader);
@@ -104,37 +145,7 @@ int main()
 
 
 
-    glm::mat4 hitbox = glm::mat4(1.0f);
-    // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
-    /*
-    * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
-    * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
-    * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
-    * advised to first do scaling operations, then rotations and lastly translations when combining matrices
-    * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
-    * scale, the translation vector would also scale!
-    */
-    //Translation
-    hitbox = glm::translate(hitbox, glm::vec3(10.0f, 1.0f, 15.0f));
-
-    //Rotation
-    glm::vec3 rotationAngles(0.0f, 0.0f, 0.0f);
-
-    glm::quat rotationX = glm::angleAxis(glm::radians(rotationAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::quat rotationY = glm::angleAxis(glm::radians(rotationAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat rotationZ = glm::angleAxis(glm::radians(rotationAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::quat finalRotation = rotationX * rotationY * rotationZ;
-
-    glm::mat4 rotationMatrix = glm::mat4_cast(finalRotation);
-    hitbox = hitbox * rotationMatrix;
-
-    //Scale
-    hitbox = glm::scale(hitbox, glm::vec3(1.0f, 1.0f, 1.0f));
-
-    CreateHitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), hitbox);
-
-
+    
 
 
 

@@ -76,6 +76,8 @@ struct Model {
 std::vector<Texture> textures_loaded;
 std::string directory;
 
+bool nameFlag = false;
+
 Model* LoadModel(std::string const& path);
 
 void processNode(aiNode* node, const aiScene* scene, Model* model);
@@ -141,8 +143,13 @@ Model* LoadModel(std::string const& path) {
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	processNode(scene->mRootNode, scene, newModel);
+	if (path == "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj") { 
+		nameFlag = true;
+	} else {
+		nameFlag = false;
+	}
 
+	processNode(scene->mRootNode, scene, newModel);
 
 	return newModel;
 }
@@ -191,6 +198,10 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 		vertexData.Position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
 		vertexData.Normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
+
+		if (nameFlag) {
+			printf("vertex_%d: %f %f %f\n", i, vertexData.Position.x, vertexData.Position.y, vertexData.Position.z);
+		}
 
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 vec;

@@ -219,18 +219,26 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     char line[256];
 
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(matrix));
+
     while (fgets(line, sizeof(line), file)) {
         if (line[0] == 'v') {
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
+                glm::vec3 temp = glm::vec3(x, y, z);
+
+                if (path == "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj")
+                    printf("vertex_%d: %f %f %f\n", vertexCount, x, y, z);
+
+                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(temp, 1.0));
                 //vertices[vertexCount] = (glm::vec3(x, y, z) + translation) * scale;
-                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(x, y, z, 1.0f));
                 vertexCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;
                 sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
-                normals[normalCount] = glm::vec3(nx, ny, nz);
+                glm::vec3 temp = glm::vec3(nx, ny, nz);
+                normals[normalCount] = glm::normalize(glm::vec3(normalMatrix * glm::vec4(temp, 1.0)));
                 normalCount++;
             }
         } else if (line[0] == 'f') {
