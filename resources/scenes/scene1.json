@@ -1,19 +1,19 @@
 [
     {
         "name": "single_tri_1",
-        "filepath": "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
         "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
+        "translation": "0.0, 0.0, 20.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
     },
     {
         "name": "single_tri_2",
-        "filepath": "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
         "shaderId": 0,
-        "translation": "-5.0, 0.0, -5.0",
+        "translation": "-5.0, 0.0, 15.0",
         "scale": "2.0, 2.0, 2.0",
         "rotation": "45.0, 0.0, 0.0"
     }

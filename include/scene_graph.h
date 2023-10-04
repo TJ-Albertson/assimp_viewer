@@ -393,6 +393,15 @@ int LoadScene(std::string const& path)
 
         node->m_modelMatrix = model_matrix;
 
+        printf("Matrix:\n");
+        for (int i = 0; i < 4; i++) {
+            printf("[ ");
+            for (int j = 0; j < 4; j++) {
+                printf("%.2f ", glm::value_ptr(model_matrix)[i * 4 + j]);
+            }
+            printf("]\n");
+        }
+
         CreateHitbox(hitbox, model_matrix);
 
         addChild(root_node, node);
@@ -433,7 +442,11 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
     //try printing mat
     glm::mat4 model = node->m_modelMatrix; //* parentTransform;
 
-    setShaderMat4(node->shaderID, "model", model);
+    
+
+    setShaderMat4(shaderIdArray[node->shaderID], "model", model);
+
+
 
     DrawModel(node->model, shaderIdArray[node->shaderID]);
 
