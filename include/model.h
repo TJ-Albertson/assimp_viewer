@@ -141,6 +141,8 @@ Model* LoadModel(std::string const& path) {
 
 	directory = path.substr(0, path.find_last_of('/'));
 
+	printf("directory: %s\n", directory.c_str());
+
 	processNode(scene->mRootNode, scene, newModel);
 
 	return newModel;

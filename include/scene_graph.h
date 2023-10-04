@@ -32,10 +32,32 @@ SceneNode* root_node;
 
 unsigned int shaderIdArray[10];
 
+SceneNode* CreateNode(SceneNode* parent, std::string const& path);
 void AddChild(SceneNode* parent, SceneNode* child);
 int LoadScene(std::string const& path);
 void DrawScene(SceneNode* root);
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform);
+
+SceneNode* CreateNode(SceneNode* parent, std::string const& path) {
+
+    SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
+
+    node->firstChild = NULL;
+    node->nextSibling = NULL;
+
+    node->model = LoadModel(path);
+
+    strncpy(node->name, node->model->m_Name, sizeof(node->name));
+    node->shaderID = 0;
+
+    node->m_modelMatrix = glm::mat4(1.0f);
+
+    CreateHitbox(path, glm::mat4(1.0f));
+
+    AddChild(root_node, node);
+
+    return node;
+}
 
 void AddChild(SceneNode* parent, SceneNode* child)
 {
@@ -148,10 +170,6 @@ int LoadScene(std::string const& path)
 
         glm::mat4 model_matrix = glm::mat4(1.0f);
 
-        printf("translation: %f, %f, %f\n", translation.x, translation.y, translation.z);
-        printf("scale: %f, %f, %f\n", scale.x, scale.y, scale.z);
-        printf("rotation: %f, %f, %f\n", rotation.x, rotation.y, rotation.z);
-
         // Translation
         model_matrix = glm::translate(model_matrix, translation);
 
@@ -168,15 +186,6 @@ int LoadScene(std::string const& path)
         model_matrix = glm::scale(model_matrix, scale);
 
         node->m_modelMatrix = model_matrix;
-
-        printf("Matrix:\n");
-        for (int i = 0; i < 4; i++) {
-            printf("[ ");
-            for (int j = 0; j < 4; j++) {
-                printf("%.2f ", glm::value_ptr(model_matrix)[i * 4 + j]);
-            }
-            printf("]\n");
-        }
 
         CreateHitbox(hitbox, model_matrix);
 

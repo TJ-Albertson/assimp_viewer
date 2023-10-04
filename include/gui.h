@@ -67,6 +67,8 @@ void playAnimationButton()
 void DrawTree(SceneNode* node)
 {
     if (ImGui::TreeNode(node->name)) {
+
+        ImGui::Text("shaderID: %d", node->shaderID);
         ImGui::Text("m_NumMeshes: %d", node->model->m_NumMeshes);
         ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
 
@@ -96,11 +98,16 @@ void SceneWindow()
 
                     puts("Success!");
                     puts(outPath);
-                    std::cout << "Path: " << outPath << std::endl;
 
+                    int length = strlen(outPath);
 
-                    //Model* vampire = LoadModel(outPath);
-                    //AddNodeToScene(0, vampire, 0);
+                    for (int i = 0; i < length; i++) {
+                        if (outPath[i] == '\\') {
+                            outPath[i] = '/'; // Replace backslash with forward slash
+                        }
+                    }
+
+                    CreateNode(root_node, outPath);
 
                     free(outPath);
                 } else if (result == NFD_CANCEL) {
@@ -109,7 +116,10 @@ void SceneWindow()
                     printf("Error: %s\n", NFD_GetError());
                 }
             }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { }
+
+            if (ImGui::MenuItem("Save", "Ctrl+S")) { 
+            
+            }
             if (ImGui::MenuItem("Close", "Ctrl+W")) {
                 my_tool_active = false;
             }
@@ -152,8 +162,9 @@ void Main_GUI_Loop(double time)
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+
     // Frame Start
+    ImGui::NewFrame();
 
     //ImGui::ShowMetricsWindow();
     //ImGui::ShowDemoWindow();
