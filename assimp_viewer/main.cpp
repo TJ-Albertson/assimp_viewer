@@ -25,8 +25,6 @@
 #include <skybox.h>
 #include <collision.h>
 
-#include <utils.h>
-
 #include <scene_graph.h>
 #include <log_file_functions.h>
 

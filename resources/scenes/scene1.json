@@ -1,8 +1,8 @@
 [
     {
         "name": "single_tri_1",
-        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "filepath": "/resources/models/labeled_alpha_cube/single_tri.obj",
+        "hitbox": "/resources/models/labeled_alpha_cube/single_tri.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 20.0",
         "scale": "1.0, 1.0, 1.0",
@@ -10,8 +10,8 @@
     },
     {
         "name": "single_tri_2",
-        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/labeled_alpha_cube/single_tri.obj",
+        "filepath": "/resources/models/labeled_alpha_cube/single_tri.obj",
+        "hitbox": "/resources/models/labeled_alpha_cube/single_tri.obj",
         "shaderId": 0,
         "translation": "-5.0, 0.0, 15.0",
         "scale": "2.0, 2.0, 2.0",
@@ -19,8 +19,8 @@
     },
     {
         "name": "platforms",
-        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/platforms.obj",
-        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/platforms.obj",
+        "filepath": "/resources/models/map/platforms.obj",
+        "hitbox": "/resources/models/map/platforms.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
@@ -28,8 +28,8 @@
     },
     {
         "name": "floor",
-        "filepath": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/floor.obj",
-        "hitbox": "C:/Users/tj.albertson.C-P-U/source/repos/assimp_viewer/resources/models/map/floor.obj",
+        "filepath": "/resources/models/map/floor.obj",
+        "hitbox": "/resources/models/map/floor.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",

@@ -14,6 +14,7 @@ Draws the node tree.
 #include <cjson/cJSON.h>
 
 #include <collision.h>
+#include <utils.h>
 
 struct SceneNode {
     char name[24];
@@ -142,7 +143,7 @@ int LoadScene(std::string const& path)
         std::string path = cJSON_GetObjectItem(model, "filepath")->valuestring;
         std::string hitbox = cJSON_GetObjectItem(model, "hitbox")->valuestring;
 
-        node->model = LoadModel(path);
+        node->model = LoadModel(filepath(path));
 
 
         // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
@@ -187,7 +188,7 @@ int LoadScene(std::string const& path)
 
         node->m_modelMatrix = model_matrix;
 
-        CreateHitbox(hitbox, model_matrix);
+        CreateHitbox(filepath(hitbox), model_matrix);
 
         AddChild(root_node, node);
     }
