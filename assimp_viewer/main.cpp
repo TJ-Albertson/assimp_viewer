@@ -273,15 +273,26 @@ int main()
         setVec3(modelShader, "viewPos", PlayerCamera->Position);
         setFloat(modelShader, "material.shininess", 32.0f);
 
-        // directional light
-        setVec3(modelShader, "dirLight.direction", -0.2f, -1.0f, -0.3f);
-        setVec3(modelShader, "dirLight.ambient", 0.05f, 0.05f, 0.05f);
+
+        float radius = 1.0f; // You can adjust the radius of the circle
+        float angular_speed = 0.5f; // You can adjust the speed of rotatiom
+        // Calculate the x, y, and z coordinates of the vector
+        float x = radius * cos(angular_speed * currentTime);
+        float y = radius * sin(angular_speed * currentTime);
+        float z = 0.0f; // Since you want it to move along the y and z axes
+
+        glm::vec3 sunDirection = glm::vec3(x, y, z); // glm::normalize(glm::vec3(x, y, z));
+
+        printf("sunDirection: %f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
+
+        setVec3(modelShader, "dirLight.direction", sunDirection);
+        setVec3(modelShader, "dirLight.ambient", -sunDirection.y, -sunDirection.y, -sunDirection.y);
         setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light 1
-        setVec3(modelShader, "pointLights[0].position", pointLightPositions[0]);
-        setVec3(modelShader, "pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "pointLights[0].position", playerPosition);
+        setVec3(modelShader, "pointLights[0].ambient", 1.0f, 1.0f, 1.0f);
         setVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
         setFloat(modelShader, "pointLights[0].constant", 1.0f);
