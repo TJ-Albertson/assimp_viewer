@@ -127,5 +127,11 @@
     <None Include="..\shaders\hitbox.fs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\shaders\6.multiple_lights.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\6.multiple_lights.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

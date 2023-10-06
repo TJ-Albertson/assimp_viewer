@@ -164,6 +164,8 @@
   <ItemGroup>
     <None Include="..\shaders\4.2.texture.fs" />
     <None Include="..\shaders\4.2.texture.vs" />
+    <None Include="..\shaders\6.multiple_lights.fs" />
+    <None Include="..\shaders\6.multiple_lights.vs" />
     <None Include="..\shaders\anim_model.fs" />
     <None Include="..\shaders\anim_model.vs" />
     <None Include="..\shaders\grid.fs" />

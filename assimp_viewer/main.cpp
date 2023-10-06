@@ -68,11 +68,13 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    unsigned int modelShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    //unsigned int modelShader  = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
     shaderIdArray[0] = modelShader;
-    unsigned int animShader  = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
-    unsigned int gridShader  = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
+    unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
+    unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
+    //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
 
     Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
@@ -201,6 +203,13 @@ int main()
     bool isSpaceKeyPressed = false;
     float maxJumpDuration = 2.5f;  // Adjust this to control the jump duration (in seconds)
     float jumpStartTime = 0.0f;
+
+     glm::vec3 pointLightPositions[] = {
+        glm::vec3(0.7f, 0.2f, 2.0f),
+        glm::vec3(2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f, 2.0f, -12.0f),
+        glm::vec3(0.0f, 0.0f, -3.0f)
+    };
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -238,7 +247,7 @@ int main()
         glBindVertexArray(0);
         */
 
-        
+       
         glUseProgram(animShader);
         
         // (shader, uniformName, value)
@@ -260,11 +269,70 @@ int main()
         //DrawModel(vampire, animShader);
 
         glUseProgram(modelShader);
+
+        setVec3(modelShader, "viewPos", PlayerCamera->Position);
+        setFloat(modelShader, "material.shininess", 32.0f);
+
+        // directional light
+        setVec3(modelShader, "dirLight.direction", -0.2f, -1.0f, -0.3f);
+        setVec3(modelShader, "dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        // point light 1
+        setVec3(modelShader, "pointLights[0].position", pointLightPositions[0]);
+        setVec3(modelShader, "pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+        setVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        setFloat(modelShader, "pointLights[0].constant", 1.0f);
+        setFloat(modelShader, "pointLights[0].linear", 0.09f);
+        setFloat(modelShader, "pointLights[0].quadratic", 0.032f);
+
+        // point light 2
+        setVec3(modelShader, "pointLights[1].position", pointLightPositions[1]);
+        setVec3(modelShader, "pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+        setVec3(modelShader, "pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+        setFloat(modelShader, "pointLights[1].constant", 1.0f);
+        setFloat(modelShader, "pointLights[1].linear", 0.09f);
+        setFloat(modelShader, "pointLights[1].quadratic", 0.032f);
+
+        // point light 3
+        setVec3(modelShader, "pointLights[2].position", pointLightPositions[2]);
+        setVec3(modelShader, "pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+        setVec3(modelShader, "pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+        setFloat(modelShader, "pointLights[2].constant", 1.0f);
+        setFloat(modelShader, "pointLights[2].linear", 0.09f);
+        setFloat(modelShader, "pointLights[2].quadratic", 0.032f);
+
+        // point light 4
+        setVec3(modelShader, "pointLights[3].position", pointLightPositions[3]);
+        setVec3(modelShader, "pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+        setVec3(modelShader, "pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+        setVec3(modelShader, "pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+        setFloat(modelShader, "pointLights[3].constant", 1.0f);
+        setFloat(modelShader, "pointLights[3].linear", 0.09f);
+        setFloat(modelShader, "pointLights[3].quadratic", 0.032f);
+
+        // spotLight
+        setVec3(modelShader, "spotLight.position", PlayerCamera->Position);
+        setVec3(modelShader, "spotLight.direction", PlayerCamera->Front);
+        setVec3(modelShader, "spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        setVec3(modelShader, "spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        setVec3(modelShader, "spotLight.specular", 1.0f, 1.0f, 1.0f);
+        setFloat(modelShader, "spotLight.constant", 1.0f);
+        setFloat(modelShader, "spotLight.linear", 0.09f);
+        setFloat(modelShader, "spotLight.quadratic", 0.032f);
+        setFloat(modelShader, "spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        setFloat(modelShader, "spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
-        DrawScene(root_node);
 
+
+        DrawScene(root_node);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(10.0f, 0.0f, 10.0f));
@@ -272,12 +340,13 @@ int main()
         setShaderMat4(modelShader, "model", model);
         DrawModel(container, modelShader);
 
-
         model = glm::mat4(1.0f);
         setShaderMat4(modelShader, "model", model);
         DrawModel(wall, modelShader);
         DrawModel(stairs, modelShader);
-       
+
+
+
 
 
         // Player
