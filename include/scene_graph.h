@@ -36,10 +36,16 @@ unsigned int shaderIdArray[10];
 
 SceneNode* CreateNode(SceneNode* parent, std::string const& path);
 void AddChild(SceneNode* parent, SceneNode* child);
+
+SceneNode* CreateTreeNode(cJSON* jsonNode);
+SceneNode* BuildTree(cJSON* jsonNode);
+
 int LoadScene(std::string const& path);
+
 void DrawScene(SceneNode* root);
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform);
 
+// Used in runtime model loading
 SceneNode* CreateNode(SceneNode* parent, std::string const& path) {
 
     SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
@@ -48,7 +54,8 @@ SceneNode* CreateNode(SceneNode* parent, std::string const& path) {
     node->nextSibling = NULL;
 
     node->model = LoadModel(path);
-
+    
+    strncpy(node->type, "model", sizeof(node->type));
     strncpy(node->name, node->model->m_Name, sizeof(node->name));
     node->shaderID = 0;
 
@@ -78,6 +85,90 @@ void AddChild(SceneNode* parent, SceneNode* child)
     }
 }
 
+// Function to create a new tree node
+SceneNode* CreateTreeNode(cJSON* jsonNode)
+{
+    SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
+
+    strncpy(node->name, cJSON_GetObjectItem(jsonNode, "name")->valuestring, sizeof(node->name));
+    strncpy(node->type, cJSON_GetObjectItem(jsonNode, "type")->valuestring, sizeof(node->type));
+    
+    if (cJSON_GetObjectItem(jsonNode, "shaderId")) {
+        node->shaderID = cJSON_GetObjectItem(jsonNode, "shaderId")->valueint;
+    }
+    
+    std::string path = cJSON_GetObjectItem(jsonNode, "filepath")->valuestring;
+
+    if (strcmp(node->type, "model") == 0) {
+        node->model = LoadModel(filepath(path));
+    }
+
+    glm::vec3 translation;
+    glm::vec3 rotation;
+    glm::vec3 scale;
+
+    const char* translation_str = cJSON_GetObjectItem(jsonNode, "translation")->valuestring;
+    sscanf(translation_str, "%f, %f, %f", &translation.x, &translation.y, &translation.z);
+
+    const char* scale_str = cJSON_GetObjectItem(jsonNode, "scale")->valuestring;
+    sscanf(scale_str, "%f, %f, %f", &scale.x, &scale.y, &scale.z);
+
+    const char* rotation_str = cJSON_GetObjectItem(jsonNode, "rotation")->valuestring;
+    sscanf(rotation_str, "%f, %f, %f", &rotation.x, &rotation.y, &rotation.z);
+
+    glm::mat4 model_matrix = glm::mat4(1.0f);
+
+    // Translation
+    model_matrix = glm::translate(model_matrix, translation);
+
+    // Rotation
+    glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::quat finalRotation = rotationX * rotationY * rotationZ;
+    glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
+    model_matrix = model_matrix * rotationMatrix;
+
+    // Scale
+    model_matrix = glm::scale(model_matrix, scale);
+
+    node->m_modelMatrix = model_matrix;
+
+    if (strcmp(node->type, "hitbox") == 0) {
+        CreateHitbox(filepath(path), model_matrix);
+    }
+
+    node->firstChild = NULL;
+    node->nextSibling = NULL;
+
+    return node;
+}
+
+// Function to build the tree structure recursively
+SceneNode* BuildTree(cJSON* jsonNode)
+{
+    if (!jsonNode) {
+        return NULL;
+    }
+
+    SceneNode* node = CreateTreeNode(jsonNode);
+
+    cJSON* children = cJSON_GetObjectItem(jsonNode, "children");
+    if (cJSON_IsArray(children)) {
+        cJSON* child = children->child;
+        if (child) {
+            node->firstChild = BuildTree(child);
+            SceneNode* sibling = node->firstChild;
+            while ((child = child->next)) {
+                sibling->nextSibling = BuildTree(child);
+                sibling = sibling->nextSibling;
+            }
+        }
+    }
+
+    return node;
+}
 
 // Read json and load models
 int LoadScene(std::string const& path)
@@ -103,7 +194,6 @@ int LoadScene(std::string const& path)
         return 1;
     }
 
-    // Read the file into the buffer
     size_t bytes_read = fread(json_buffer, 1, file_size, file);
     json_buffer[bytes_read] = '\0'; // Null-terminate the buffer
 
@@ -129,106 +219,13 @@ int LoadScene(std::string const& path)
     root_node->firstChild = NULL;
     root_node->nextSibling = NULL;
 
-    for (int i = 0; i < num_models; ++i) {
-
+    for (int i = 0; i < num_models; ++i)
+    {
         cJSON* model = cJSON_GetArrayItem(root, i);
-        
+
         SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
 
-        node->firstChild = NULL;
-        node->nextSibling = NULL;
-
-        strncpy(node->name, cJSON_GetObjectItem(model, "name")->valuestring, sizeof(node->name));
-        strncpy(node->type, cJSON_GetObjectItem(model, "type")->valuestring, sizeof(node->type));
-        node->shaderID = cJSON_GetObjectItem(model, "shaderId")->valueint;
-
-        std::string path = cJSON_GetObjectItem(model, "filepath")->valuestring;
-
-        node->model = LoadModel(filepath(path));
-
-
-        // it goes scale, rotation, translation. but you need to apply them in reverse like a stack i guess??
-        /*
-         * Note that we first do a translation and then a scale transformation when multiplying matrices. Matrix
-         * multiplication is not commutative, which means their order is important. When multiplying matrices the right-
-         * most matrix is first multiplied with the vector so you should read the multiplications from right to left. It is
-         * advised to first do scaling operations, then rotations and lastly translations when combining matrices
-         * otherwise they may (negatively) affect each other. For example, if you would first do a translation and then
-         * scale, the translation vector would also scale!
-         */
-
-        glm::vec3 translation;
-        glm::vec3 rotation;
-        glm::vec3 scale;
-
-        const char* translation_str = cJSON_GetObjectItem(model, "translation")->valuestring;
-        sscanf(translation_str, "%f, %f, %f", &translation.x, &translation.y, &translation.z);
-
-        const char* scale_str = cJSON_GetObjectItem(model, "scale")->valuestring;
-        sscanf(scale_str, "%f, %f, %f", &scale.x, &scale.y, &scale.z);
-
-        const char* rotation_str = cJSON_GetObjectItem(model, "rotation")->valuestring;
-        sscanf(rotation_str, "%f, %f, %f", &rotation.x, &rotation.y, &rotation.z);
-
-        glm::mat4 model_matrix = glm::mat4(1.0f);
-
-        // Translation
-        model_matrix = glm::translate(model_matrix, translation);
-
-        // Rotation
-        glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        glm::quat finalRotation = rotationX * rotationY * rotationZ;
-        glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
-        model_matrix = model_matrix * rotationMatrix;
-
-        // Scale
-        model_matrix = glm::scale(model_matrix, scale);
-
-        node->m_modelMatrix = model_matrix;
-
-        cJSON* children = cJSON_GetObjectItem(model, "children");
-        if (children && cJSON_IsArray(children)) {
-            cJSON* child;
-            cJSON_ArrayForEach(child, children)
-            {
-                SceneNode* childNode = buildTreeFromJSON(child);
-                if (childNode) {
-                    // Attach the child as a sibling of the current node
-                    if (node->child == NULL) {
-                        node->child = childNode;
-                    } else {
-                        TreeNode* sibling = node->child;
-                        while (sibling->sibling != NULL) {
-                            sibling = sibling->sibling;
-                        }
-                        sibling->sibling = childNode;
-                    }
-                }
-            }
-        }
-
-        if (cJSON_IsArray(children)) {
-            int children_size = cJSON_GetArraySize(children);
-
-            for (int j = 0; j < children_size; j++) {
-                cJSON* child = cJSON_GetArrayItem(children, j);
-
-                const char* type = cJSON_GetObjectItem(model, "type")->valuestring
-
-                if (cJSON_IsString(hitbox)) {
-                    printf("Child %d, Hitbox: %s\n", j, hitbox->valuestring);
-                    const char* hitbox_path = hitbox->valuestring;
-                    CreateHitbox(hitbox_path, model_matrix);
-                }
-            }
-        }
-
-
-
-        //std::string path = cJSON_GetObjectItem(model, "filepath")->valuestring;
+        node = BuildTree(model);
 
         AddChild(root_node, node);
     }
@@ -244,10 +241,11 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 {
     glm::mat4 model = node->m_modelMatrix * parentTransform;
 
-    if (node->type == "model") {
+    if (strcmp(node->type, "model") == 0) {
         // This will be changed in future. Plan is to use universal shader program.
         // From what I've read that is favorable due to the high cost of switching
         // shader programs.
+        
         glUseProgram(shaderIdArray[node->shaderID]);
 
         setShaderMat4(shaderIdArray[node->shaderID], "model", model);

@@ -60,6 +60,65 @@ bool jumpDebounce = false;
 bool isJumping = false;
 float jumpDuration = 0.7f;
 
+glm::vec3 CubicInterpolate(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+    float a = 2.0f * t3 - 3.0f * t2 + 1.0f;
+    float b = -2.0f * t3 + 3.0f * t2;
+    float c = t3 - 2.0f * t2 + t;
+    float d = t3 - t2;
+
+    return a * p1 + b * p2 + c * (p2 - p0) + d * (p3 - p1);
+}
+
+
+
+glm::vec3 cubicInterpolate(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    glm::vec3 a0 = p2 - p1 - p0 + p1;
+    glm::vec3 a1 = p0 - p1 - a0;
+    glm::vec3 a2 = p2 - p0;
+    glm::vec3 a3 = p1;
+
+    return a0 * t3 + a1 * t2 + a2 * t + a3;
+}
+
+glm::vec3 cubicSplineInterpolate(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    glm::vec3 a0 = p3 - p2 - p0 + p1;
+    glm::vec3 a1 = p0 - p1 - a0;
+    glm::vec3 a2 = p2 - p0;
+    glm::vec3 a3 = p1;
+
+    return a0 * t3 + a1 * t2 + a2 * t + a3;
+}
+
+glm::vec3 cubicInterpolate2(
+    glm::vec3 x0, glm::vec3 x1,
+    glm::vec3 x2, glm::vec3 x3,
+    float t)
+{
+    glm::vec3 a = (3.0f * x1 - 3.0f * x2 + x3 - x0) / 2.0f;
+    glm::vec3 b = (2.0f * x0 - 5.0f * x1 + 4.0f * x2 - x3) / 2.0f;
+    glm::vec3 c = (x2 - x0) / 2.0f;
+    glm::vec3 d = x1;
+
+    return a * t * t * t + b * t * t + c * t + d;
+}
+
+glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float t)
+{
+    return x * (1.f - t) + y * t;
+}
+
+
 int main()
 {
     GLFWwindow* window = InitializeWindow();
@@ -75,6 +134,12 @@ int main()
     unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
+
+    unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
+
+    Model* billboard = LoadModel(filepath("/resources/models/billboards/hp1.obj"));
+    Model* moon = LoadModel(filepath("/resources/models/billboards/moon.obj"));
+    Model* sun = LoadModel(filepath("/resources/models/billboards/sun.obj"));
 
 
     Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
@@ -98,6 +163,7 @@ int main()
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+      glm::vec3 color = glm::vec3(0.0f);
 
     const double debounceDelay = 1.5; // 200 milliseconds
     double lastSpacePressTime = 0.0;
@@ -177,18 +243,46 @@ int main()
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = 0.01f; // You can adjust the speed of rotatiom
+        float angular_speed = 0.02f; // You can adjust the speed of rotatiom
         // Calculate the x, y, and z coordinates of the vector
         float x = radius * cos(angular_speed * currentTime);
-        float y = radius * sin(angular_speed * currentTime) - 1.0f;
+        float y = radius * sin(angular_speed * currentTime);
         float z = 0.0f; // Since you want it to move along the y and z axes
 
-        glm::vec3 sunDirection = glm::vec3(x, y, z); // glm::normalize(glm::vec3(x, y, z));
+        glm::vec3 sunDirection = -glm::vec3(x, y, z);
 
-        printf("sunDirection: %f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
+        float red_value, green_value, blue_value;
+        red_value = green_value = blue_value = sunDirection.y;
+
+      
+        float sun_t = sunDirection.y;
+        //printf("sunDirection: %f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
+
+        glm::vec3 orange = glm::vec3(1., 0.741, 0.086);
+        glm::vec3 purple = glm::vec3(0.082f, 0.0f, 0.298f);
+        glm::vec3 white = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        sun_t *= 2.5f;
+        if (sun_t > 0 && sun_t < 1) {
+            //color = cubicInterpolate2(white, orange, white, white, sun_t);
+            color = lerp(orange, white, sun_t);
+        }
+        if (sun_t < 0 && sun_t > -1) {
+            //color = cubicInterpolate(glm::vec3(1.0f, 1.0f, 0.0f), orange, purple,glm::abs(sun_t));
+            color = lerp(orange, purple, glm::abs(sun_t));
+            //color = cubicInterpolate2(purple, orange, purple, purple, glm::abs(sun_t));
+        }
+
+        
+
+
+        // i have y value that bounces between -1 and 1; day = 0 < x < 1; night = -1 < x < 0; 
+
+        //printf("color: %f %f %f\n", sunDirection.y, green_value, sunDirection.y);
+        
 
         setVec3(modelShader, "dirLight.direction", sunDirection);
-        setVec3(modelShader, "dirLight.ambient", -sunDirection.y, -sunDirection.y, -sunDirection.y);
+        setVec3(modelShader, "dirLight.ambient", color.x, color.y, color.z);
         setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
@@ -245,6 +339,32 @@ int main()
 
 
         DrawScene(root_node);
+
+
+        glUseProgram(billboardShader);
+
+        setShaderMat4(billboardShader, "projection", projection);
+        setShaderMat4(billboardShader, "view", view);
+
+        glm::vec3 tmp = (sunDirection * 100.0f);
+        //tmp.y += 100.0f;
+
+       // printf("sunDirection: %f %f %f\n", tmp.x, tmp.y, tmp.z);
+
+        glm::mat4 b_model = glm::mat4(1.0f);
+        b_model = glm::translate(b_model, tmp);
+        setShaderMat4(billboardShader, "model", b_model);
+
+        DrawModel(sun, billboardShader);
+
+        b_model = glm::mat4(1.0f);
+        b_model = glm::translate(b_model, -tmp);
+        setShaderMat4(billboardShader, "model", b_model);
+
+        DrawModel(moon, billboardShader);
+
+        glUseProgram(modelShader);
+        
 
         // Player
         model = glm::mat4(1.0f);
@@ -304,8 +424,6 @@ int main()
         //model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
         setShaderMat4(modelShader, "model", model);
         DrawModel(soid_man, modelShader);
-
-
 
 
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);

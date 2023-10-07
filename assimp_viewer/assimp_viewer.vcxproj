@@ -168,6 +168,8 @@
     <None Include="..\shaders\6.multiple_lights.vs" />
     <None Include="..\shaders\anim_model.fs" />
     <None Include="..\shaders\anim_model.vs" />
+    <None Include="..\shaders\billboard.fs" />
+    <None Include="..\shaders\billboard.vs" />
     <None Include="..\shaders\grid.fs" />
     <None Include="..\shaders\grid.vs" />
     <None Include="..\shaders\hitbox.fs" />

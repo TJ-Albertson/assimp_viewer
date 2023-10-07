@@ -68,9 +68,13 @@ void DrawTree(SceneNode* node)
 {
     if (ImGui::TreeNode(node->name)) {
 
-        ImGui::Text("shaderID: %d", node->shaderID);
-        ImGui::Text("m_NumMeshes: %d", node->model->m_NumMeshes);
-        ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
+
+        if (node->type == "model") {
+            ImGui::Text("shaderID: %d", node->shaderID);
+            ImGui::Text("m_NumMeshes: %d", node->model->m_NumMeshes);
+            ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
+        }
+        
 
         SceneNode* child = node->firstChild;
         while (child != NULL) {
