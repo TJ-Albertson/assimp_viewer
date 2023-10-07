@@ -77,112 +77,14 @@ int main()
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
 
-    Model* labeled_alpha_cube = LoadModel(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"));
-
-
-
-    glm::mat4 hitbox = glm::mat4(1.0f);
-    
-    // Translation
-    hitbox = glm::translate(hitbox, glm::vec3(10.0f, 1.0f, 15.0f));
-
-    // Rotation
-    glm::vec3 rotationAngles(45.0f, 35.0f, 0.0f);
-
-    glm::quat rotationX = glm::angleAxis(glm::radians(rotationAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::quat rotationY = glm::angleAxis(glm::radians(rotationAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat rotationZ = glm::angleAxis(glm::radians(rotationAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::quat finalRotation = rotationX * rotationY * rotationZ;
-
-    glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
-    hitbox = hitbox * rotationMatrix;
-
-    // Scale
-    hitbox = glm::scale(hitbox, glm::vec3(1.5f, 1.5f, 1.5f));
-
-    CreateHitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), hitbox);
-
-
-
-
-
     Model* player = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
 
-
-    Model* container = LoadModel(filepath("/resources/models/container/container.dae"));
-
-
-    Model* green_alpha = LoadModel(filepath("/resources/models/green_alpha/green_alpha.obj"));
-
     Model* sphere = LoadModel(filepath("/resources/models/sphere/sphere.obj"));
-
-
-   
-
-    Model* single_tri = LoadModel(filepath("/resources/models/planes/plane.obj"));
-
-
-    Model* hill_plane = LoadModel(filepath("/resources/models/grass_plane/grass_plane_2.obj"));
- 
 
     Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
 
 
-
-
-
-    
-
-
-
-
-
-
-    glm::mat4 mapMatrix = glm::mat4(1.0f);
-    //map1
-
-    Model* wall = LoadModel(filepath("/resources/models/map/wall.obj"));
-
-    CreateHitbox(filepath("/resources/models/map/wall.obj"), mapMatrix);
-
-    ///Model* platforms = LoadModel(filepath("/resources/models/map/platforms.obj"));
- 
-    //CreateHitbox(filepath("/resources/models/map/platforms.obj"), mapMatrix);
-
-    Model* stairs = LoadModel(filepath("/resources/models/map/stairs.obj"));
-
-    CreateHitbox(filepath("/resources/models/map/stairs.obj"), mapMatrix);
-    //map1
-
-    glm::mat4 hill_planehitbox = glm::mat4(1.0f);
-    hill_planehitbox = glm::translate(hill_planehitbox, glm::vec3(0.0f, -5.0f, 0.0f));
-    hill_planehitbox = glm::scale(hill_planehitbox, glm::vec3(1.0f, 1.0f, 1.0f));
-    //CreateHitbox(filepath("/resources/models/grass_plane/grass_plane_2.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-    Model* x_arrow = LoadModel(filepath("/resources/models/direction_arrows/x.obj"));
- 
-    Model* y_arrow = LoadModel(filepath("/resources/models/direction_arrows/y.obj"));
-    
-    Model* z_arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
-   
-
-
-    
-
-    glm::mat4 hitbox2 = glm::mat4(1.0f);
-    hitbox2 = glm::translate(hitbox2, glm::vec3(-5.0f, -0.5f, 5.0f));
-    hitbox2 = glm::scale(hitbox2, glm::vec3(1.0f, 1.0f, 1.0f));
-    //create_hitbox(filepath("/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj"), glm::vec3(-5.0f, -0.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-    glm::mat4 single_tri_mat = glm::mat4(1.0f);
-    single_tri_mat = glm::translate(single_tri_mat, glm::vec3(10.0f, 0.0f, 10.0f));
-    single_tri_mat = glm::scale(single_tri_mat, glm::vec3(50.0f, 1.0f, 50.0f));
-    //CreateHitbox(filepath("/resources/models/planes/plane.obj"), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f));
-
-    //PrintSceneHierarchy(rootNode);
+    Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
 
 
     if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
@@ -275,10 +177,10 @@ int main()
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = 0.5f; // You can adjust the speed of rotatiom
+        float angular_speed = 0.01f; // You can adjust the speed of rotatiom
         // Calculate the x, y, and z coordinates of the vector
         float x = radius * cos(angular_speed * currentTime);
-        float y = radius * sin(angular_speed * currentTime);
+        float y = radius * sin(angular_speed * currentTime) - 1.0f;
         float z = 0.0f; // Since you want it to move along the y and z axes
 
         glm::vec3 sunDirection = glm::vec3(x, y, z); // glm::normalize(glm::vec3(x, y, z));
@@ -342,23 +244,7 @@ int main()
         setShaderMat4(modelShader, "view", view);
 
 
-
         DrawScene(root_node);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 0.0f, 10.0f));
-        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(container, modelShader);
-
-        model = glm::mat4(1.0f);
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(wall, modelShader);
-        DrawModel(stairs, modelShader);
-
-
-
-
 
         // Player
         model = glm::mat4(1.0f);
@@ -421,20 +307,6 @@ int main()
 
 
 
-        model = glm::mat4(1.0f);
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(hill_plane, modelShader);
-
-
-
-
-        model = glm::mat4(1.0f);
-        setShaderMat4(modelShader, "model", model);
-        DrawModel(x_arrow, modelShader);
-        DrawModel(y_arrow, modelShader);
-        DrawModel(z_arrow, modelShader);
-
-
 
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
@@ -449,13 +321,11 @@ int main()
         //arrowModelMatrix = glm::rotate(arrowModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         arrowModelMatrix *= rotationMatrix;
         setShaderMat4(modelShader, "model", arrowModelMatrix);
-        DrawModel(z_arrow, modelShader);
+        DrawModel(arrow, modelShader);
+
 
         // BACKFACE CULLING |ON|
         glEnable(GL_CULL_FACE);
-
-        setShaderMat4(modelShader, "model", hitbox);
-        DrawModel(labeled_alpha_cube, modelShader);
 
         glUseProgram(hitboxShader);
 

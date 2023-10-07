@@ -18,6 +18,7 @@ Draws the node tree.
 
 struct SceneNode {
     char name[24];
+    char type[24];
     int id;
 
     Model* model;
@@ -131,17 +132,17 @@ int LoadScene(std::string const& path)
     for (int i = 0; i < num_models; ++i) {
 
         cJSON* model = cJSON_GetArrayItem(root, i);
-
+        
         SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
 
         node->firstChild = NULL;
         node->nextSibling = NULL;
 
         strncpy(node->name, cJSON_GetObjectItem(model, "name")->valuestring, sizeof(node->name));
+        strncpy(node->type, cJSON_GetObjectItem(model, "type")->valuestring, sizeof(node->type));
         node->shaderID = cJSON_GetObjectItem(model, "shaderId")->valueint;
 
         std::string path = cJSON_GetObjectItem(model, "filepath")->valuestring;
-        std::string hitbox = cJSON_GetObjectItem(model, "hitbox")->valuestring;
 
         node->model = LoadModel(filepath(path));
 
@@ -188,7 +189,46 @@ int LoadScene(std::string const& path)
 
         node->m_modelMatrix = model_matrix;
 
-        CreateHitbox(filepath(hitbox), model_matrix);
+        cJSON* children = cJSON_GetObjectItem(model, "children");
+        if (children && cJSON_IsArray(children)) {
+            cJSON* child;
+            cJSON_ArrayForEach(child, children)
+            {
+                SceneNode* childNode = buildTreeFromJSON(child);
+                if (childNode) {
+                    // Attach the child as a sibling of the current node
+                    if (node->child == NULL) {
+                        node->child = childNode;
+                    } else {
+                        TreeNode* sibling = node->child;
+                        while (sibling->sibling != NULL) {
+                            sibling = sibling->sibling;
+                        }
+                        sibling->sibling = childNode;
+                    }
+                }
+            }
+        }
+
+        if (cJSON_IsArray(children)) {
+            int children_size = cJSON_GetArraySize(children);
+
+            for (int j = 0; j < children_size; j++) {
+                cJSON* child = cJSON_GetArrayItem(children, j);
+
+                const char* type = cJSON_GetObjectItem(model, "type")->valuestring
+
+                if (cJSON_IsString(hitbox)) {
+                    printf("Child %d, Hitbox: %s\n", j, hitbox->valuestring);
+                    const char* hitbox_path = hitbox->valuestring;
+                    CreateHitbox(hitbox_path, model_matrix);
+                }
+            }
+        }
+
+
+
+        //std::string path = cJSON_GetObjectItem(model, "filepath")->valuestring;
 
         AddChild(root_node, node);
     }
@@ -202,16 +242,18 @@ int LoadScene(std::string const& path)
 
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 {
-    // This will be changed in future. Plan is to use universal shader program.
-    // From what I've read that is favorable due to the high cost of switching
-    // shader programs.
-    glUseProgram(shaderIdArray[node->shaderID]);
-
     glm::mat4 model = node->m_modelMatrix * parentTransform;
 
-    setShaderMat4(shaderIdArray[node->shaderID], "model", model);
+    if (node->type == "model") {
+        // This will be changed in future. Plan is to use universal shader program.
+        // From what I've read that is favorable due to the high cost of switching
+        // shader programs.
+        glUseProgram(shaderIdArray[node->shaderID]);
 
-    DrawModel(node->model, shaderIdArray[node->shaderID]);
+        setShaderMat4(shaderIdArray[node->shaderID], "model", model);
+
+        DrawModel(node->model, shaderIdArray[node->shaderID]);
+    }
 
     SceneNode* child = node->firstChild;
     while (child != NULL) {

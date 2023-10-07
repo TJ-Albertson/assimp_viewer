@@ -212,10 +212,9 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
     int normalCount = 0;
     int faceCount = 0;
 
-    glm::vec3 vertices[1000];
-    glm::vec3 normals[1000];
-
-    Polygon polygons[100];
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<Polygon> polygons;
 
     char line[256];
 
@@ -226,31 +225,35 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                vertices[vertexCount] = glm::vec3(matrix * glm::vec4(x, y, z, 1.0f));
-                vertexCount++;
+                vertices.push_back(glm::vec3(matrix * glm::vec4(x, y, z, 1.0f)));
+                //verticeCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;
                 sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
-                normals[normalCount] = glm::normalize(glm::vec3(normalMatrix * glm::vec4(nx, ny, nz, 1.0)));
-                normalCount++;
+                normals.push_back(glm::normalize(glm::vec3(normalMatrix * glm::vec4(nx, ny, nz, 1.0))));
+                //normalCount++;
             }
         } else if (line[0] == 'f') {
             int vertex_1, vertex_2, vertex_3, vertex_normal;
             sscanf(line, "f %d/%*d/%d %d/%*d/%*d %d/%*d/%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
 
-            polygons[faceCount].vertices.push_back(vertices[vertex_1 - 1]);
-            polygons[faceCount].vertices.push_back(vertices[vertex_2 - 1]);
-            polygons[faceCount].vertices.push_back(vertices[vertex_3 - 1]);
-            
-            polygons[faceCount].normal = normals[vertex_normal - 1];
+            Polygon polygon;
 
-            faceCount++;
+            polygon.vertices.push_back(vertices[vertex_1 - 1]);
+            polygon.vertices.push_back(vertices[vertex_2 - 1]);
+            polygon.vertices.push_back(vertices[vertex_3 - 1]);
+            
+            polygon.normal = normals[vertex_normal - 1];
+
+            polygons.push_back(polygon);
+
+            //faceCount++;
         }
     }
 
     fclose(file);
 
-    for (int i = 0; i < faceCount; ++i) {
+    for (int i = 0; i < polygons.size(); ++i) {
         potentialColliders.push_back(polygons[i]);
     }
 

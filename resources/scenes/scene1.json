@@ -1,35 +1,61 @@
 [
     {
-        "name": "single_tri_1",
-        "filepath": "/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "/resources/models/labeled_alpha_cube/single_tri.obj",
+        "name": "map2",
+        "type": "model",
+        "filepath": "/resources/models/map/map2.obj",
         "shaderId": 0,
-        "translation": "0.0, 0.0, 20.0",
+        "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
+        "rotation": "0.0, 0.0, 0.0",
+        "children": [
+            {
+                "name": "map2_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/map/map2.obj",
+                "translation": "0.0, 0.0, 0.0",
+                "scale": "1.0, 1.0, 1.0",
+                "rotation": "0.0, 0.0, 0.0"
+            }
+        ]
     },
     {
-        "name": "single_tri_2",
-        "filepath": "/resources/models/labeled_alpha_cube/single_tri.obj",
-        "hitbox": "/resources/models/labeled_alpha_cube/single_tri.obj",
+        "name": "labeled_alpha_cube",
+        "type": "model",
+        "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
         "shaderId": 0,
-        "translation": "-5.0, 0.0, 15.0",
-        "scale": "2.0, 2.0, 2.0",
-        "rotation": "45.0, 0.0, 0.0"
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0",
+        "children": [
+            {
+                "name": "map2_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
+                "translation": "0.0, 0.0, 0.0",
+                "scale": "1.0, 1.0, 1.0",
+                "rotation": "0.0, 0.0, 0.0"
+            }
+        ]
     },
     {
-        "name": "platforms",
-        "filepath": "/resources/models/map/platforms.obj",
-        "hitbox": "/resources/models/map/platforms.obj",
+        "name": "x_arrow",
+        "filepath": "/resources/models/direction_arrows/x.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
     },
     {
-        "name": "floor",
-        "filepath": "/resources/models/map/floor.obj",
-        "hitbox": "/resources/models/map/floor.obj",
+        "name": "y_arrow",
+        "filepath": "/resources/models/direction_arrows/y.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "z_arrow",
+        "filepath": "/resources/models/direction_arrows/z.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
