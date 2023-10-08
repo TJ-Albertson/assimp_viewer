@@ -154,6 +154,7 @@
     <ClInclude Include="..\include\gui.h" />
     <ClInclude Include="..\include\log_file_functions.h" />
     <ClInclude Include="..\include\model.h" />
+    <ClInclude Include="..\include\my_math.h" />
     <ClInclude Include="..\include\scene_graph.h" />
     <ClInclude Include="..\include\shader_m.h" />
     <ClInclude Include="..\include\skeleton.h" />

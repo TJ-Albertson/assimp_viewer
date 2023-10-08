@@ -141,9 +141,19 @@ Model* LoadModel(std::string const& path) {
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	printf("directory: %s\n", directory.c_str());
-
 	processNode(scene->mRootNode, scene, newModel);
+
+	printf("model: %s\n", newModel->m_Name);
+
+	for (int i = 0; i < newModel->m_NumMeshes; ++i) {
+                Mesh mesh = newModel->m_Meshes[i];
+
+				for (int j = 0; j < mesh.numTextures; j++) {
+                    Texture text = mesh.textures[j];
+
+                    //printf("texture[%d]: \n", j);
+				}
+	}
 
 	return newModel;
 }
@@ -215,19 +225,19 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-	int numDiffuse = material->GetTextureCount(aiTextureType_DIFFUSE);
-	int numSpecular = material->GetTextureCount(aiTextureType_SPECULAR);
-    int numHeight = material->GetTextureCount(aiTextureType_HEIGHT);
-    int numAmbient = material->GetTextureCount(aiTextureType_AMBIENT);
-
+	int numDiffuse = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
+	int numSpecular = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
+    int numHeight = aiGetMaterialTextureCount(material, aiTextureType_HEIGHT);
+	int numAmbient = aiGetMaterialTextureCount(material, aiTextureType_AMBIENT);
+  
 	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
 
     Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
 
-	loadMaterialTextures(textures, 0, numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
-	loadMaterialTextures(textures, numDiffuse, numDiffuse + numSpecular, material, aiTextureType_SPECULAR, "texture_specular");
-	loadMaterialTextures(textures, numDiffuse + numSpecular, numDiffuse + numSpecular + numHeight, material, aiTextureType_HEIGHT, "texture_normal");
-	loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numTextures, material, aiTextureType_AMBIENT, "texture_height");
+	loadMaterialTextures(textures, 0,                                    numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
+    loadMaterialTextures(textures, numDiffuse,                           numSpecular, material, aiTextureType_SPECULAR, "texture_specular");
+	loadMaterialTextures(textures, numDiffuse + numSpecular,             numHeight, material, aiTextureType_HEIGHT, "texture_normal");
+    loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numAmbient, material, aiTextureType_AMBIENT, "texture_height");
 
 	AssignBoneId(vertices, mesh, scene);
 
@@ -364,20 +374,22 @@ unsigned int TextureFromFile(const char* path, const std::string& directory)
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
-// the required info is returned as a Texture struct.s
+// the required info is returned as a Texture structs
 
 void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, const char* typeName)
 {
-	for (unsigned int i = startIndex; i < numTextures; ++i) {
+	for (unsigned int i = 0; i < numTextures; ++i) {
 
 		aiString str;
 		mat->GetTexture(type, i, &str);
+
+		printf("GetTexture(): %s; typeName: %s\n", str.C_Str(), typeName);
 		
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); ++j) {
 			if (std::strcmp(textures_loaded[j].path, str.C_Str()) == 0) {
-				textures[i] = textures_loaded[j];
+                textures[startIndex + i] = textures_loaded[j];
 				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
@@ -388,7 +400,7 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 			texture.id = TextureFromFile(str.C_Str(), directory);
 			texture.type = typeName;
 			texture.path = str.C_Str();
-			textures[i] = texture;
+            textures[startIndex + i] = texture;
 			textures_loaded.push_back(texture); // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 		}
 	}

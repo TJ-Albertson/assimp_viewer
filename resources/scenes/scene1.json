@@ -63,5 +63,14 @@
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "box",
+        "type": "model",
+        "filepath": "/resources/models/container/box.obj",
+        "shaderId": 0,
+        "translation": "0.0, 1.0, 10.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
     }
-    ]
+]
