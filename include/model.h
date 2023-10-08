@@ -46,7 +46,7 @@ struct VertexData {
 struct Texture {
 	unsigned int id;
 	const char* type;
-	const char* path;
+	char* path;
 };
 
 struct Mesh {
@@ -151,7 +151,7 @@ Model* LoadModel(std::string const& path) {
 				for (int j = 0; j < mesh.numTextures; j++) {
                     Texture text = mesh.textures[j];
 
-                    //printf("texture[%d]: \n", j);
+                    printf("texture[%d]: %s, %s\n", j, mesh.textures[j].type, mesh.textures[j].path);
 				}
 	}
 
@@ -225,10 +225,10 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-	int numDiffuse = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
+	int numDiffuse  = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
 	int numSpecular = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
-    int numHeight = aiGetMaterialTextureCount(material, aiTextureType_HEIGHT);
-	int numAmbient = aiGetMaterialTextureCount(material, aiTextureType_AMBIENT);
+    int numHeight   = aiGetMaterialTextureCount(material, aiTextureType_HEIGHT);
+	int numAmbient  = aiGetMaterialTextureCount(material, aiTextureType_AMBIENT);
   
 	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
 
@@ -383,7 +383,7 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 		aiString str;
 		mat->GetTexture(type, i, &str);
 
-		printf("GetTexture(): %s; typeName: %s\n", str.C_Str(), typeName);
+		//printf("GetTexture(): %s; typeName: %s\n", str.C_Str(), typeName);
 		
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
@@ -399,7 +399,10 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
 			Texture texture;
 			texture.id = TextureFromFile(str.C_Str(), directory);
 			texture.type = typeName;
-			texture.path = str.C_Str();
+            texture.path = (char*)malloc(strlen(str.C_Str()) + 1);
+            strcpy(texture.path, str.C_Str());
+            //printf("texture: %s; typeName: %s; index: %d\n", texture.path, texture.type, startIndex + i);
+
             textures[startIndex + i] = texture;
 			textures_loaded.push_back(texture); // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 		}
@@ -423,6 +426,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
 			std::string name = std::string(mesh.textures[i].type);
+
 			if (name == "texture_diffuse")
 				number = std::to_string(diffuseNr++);
 			else if (name == "texture_specular")

@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd light_grass.png
+map_Kd map2_textures/texture_diffuse1.png
 
 newmtl patchy_grass
 Ns 360.000000
@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd light_grass_patchy.png
+map_Kd map2_textures/texture_diffuse2.png
 
 newmtl path
 Ns 360.000000
@@ -32,7 +32,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd path1.png
+map_Kd map2_textures/texture_diffuse3.png
 
 newmtl rock
 Ns 360.000000
@@ -43,4 +43,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd dark_wall.png
+map_Kd map2_textures/texture_diffuse4.png
