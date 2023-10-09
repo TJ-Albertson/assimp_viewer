@@ -97,12 +97,13 @@ int main()
 
     Model* clouds = LoadModel(filepath("/resources/models/planes/clouds.obj"));
 
+    Model* grass = LoadModel(filepath("/resources/models/planes/plane.obj"));
+
     if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
         printf("LoadScene Failed!\n");
     }
 
-
-    LoadSkybox(filepath);
+    LoadSkybox(filepath, "skybox2");
 
     // Wireframe mode
     // --------------------
@@ -275,13 +276,16 @@ int main()
 
         DrawScene(root_node);
 
-        
+        glUseProgram(animatedShader);
+        setShaderMat4(animatedShader, "projection", projection);
+        setShaderMat4(animatedShader, "view", view);
 
-
-       
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-5.0f, 1.5f, -5.0f));
+        setShaderMat4(animatedShader, "model", model);
+        DrawModel(grass, animatedShader);
 
         glUseProgram(modelShader);
-        
 
         // Player
         model = glm::mat4(1.0f);
@@ -419,7 +423,7 @@ int main()
            for (int j = -1; j <= 1; j++) {
 
                 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(i * 150.0f, 150.0f, j * 150.0f));
+                model = glm::translate(model, glm::vec3(i * 150.0f, 75.0f, j * 150.0f));
                 model = glm::scale(model, glm::vec3(75.0f, 1.0f, 75.0f));
                 setShaderMat4(animatedShader, "model", model);
                 DrawModel(clouds, animatedShader);
@@ -531,8 +535,7 @@ void processInput(GLFWwindow* window, Camera* camera)
 
 	if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
 		isMoving = true;
-	}
-	else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !mousePressed) {
+	} else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && PlayerCamera->Type == THIRDPERSON && !mousePressed) {
 		isMoving = true;
     }
     else {

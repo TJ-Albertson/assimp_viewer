@@ -1,10 +1,17 @@
 #version 330 core
 out vec4 FragColor;
 
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    sampler2D emission;
+    float shininess;
+}; 
+
 in vec2 TexCoords;
 
-// texture sampler
-uniform sampler2D texture_diffuse1;
+uniform Material material;
+
 uniform float time;
 
 void main()
@@ -14,11 +21,15 @@ void main()
     
     // Calculate the new texture coordinates
     vec2 offset = speed * time;
-    vec2 newTexCoord = TexCoords + offset;
+    vec2 newTexCoord = TexCoords * 0.5f + offset;
 
     // Make sure the texture coordinates wrap around to create a continuous effect
     if (newTexCoord.x > 1.0)
         newTexCoord.x -= 1.0;
 
-	FragColor = texture(texture_diffuse1, newTexCoord);
+    vec4 staticColor = texture(material.diffuse, TexCoords);
+
+    vec4 movingColor = texture(material.emission, newTexCoord);
+
+    FragColor = movingColor * staticColor; // You can adjust the blend factor (0.5) to control the balance between the two textures.
 }

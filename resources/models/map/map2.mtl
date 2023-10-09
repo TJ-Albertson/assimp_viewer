@@ -12,7 +12,7 @@ d 1.000000
 illum 2
 map_Kd map2_textures/texture_diffuse1.png
 map_Ks map2_textures/texture_specular1.png
-map_Ke map2_textures/texture_emissive1.png
+map_Ke map2_textures/clouds_inverted.png
 
 newmtl patchy_grass
 Ns 360.000000
@@ -25,7 +25,7 @@ d 1.000000
 illum 2
 map_Kd map2_textures/texture_diffuse2.png
 map_Ks map2_textures/texture_specular1.png
-map_Ke map2_textures/texture_emissive1.png
+map_Ke map2_textures/clouds_inverted.png
 
 newmtl path
 Ns 360.000000
@@ -38,7 +38,7 @@ d 1.000000
 illum 2
 map_Kd map2_textures/texture_diffuse3.png
 map_Ks map2_textures/texture_specular1.png
-map_Ke map2_textures/texture_emissive1.png
+map_Ke map2_textures/clouds_inverted.png
 
 newmtl rock
 Ns 360.000000
@@ -51,4 +51,4 @@ d 1.000000
 illum 2
 map_Kd map2_textures/texture_diffuse4.png
 map_Ks map2_textures/texture_specular1.png
-map_Ke map2_textures/texture_emissive1.png
+map_Ke map2_textures/clouds_inverted.png

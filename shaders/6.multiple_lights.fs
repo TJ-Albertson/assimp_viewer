@@ -55,10 +55,13 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 
+uniform float time;
+
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec4 OverlayMovingTexture(float time);
 
 void main()
 {    
@@ -81,10 +84,29 @@ void main()
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir); 
     
     //emission
-    vec3 emission = texture(material.emission, TexCoords).rgb;
-    result += emission;
+    //vec3 emission = texture(material.emission, TexCoords).rgb;
+    //result += emission;
+    //result *= vec3(OverlayMovingTexture(time));
     
     FragColor = vec4(result, 1.0);
+}
+
+vec4 OverlayMovingTexture(float time)
+{
+    // Define the speed and direction of the texture movement
+    vec2 speed = vec2(1.0, 0.0); // You can adjust this to control the direction and speed
+    
+    // Calculate the new texture coordinates
+    vec2 offset = speed * time;
+    vec2 newTexCoord = TexCoords * 0.5f + offset;
+
+    // Make sure the texture coordinates wrap around to create a continuous effect
+    if (newTexCoord.x > 1.0)
+        newTexCoord.x -= 1.0;
+
+    vec4 movingColor = texture(material.emission, newTexCoord);
+
+    return movingColor;
 }
 
 // calculates the color when using a directional light.
