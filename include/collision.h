@@ -32,7 +32,6 @@ struct Plane {
 
 std::vector<Polygon> potentialColliders;
 glm::vec3 collisionBallPosition;
-glm::vec3 sphereIntersectionPointPos;
 
 int CollisionDetection(Sphere s, Vector v);
 void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
@@ -76,12 +75,23 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         t.vertices[2] = potentialColliders[j].vertices[2];
 
         float time_of_collision;
+        bool sphere_embedded = false;
 
         // 1. sphere-plane test
+        // collision_point represents sphere.center at time of collision
         int planeCollision = IntersectMovingSpherePlane(sphere, velocity, p, time_of_collision, collision_point);
 
         if (!planeCollision || time_of_collision > 1) {
             continue;
+        }
+
+        // 
+        Point plane_collision_point = ClosestPtPointPlane(sphere.center, p);
+        float distance = glm::distance(sphere.center, plane_collision_point);
+        collision_point = plane_collision_point;
+
+        if (distance < sphere.radius) {
+            sphere_embedded = true;
         }
 
         // 2. face test
@@ -95,14 +105,11 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         // 3. edge test
         bool edge_collision = false;
-        int edge = -1;
-
         float least_time = 1;
 
         Point a, b;
 
         for (int i = 0; i < 3; ++i) {
-
             int vertex1 = i;
             int vertex2 = (i + 1) % 3;
 
@@ -112,21 +119,21 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
             if (edge_intersect && time <= least_time) {
                 edge_collision = true;
-                least_time = time;
-                time_of_collision = time;
-                edge = i;
+                least_time = time_of_collision = time;
                 a = t.vertices[vertex1];
                 b = t.vertices[vertex2];
             }
         }
 
         if (edge_collision) {
-
             float time;
             Point d;
 
-            ClosestPtPointSegment(sphere.center + velocity, a, b, time, d);
-            collision_point = d;
+            if (sphere_embedded) {
+                ClosestPtPointSegment(sphere.center + velocity, a, b, time, d);
+                collision_point = d;
+                collisionBallPosition = d;
+            }
             CollisionResponse(velocity, sphere, collision_point);
             continue;
         }
@@ -166,7 +173,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         // 5. No collision
     }
-    collisionBallPosition = collision_point;
+    //collisionBallPosition = collision_point;
     return 0;
 }
 
@@ -179,6 +186,8 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
 
     Vector sliding_plane_normal = sphere.center - collision_point;
     sliding_plane_normal = glm::normalize(sliding_plane_normal);
+
+    //printf("sliding_plane_normal: %f %f %f\n", sliding_plane_normal.x, sliding_plane_normal.y, sliding_plane_normal.z);
 
     Plane sliding_plane;
     sliding_plane.n = sliding_plane_normal;

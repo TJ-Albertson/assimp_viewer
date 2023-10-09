@@ -182,15 +182,16 @@ int main()
 
         setVec3(modelShader, "viewPos", PlayerCamera->Position);
         setFloat(modelShader, "material.shininess", 32.0f);
-        setInt(modelShader, "material.diffuse", 0);
-        setInt(modelShader, "material.specular", 1);
+        //setInt(modelShader, "material.diffuse", 0);
+        //setInt(modelShader, "material.specular", 1);
+        //setInt(modelShader, "material.emission", 2);
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
         float angular_speed = 0.02f; // You can adjust the speed of rotatiom
         // Calculate the x, y, and z coordinates of the vector
 
-        float time = currentTime + 200.0f;
+        float time = currentTime + 160.0f;
         float x = radius * cos(angular_speed * time);
         float y = radius * sin(angular_speed * time);
         float z = 0.0f; // Since you want it to move along the y and z axes
@@ -269,6 +270,8 @@ int main()
 
 
         DrawScene(root_node);
+
+        
 
 
         glUseProgram(billboardShader);
@@ -353,7 +356,7 @@ int main()
 
         //model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(soid_man, modelShader);
+        //DrawModel(soid_man, modelShader);
 
 
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
@@ -385,6 +388,14 @@ int main()
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
+        DrawModel(sphere, hitboxShader);    
+
+        // Collision Point Ball
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, collisionBallPosition);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         DrawModel(sphere, hitboxShader);
 
         // BACKFACE CULLING |OFF|
@@ -452,7 +463,6 @@ GLFWwindow* InitializeWindow()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    
 
     // ImGui initialization
     // -----------------------------

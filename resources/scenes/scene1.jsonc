@@ -1,10 +1,76 @@
-{
-    "Floor": {
-        "filepath": "C:\file",
-        "hitbox": "C:\file",
+[
+        {
+            "name": "map2",
+            "type": "model",
+            "filepath": "/resources/models/map/map2.obj",
+            "shaderId": 0,
+            "translation": "0.0, 0.0, 0.0",
+            "scale": "1.0, 1.0, 1.0",
+            "rotation": "0.0, 0.0, 0.0",
+            "children": [
+                {
+                    "name": "map2_hitbox",
+                    "type": "hitbox",
+                    "filepath": "/resources/models/map/map2.obj",
+                    "translation": "0.0, 0.0, 0.0",
+                    "scale": "1.0, 1.0, 1.0",
+                    "rotation": "0.0, 0.0, 0.0"
+                }
+            ]
+        },
+        /*{
+            "name": "labeled_alpha_cube",
+            "type": "model",
+            "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
+            "shaderId": 0,
+            "translation": "5.0, 1.0, 5.0",
+            "scale": "1.0, 1.0, 1.0",
+            "rotation": "0.0, 0.0, 0.0",
+            "children": [
+                {
+                    "name": "map2_hitbox",
+                    "type": "hitbox",
+                    "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
+                    "translation": "5.0, 1.0, 5.0",
+                    "scale": "1.0, 1.0, 1.0",
+                    "rotation": "0.0, 0.0, 0.0"
+                }
+            ]
+        },*/
+    {
+        "name": "x_arrow",
+        "type": "model",
+        "filepath": "/resources/models/direction_arrows/x.obj",
         "shaderId": 0,
-        "translation": "1.0f, 1.0f, 1.0f",
-        "scale": "1.0f, 1.0f, 1.0f",
-        "rotation": "1.0f, 1.0f, 1.0f"
-    }
-}
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "y_arrow",
+        "type": "model",
+        "filepath": "/resources/models/direction_arrows/y.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "z_arrow",
+        "type": "model",
+        "filepath": "/resources/models/direction_arrows/z.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    }/*,
+    {
+        "name": "box",
+        "type": "model",
+        "filepath": "/resources/models/container/box.obj",
+        "shaderId": 0,
+        "translation": "0.0, 1.0, 10.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    }*/
+]

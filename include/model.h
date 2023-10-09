@@ -144,6 +144,7 @@ Model* LoadModel(std::string const& path) {
 	processNode(scene->mRootNode, scene, newModel);
 
 	printf("model: %s\n", newModel->m_Name);
+    printf(" numMeshes: %d\n", newModel->m_NumMeshes);
 
 	for (int i = 0; i < newModel->m_NumMeshes; ++i) {
                 Mesh mesh = newModel->m_Meshes[i];
@@ -151,7 +152,7 @@ Model* LoadModel(std::string const& path) {
 				for (int j = 0; j < mesh.numTextures; j++) {
                     Texture text = mesh.textures[j];
 
-                    printf("texture[%d]: %s, %s\n", j, mesh.textures[j].type, mesh.textures[j].path);
+                   // printf("texture[%d]: %s, %s\n", j, mesh.textures[j].type, mesh.textures[j].path);
 				}
 	}
 
@@ -229,15 +230,22 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	int numSpecular = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
     int numHeight   = aiGetMaterialTextureCount(material, aiTextureType_HEIGHT);
 	int numAmbient  = aiGetMaterialTextureCount(material, aiTextureType_AMBIENT);
+    int numEmissive = aiGetMaterialTextureCount(material, aiTextureType_EMISSIVE);
   
-	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient;
+	int numTextures = numDiffuse + numSpecular + numHeight + numAmbient + numEmissive;
 
     Texture* textures = (Texture*)malloc(numTextures * sizeof(Texture));
 
-	loadMaterialTextures(textures, 0,                                    numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
-    loadMaterialTextures(textures, numDiffuse,                           numSpecular, material, aiTextureType_SPECULAR, "texture_specular");
-	loadMaterialTextures(textures, numDiffuse + numSpecular,             numHeight, material, aiTextureType_HEIGHT, "texture_normal");
-    loadMaterialTextures(textures, numDiffuse + numSpecular + numHeight, numAmbient, material, aiTextureType_AMBIENT, "texture_height");
+	int textures_index = 0;
+    loadMaterialTextures(textures, textures_index, numDiffuse, material, aiTextureType_DIFFUSE, "texture_diffuse");
+    textures_index += numDiffuse;
+    loadMaterialTextures(textures, textures_index, numSpecular, material, aiTextureType_SPECULAR, "texture_specular");
+    textures_index += numSpecular;
+    loadMaterialTextures(textures, textures_index, numHeight, material, aiTextureType_HEIGHT, "texture_normal");
+    textures_index += numHeight;
+    loadMaterialTextures(textures, textures_index, numAmbient, material, aiTextureType_AMBIENT, "texture_height");
+    textures_index += numAmbient;
+    loadMaterialTextures(textures, textures_index, numEmissive, material, aiTextureType_EMISSIVE, "texture_emissive");
 
 	AssignBoneId(vertices, mesh, scene);
 
@@ -418,26 +426,41 @@ void DrawModel(Model* model, unsigned int shaderID)
 		unsigned int specularNr = 1;
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
+        unsigned int emissNr = 1;
 
 		Mesh mesh = model->m_Meshes[i];
 
 		for (unsigned int i = 0; i < mesh.numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
 			std::string name = std::string(mesh.textures[i].type);
 
-			if (name == "texture_diffuse")
+			if (name == "texture_diffuse") {
 				number = std::to_string(diffuseNr++);
-			else if (name == "texture_specular")
-				number = std::to_string(specularNr++); // transfer unsigned int to string
-			else if (name == "texture_normal")
-				number = std::to_string(normalNr++); // transfer unsigned int to string
-			else if (name == "texture_height")
-				number = std::to_string(heightNr++); // transfer unsigned int to string
+                name = "diffuse";
+			}
+            else if (name == "texture_specular") {
+				number = std::to_string(specularNr++);
+                name = "specular";
+			}
+			else if (name == "texture_normal") {
+				number = std::to_string(normalNr++);    
+				name = "normal";
+			}
+            else if (name == "texture_height") {
+				number = std::to_string(heightNr++);   
+				name = "height";
+			}
+            else if (name == "texture_emissive") {
+				number = std::to_string(emissNr++);
+                name = "emission";
+			}            
 
 			// now set the sampler to the correct texture unit
-			glUniform1i(glGetUniformLocation(shaderID, (name + number).c_str()), i);
+            glUniform1i(glGetUniformLocation(shaderID, ("material." + name).c_str()), i);
+
 			// and finally bind the texture
 			glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
 		}
