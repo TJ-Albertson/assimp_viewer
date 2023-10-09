@@ -206,6 +206,8 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
     velocity = newVelocityVector;
 }
 
+
+
 //Create hitbox from .obj and add to hitbox array. Assumes triangulated
 void CreateHitbox(std::string const& path, glm::mat4 matrix)
 {
