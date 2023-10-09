@@ -129,14 +129,5 @@
                 "rotation": "0.0, 0.0, 45.0"
             }
         ]
-    },
-    {
-        "name": "clouds",
-        "type": "model",
-        "filepath": "/resources/models/planes/clouds.obj",
-        "shaderId": 0,
-        "translation": "0.0, 50.0, 0.0",
-        "scale": "50.0, 1.0, 50.0",
-        "rotation": "0.0, 0.0, 0.0"
     }
 ]

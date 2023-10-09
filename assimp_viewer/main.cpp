@@ -69,12 +69,13 @@ int main()
 
     unsigned int grid_VAO = LoadGrid();
 
-    //unsigned int modelShader  = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    unsigned int basicShader  = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
     shaderIdArray[0] = modelShader;
     unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
+    shaderIdArray[1] = basicShader;
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
     unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
@@ -93,6 +94,7 @@ int main()
 
     Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
 
+    Model* clouds = LoadModel(filepath("/resources/models/planes/clouds.obj"));
 
     if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
         printf("LoadScene Failed!\n");
@@ -156,7 +158,8 @@ int main()
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
         */
-
+        
+        
        
         glUseProgram(animShader);
         
@@ -362,11 +365,12 @@ int main()
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
+          
+
         // BACKFACE CULLING |ON|
         glEnable(GL_CULL_FACE);
 
         glUseProgram(hitboxShader);
-
         setShaderMat4(hitboxShader, "projection", projection);
         setShaderMat4(hitboxShader, "view", view);
 
@@ -400,10 +404,20 @@ int main()
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
 
+        
+
         // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection);   
  
+        glUseProgram(basicShader);
+        setShaderMat4(basicShader, "projection", projection);
+        setShaderMat4(basicShader, "view", view);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 50.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(150.0f, 1.0f, 150.0f));
+        setShaderMat4(basicShader, "model", model);
+        DrawModel(clouds, basicShader);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -457,11 +471,9 @@ GLFWwindow* InitializeWindow()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-
     // alpha values
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 
     // ImGui initialization
     // -----------------------------
