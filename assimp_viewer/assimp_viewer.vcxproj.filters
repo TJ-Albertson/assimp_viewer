@@ -142,5 +142,11 @@
     <None Include="..\shaders\billboard.fs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\shaders\animated_texture.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\animated_texture.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

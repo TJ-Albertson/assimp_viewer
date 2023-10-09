@@ -89,26 +89,26 @@ unsigned int createShader(std::string vertexPathStr, std::string fragmentPathStr
 
 // utility uniform functions
 // ------------------------------------------------------------------------
-void setBool(unsigned int shaderID, const std::string& name, bool value)
+void setShaderBool(unsigned int shaderID, const std::string& name, bool value)
 {
     glUniform1i(glGetUniformLocation(shaderID, name.c_str()), (int)value);
 }
 // ------------------------------------------------------------------------
-void setInt(unsigned int shaderID, const std::string& name, int value)
+void setShaderInt(unsigned int shaderID, const std::string& name, int value)
 {
     glUniform1i(glGetUniformLocation(shaderID, name.c_str()), value);
 }
 // ------------------------------------------------------------------------
-void setFloat(unsigned int shaderID, const std::string& name, float value)
+void setShaderFloat(unsigned int shaderID, const std::string& name, float value)
 {
     glUniform1f(glGetUniformLocation(shaderID, name.c_str()), value);
 }
 // ------------------------------------------------------------------------
-void setVec2(unsigned int shaderID, const std::string& name, const glm::vec2& value)
+void setShaderVec2(unsigned int shaderID, const std::string& name, const glm::vec2& value)
 {
     glUniform2fv(glGetUniformLocation(shaderID, name.c_str()), 1, &value[0]);
 }
-void setVec2(unsigned int shaderID, const std::string& name, float x, float y)
+void setShaderVec2(unsigned int shaderID, const std::string& name, float x, float y)
 {
     glUniform2f(glGetUniformLocation(shaderID, name.c_str()), x, y);
 }

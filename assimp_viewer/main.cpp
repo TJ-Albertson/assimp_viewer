@@ -76,6 +76,7 @@ int main()
     unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
     shaderIdArray[1] = basicShader;
+    unsigned int animatedShader = createShader(filepath("/shaders/animated_texture.vs"), filepath("/shaders/animated_texture.fs"));
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
     unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
@@ -184,7 +185,7 @@ int main()
         glUseProgram(modelShader);
 
         setVec3(modelShader, "viewPos", PlayerCamera->Position);
-        setFloat(modelShader, "material.shininess", 32.0f);
+        setShaderFloat(modelShader, "material.shininess", 32.0f);
         //setInt(modelShader, "material.diffuse", 0);
         //setInt(modelShader, "material.specular", 1);
         //setInt(modelShader, "material.emission", 2);
@@ -225,36 +226,36 @@ int main()
         setVec3(modelShader, "pointLights[0].ambient", 1.0f, 1.0f, 1.0f);
         setVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        setFloat(modelShader, "pointLights[0].constant", 1.0f);
-        setFloat(modelShader, "pointLights[0].linear", 0.09f);
-        setFloat(modelShader, "pointLights[0].quadratic", 0.06f);
+        setShaderFloat(modelShader, "pointLights[0].constant", 1.0f);
+        setShaderFloat(modelShader, "pointLights[0].linear", 0.09f);
+        setShaderFloat(modelShader, "pointLights[0].quadratic", 0.06f);
 
         // point light 2
         setVec3(modelShader, "pointLights[1].position", pointLightPositions[1]);
         setVec3(modelShader, "pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
         setVec3(modelShader, "pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-        setFloat(modelShader, "pointLights[1].constant", 1.0f);
-        setFloat(modelShader, "pointLights[1].linear", 0.09f);
-        setFloat(modelShader, "pointLights[1].quadratic", 0.09f);
+        setShaderFloat(modelShader, "pointLights[1].constant", 1.0f);
+        setShaderFloat(modelShader, "pointLights[1].linear", 0.09f);
+        setShaderFloat(modelShader, "pointLights[1].quadratic", 0.09f);
 
         // point light 3
         setVec3(modelShader, "pointLights[2].position", pointLightPositions[2]);
         setVec3(modelShader, "pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
         setVec3(modelShader, "pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-        setFloat(modelShader, "pointLights[2].constant", 1.0f);
-        setFloat(modelShader, "pointLights[2].linear", 0.09f);
-        setFloat(modelShader, "pointLights[2].quadratic", 0.032f);
+        setShaderFloat(modelShader, "pointLights[2].constant", 1.0f);
+        setShaderFloat(modelShader, "pointLights[2].linear", 0.09f);
+        setShaderFloat(modelShader, "pointLights[2].quadratic", 0.032f);
 
         // point light 4
         setVec3(modelShader, "pointLights[3].position", pointLightPositions[3]);
         setVec3(modelShader, "pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
         setVec3(modelShader, "pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-        setFloat(modelShader, "pointLights[3].constant", 1.0f);
-        setFloat(modelShader, "pointLights[3].linear", 0.09f);
-        setFloat(modelShader, "pointLights[3].quadratic", 0.032f);
+        setShaderFloat(modelShader, "pointLights[3].constant", 1.0f);
+        setShaderFloat(modelShader, "pointLights[3].linear", 0.09f);
+        setShaderFloat(modelShader, "pointLights[3].quadratic", 0.032f);
 
         // spotLight
         setVec3(modelShader, "spotLight.position", PlayerCamera->Position);
@@ -262,11 +263,11 @@ int main()
         setVec3(modelShader, "spotLight.ambient", 0.0f, 0.0f, 0.0f);
         setVec3(modelShader, "spotLight.diffuse", 1.0f, 1.0f, 1.0f);
         setVec3(modelShader, "spotLight.specular", 1.0f, 1.0f, 1.0f);
-        setFloat(modelShader, "spotLight.constant", 1.0f);
-        setFloat(modelShader, "spotLight.linear", 0.09f);
-        setFloat(modelShader, "spotLight.quadratic", 0.032f);
-        setFloat(modelShader, "spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        setFloat(modelShader, "spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+        setShaderFloat(modelShader, "spotLight.constant", 1.0f);
+        setShaderFloat(modelShader, "spotLight.linear", 0.09f);
+        setShaderFloat(modelShader, "spotLight.quadratic", 0.032f);
+        setShaderFloat(modelShader, "spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        setShaderFloat(modelShader, "spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
@@ -277,27 +278,7 @@ int main()
         
 
 
-        glUseProgram(billboardShader);
-
-        setShaderMat4(billboardShader, "projection", projection);
-        setShaderMat4(billboardShader, "view", view);
-
-        glm::vec3 tmp = (sunDirection * 100.0f);
-        //tmp.y += 100.0f;
-
-       // printf("sunDirection: %f %f %f\n", tmp.x, tmp.y, tmp.z);
-
-        glm::mat4 b_model = glm::mat4(1.0f);
-        b_model = glm::translate(b_model, tmp);
-        setShaderMat4(billboardShader, "model", b_model);
-
-        DrawModel(sun, billboardShader);
-
-        b_model = glm::mat4(1.0f);
-        b_model = glm::translate(b_model, -tmp);
-        setShaderMat4(billboardShader, "model", b_model);
-
-        DrawModel(moon, billboardShader);
+       
 
         glUseProgram(modelShader);
         
@@ -399,8 +380,6 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
         DrawModel(sphere, hitboxShader);    
 
-        
-
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
 
@@ -408,16 +387,47 @@ int main()
 
         // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection);   
- 
-        glUseProgram(basicShader);
-        setShaderMat4(basicShader, "projection", projection);
-        setShaderMat4(basicShader, "view", view);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 50.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(150.0f, 1.0f, 150.0f));
-        setShaderMat4(basicShader, "model", model);
-        DrawModel(clouds, basicShader);
+
+        glUseProgram(billboardShader);
+        setShaderMat4(billboardShader, "projection", projection);
+        setShaderMat4(billboardShader, "view", view);
+
+        glm::vec3 sunPosition = (sunDirection * 500.0f);
+
+        glm::mat4 b_model = glm::mat4(1.0f);
+        b_model = glm::translate(b_model, sunPosition);
+        setShaderMat4(billboardShader, "model", b_model);
+
+        DrawModel(sun, billboardShader);
+
+        b_model = glm::mat4(1.0f);
+        b_model = glm::translate(b_model, -sunPosition);
+        setShaderMat4(billboardShader, "model", b_model);
+
+        DrawModel(moon, billboardShader);
+
+
+ 
+        glUseProgram(animatedShader);
+        setShaderMat4(animatedShader, "projection", projection);
+        setShaderMat4(animatedShader, "view", view);
+
+        setShaderFloat(animatedShader, "time", currentTime * 0.1f);
+        
+        for (int i = -1; i <= 1; i++) {
+           for (int j = -1; j <= 1; j++) {
+
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(i * 150.0f, 150.0f, j * 150.0f));
+                model = glm::scale(model, glm::vec3(75.0f, 1.0f, 75.0f));
+                setShaderMat4(animatedShader, "model", model);
+                DrawModel(clouds, animatedShader);
+           }
+        }
+        
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

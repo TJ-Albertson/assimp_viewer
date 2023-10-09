@@ -143,19 +143,6 @@ Model* LoadModel(std::string const& path) {
 
 	processNode(scene->mRootNode, scene, newModel);
 
-	printf("model: %s\n", newModel->m_Name);
-    printf(" numMeshes: %d\n", newModel->m_NumMeshes);
-
-	for (int i = 0; i < newModel->m_NumMeshes; ++i) {
-                Mesh mesh = newModel->m_Meshes[i];
-
-				for (int j = 0; j < mesh.numTextures; j++) {
-                    Texture text = mesh.textures[j];
-
-                   // printf("texture[%d]: %s, %s\n", j, mesh.textures[j].type, mesh.textures[j].path);
-				}
-	}
-
 	return newModel;
 }
 

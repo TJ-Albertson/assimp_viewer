@@ -102,7 +102,7 @@ void LoadSkybox(std::string (*filepath)(std::string path))
     stbi_set_flip_vertically_on_load(true);
 
     glUseProgram(skyboxShader);
-    setInt(skyboxShader, "skybox", 0);
+    setShaderInt(skyboxShader, "skybox", 0);
 }
 
 
