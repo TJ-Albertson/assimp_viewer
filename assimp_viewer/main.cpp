@@ -362,19 +362,6 @@ int main()
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
-        // Player direction arrows
-        glm::mat4 arrowModelMatrix = glm::mat4(1.0f); // Identity matrix
-        arrowModelMatrix = glm::translate(arrowModelMatrix, playerCenter);
-        glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f); // Define the up vector
-        glm::mat4 rotationMatrix = glm::lookAt(glm::vec3(0.0f), glm::vec3(vector.x, vector.y, -vector.z), upVector);
-
-       
-        //arrowModelMatrix = glm::rotate(arrowModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        arrowModelMatrix *= rotationMatrix;
-        setShaderMat4(modelShader, "model", arrowModelMatrix);
-        DrawModel(arrow, modelShader);
-
-
         // BACKFACE CULLING |ON|
         glEnable(GL_CULL_FACE);
 
@@ -383,12 +370,15 @@ int main()
         setShaderMat4(hitboxShader, "projection", projection);
         setShaderMat4(hitboxShader, "view", view);
 
-        // Player hitbox
+
+
+        // Collision Point Ball
         model = glm::mat4(1.0f);
-        model = glm::translate(model, playerCenter);
+        model = glm::translate(model, playerCenter + glm::normalize(vectorPosition));
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
-        DrawModel(sphere, hitboxShader);    
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
+        DrawModel(sphere, hitboxShader);
 
         // Collision Point Ball
         model = glm::mat4(1.0f);
@@ -397,6 +387,15 @@ int main()
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         DrawModel(sphere, hitboxShader);
+
+        // Player hitbox
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, playerCenter);
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
+        DrawModel(sphere, hitboxShader);    
+
+        
 
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);

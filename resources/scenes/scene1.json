@@ -72,5 +72,71 @@
         "translation": "0.0, 1.0, 10.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "wall",
+        "type": "model",
+        "filepath": "/resources/models/planes/wall.obj",
+        "shaderId": 0,
+        "translation": "-16.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0",
+        "children": [
+            {
+                "name": "wall_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/planes/wall.obj",
+                "translation": "-16.0, 0.0, 0.0",
+                "scale": "1.0, 1.0, 1.0",
+                "rotation": "0.0, 0.0, 0.0"
+            }
+        ]
+    },
+    {
+        "name": "wall2",
+        "type": "model",
+        "filepath": "/resources/models/planes/wall.obj",
+        "shaderId": 0,
+        "translation": "-15.0, 0.0, 1.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 100.0, 0.0",
+        "children": [
+            {
+                "name": "wall2_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/planes/wall.obj",
+                "translation": "-15.0, 0.0, 1.0",
+                "scale": "1.0, 1.0, 1.0",
+                "rotation": "0.0, 100.0, 0.0"
+            }
+        ]
+    },
+    {
+        "name": "wall3",
+        "type": "model",
+        "filepath": "/resources/models/planes/wall.obj",
+        "shaderId": 0,
+        "translation": "-15.0, 0.0, 15.0",
+        "scale": "1.0, 2.0, 1.0",
+        "rotation": "0.0, 0.0, 45.0",
+        "children": [
+            {
+                "name": "wall3_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/planes/wall.obj",
+                "translation": "-15.0, 0.0, 15.0",
+                "scale": "1.0, 2.0, 1.0",
+                "rotation": "0.0, 0.0, 45.0"
+            }
+        ]
+    },
+    {
+        "name": "clouds",
+        "type": "model",
+        "filepath": "/resources/models/planes/clouds.obj",
+        "shaderId": 0,
+        "translation": "0.0, 50.0, 0.0",
+        "scale": "50.0, 1.0, 50.0",
+        "rotation": "0.0, 0.0, 0.0"
     }
 ]

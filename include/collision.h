@@ -25,6 +25,7 @@ struct Sphere {
 struct Triangle {
     Point vertices[3];
 };
+
 struct Plane {
     Vector n; // Plane normal. Points x on the plane satisfy Dot(n,x) = d
     float d; // d = dot(n,p) for a given point p on the plane
@@ -32,8 +33,9 @@ struct Plane {
 
 std::vector<Polygon> potentialColliders;
 glm::vec3 collisionBallPosition;
+glm::vec3 vectorPosition;
 
-int CollisionDetection(Sphere s, Vector v);
+int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point);
 void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
 
 void CreateHitbox(std::string const& path, glm::mat4 matrix);
@@ -127,12 +129,12 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         if (edge_collision) {
             float time;
-            Point d;
+            Point edge_point;
 
             if (sphere_embedded) {
-                ClosestPtPointSegment(sphere.center + velocity, a, b, time, d);
-                collision_point = d;
-                collisionBallPosition = d;
+                Point destination = sphere.center + velocity; 
+                ClosestPtPointSegment(destination, a, b, time, edge_point);
+                collision_point = collisionBallPosition = edge_point;
             }
             CollisionResponse(velocity, sphere, collision_point);
             continue;
@@ -187,8 +189,6 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
     Vector sliding_plane_normal = sphere.center - collision_point;
     sliding_plane_normal = glm::normalize(sliding_plane_normal);
 
-    //printf("sliding_plane_normal: %f %f %f\n", sliding_plane_normal.x, sliding_plane_normal.y, sliding_plane_normal.z);
-
     Plane sliding_plane;
     sliding_plane.n = sliding_plane_normal;
     sliding_plane.d = glm::dot(sliding_plane_normal, collision_point);
@@ -203,9 +203,8 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
         return;
     }
 
-    velocity = newVelocityVector;
+    vectorPosition = velocity = newVelocityVector;
 }
-
 
 
 //Create hitbox from .obj and add to hitbox array. Assumes triangulated
