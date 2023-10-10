@@ -25,6 +25,7 @@
 #include <skybox.h>
 #include <collision.h>
 #include <my_math.h>
+#include <terrain.h>
 
 #include <scene_graph.h>
 #include <log_file_functions.h>
@@ -66,7 +67,7 @@ int main()
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-
+    
     unsigned int grid_VAO = LoadGrid();
 
     unsigned int basicShader  = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
@@ -104,6 +105,7 @@ int main()
     }
 
     LoadSkybox(filepath, "skybox2");
+    
 
     // Wireframe mode
     // --------------------
@@ -124,6 +126,8 @@ int main()
         glm::vec3(-4.0f, 2.0f, -12.0f),
         glm::vec3(0.0f, 0.0f, -3.0f)
     };
+
+    LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -149,7 +153,7 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
-
+        DrawTerrain(view, projection);
         /*
         // Draw Grid, with instance array
         glUseProgram(gridShader);
@@ -182,6 +186,7 @@ int main()
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
+        
 
         glUseProgram(modelShader);
 
@@ -190,6 +195,7 @@ int main()
         //setInt(modelShader, "material.diffuse", 0);
         //setInt(modelShader, "material.specular", 1);
         //setInt(modelShader, "material.emission", 2);
+
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
@@ -273,8 +279,15 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
+        
+       
 
         DrawScene(root_node);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
         glUseProgram(animatedShader);
         setShaderMat4(animatedShader, "projection", projection);
@@ -285,8 +298,10 @@ int main()
         setShaderMat4(animatedShader, "model", model);
         DrawModel(grass, animatedShader);
 
-        glUseProgram(modelShader);
+        
 
+        glUseProgram(modelShader);
+        
         // Player
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
@@ -350,7 +365,7 @@ int main()
         glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
-          
+         
 
         // BACKFACE CULLING |ON|
         glEnable(GL_CULL_FACE);
@@ -386,7 +401,7 @@ int main()
 
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
-
+        
         
 
         // Needs to be drawn last; covers up everything after it
@@ -454,8 +469,8 @@ GLFWwindow* InitializeWindow()
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // glfw window creation

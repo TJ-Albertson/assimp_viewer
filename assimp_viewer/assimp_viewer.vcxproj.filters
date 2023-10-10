@@ -19,6 +19,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{7c2f03b0-a749-4629-acdb-59e74098ba90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\terrain">
+      <UniqueIdentifier>{e7007cd0-e321-4963-8d3b-86c0b09709da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,6 +104,12 @@
     <ClInclude Include="..\include\my_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\shader_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\grid.vs">
@@ -147,6 +156,18 @@
     </None>
     <None Include="..\shaders\animated_texture.fs">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\shaders\terrain\8.3.gpuheight.vs">
+      <Filter>Resource Files\Shaders\terrain</Filter>
+    </None>
+    <None Include="..\shaders\terrain\8.3.gpuheight.fs">
+      <Filter>Resource Files\Shaders\terrain</Filter>
+    </None>
+    <None Include="..\shaders\terrain\8.3.gpuheight.tcs">
+      <Filter>Resource Files\Shaders\terrain</Filter>
+    </None>
+    <None Include="..\shaders\terrain\8.3.gpuheight.tes">
+      <Filter>Resource Files\Shaders\terrain</Filter>
     </None>
   </ItemGroup>
 </Project>

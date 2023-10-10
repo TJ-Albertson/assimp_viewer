@@ -157,8 +157,10 @@
     <ClInclude Include="..\include\my_math.h" />
     <ClInclude Include="..\include\scene_graph.h" />
     <ClInclude Include="..\include\shader_m.h" />
+    <ClInclude Include="..\include\shader_t.h" />
     <ClInclude Include="..\include\skeleton.h" />
     <ClInclude Include="..\include\skybox.h" />
+    <ClInclude Include="..\include\terrain.h" />
     <ClInclude Include="..\include\test.h" />
     <ClInclude Include="..\include\utils.h" />
   </ItemGroup>
@@ -178,6 +180,10 @@
     <None Include="..\shaders\hitbox.fs" />
     <None Include="..\shaders\skybox.fs" />
     <None Include="..\shaders\skybox.vs" />
+    <None Include="..\shaders\terrain\8.3.gpuheight.fs" />
+    <None Include="..\shaders\terrain\8.3.gpuheight.tcs" />
+    <None Include="..\shaders\terrain\8.3.gpuheight.tes" />
+    <None Include="..\shaders\terrain\8.3.gpuheight.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
