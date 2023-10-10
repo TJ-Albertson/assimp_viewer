@@ -26,7 +26,8 @@ const unsigned int NUM_PATCH_PTS = 4;
 unsigned int tessHeightMapShader;
 unsigned int terrainVAO;
 unsigned int rez;
-unsigned int texture;
+unsigned int texture_heightmap;
+unsigned int texture_diffuse;
 
 void LoadTerrain(std::string (*filepath)(std::string path), std::string heightmapFile)
 {
@@ -39,14 +40,15 @@ void LoadTerrain(std::string (*filepath)(std::string path), std::string heightma
 
     tessHeightMapShader = CreateShaderT(filepath("/shaders/terrain/8.3.gpuheight.vs"), filepath("/shaders/terrain/8.3.gpuheight.fs"), "nullptr", filepath("/shaders/terrain/8.3.gpuheight.tcs"), filepath("/shaders/terrain/8.3.gpuheight.tes"));
 
-    // usinged int  tessHeightMapShader("8.3.gpuheight.vs", "8.3.gpuheight.fs", nullptr, "8.3.gpuheight.tcs", "8.3.gpuheight.tes"); // if wishing to render as is
+    texture_diffuse = TextureFromFile("grass.png", filepath("/resources/textures"));
 
-    // load and create a texture
+    // load and create a heightmap texture
     // -------------------------
-    
-    glGenTextures(1, &texture);
+    glGenTextures(1, &texture_heightmap);
+    //To support non-power-of-two heightmap textures (e.g. 1025x1025)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    glBindTexture(GL_TEXTURE_2D, texture_heightmap); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -64,6 +66,9 @@ void LoadTerrain(std::string (*filepath)(std::string path), std::string heightma
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
+
+
+
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -132,8 +137,17 @@ void DrawTerrain(glm::mat4 view, glm::mat4 projection)
     glm::mat4 model = glm::mat4(1.0f);
     SetShaderT_Mat4(tessHeightMapShader, "model", model);
 
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_heightmap);
+    SetShaderT_Int(tessHeightMapShader, "heightMap", 0);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture_diffuse);
+    SetShaderT_Int(tessHeightMapShader, "texture_diffuse", 1);
+
+
     // render the terrain
-    glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(terrainVAO);
     glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
 }

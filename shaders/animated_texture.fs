@@ -21,15 +21,19 @@ void main()
     
     // Calculate the new texture coordinates
     vec2 offset = speed * time;
-    vec2 newTexCoord = TexCoords * 0.5f + offset;
+
+    //useful for layered textures mode
+    float scale = 1.0f;
+    vec2 newTexCoord = TexCoords * scale + offset;
 
     // Make sure the texture coordinates wrap around to create a continuous effect
     if (newTexCoord.x > 1.0)
         newTexCoord.x -= 1.0;
 
-    vec4 staticColor = texture(material.diffuse, TexCoords);
+    FragColor = texture(material.diffuse, newTexCoord);
 
-    vec4 movingColor = texture(material.emission, newTexCoord);
-
-    FragColor = movingColor * staticColor; // You can adjust the blend factor (0.5) to control the balance between the two textures.
+    // for layered textures
+    //vec4 staticColor = texture(material.diffuse, TexCoords);
+    //vec4 movingColor = texture(material.emission, newTexCoord);
+    //FragColor = movingColor * staticColor; // You can adjust the blend factor (0.5) to control the balance between the two textures.
 }

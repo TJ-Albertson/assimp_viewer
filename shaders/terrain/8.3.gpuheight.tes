@@ -10,12 +10,16 @@ in vec2 TextureCoord[];
 
 out float Height;
 out float colorRed;
+out vec2 TessCoord;
 
 void main()
 {
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
     float w = gl_TessCoord.z;
+
+    TessCoord.x = u;
+    TessCoord.y = v;
 
     vec2 t00 = TextureCoord[0];
     vec2 t01 = TextureCoord[1];
