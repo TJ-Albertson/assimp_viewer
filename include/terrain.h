@@ -61,6 +61,9 @@ void LoadTerrain(std::string (*filepath)(std::string path), std::string heightma
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, width, height, 0, GL_RED, GL_UNSIGNED_SHORT, data); // Notice GL_UNSIGNED_SHORT
 
         SetShaderT_Int(tessHeightMapShader, "heightMap", 0);
+
+        SetShaderT_Float(tessHeightMapShader, "uTexelSize", 1.0f - width);
+
         std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
     } else {
         std::cout << "Failed to load texture" << std::endl;
@@ -126,7 +129,7 @@ void LoadTerrain(std::string (*filepath)(std::string path), std::string heightma
     return;
 }
 
-void DrawTerrain(glm::mat4 view, glm::mat4 projection)
+void DrawTerrain(glm::mat4 view, glm::mat4 projection, glm::vec3 sunDirection, glm::vec3 color, glm::vec3 viewPos)
 {
     glUseProgram(tessHeightMapShader);
 
@@ -136,6 +139,14 @@ void DrawTerrain(glm::mat4 view, glm::mat4 projection)
     // world transformation
     glm::mat4 model = glm::mat4(1.0f);
     SetShaderT_Mat4(tessHeightMapShader, "model", model);
+
+    //lighting
+    setVec3(tessHeightMapShader, "dirLight.direction", sunDirection);
+    setVec3(tessHeightMapShader, "dirLight.ambient", color.x, color.y, color.z);
+    setVec3(tessHeightMapShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+    setVec3(tessHeightMapShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+    setVec3(tessHeightMapShader, "viewPos", viewPos);
 
 
     glActiveTexture(GL_TEXTURE0);

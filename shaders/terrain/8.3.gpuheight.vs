@@ -5,6 +5,8 @@ layout (location = 1) in vec2 aTex;
 out vec2 TexCoord;
 out vec3 FragPos;
 
+uniform mat4 model;
+
 void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0));
