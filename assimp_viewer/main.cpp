@@ -104,7 +104,8 @@ int main()
         printf("LoadScene Failed!\n");
     }
 
-    LoadSkybox(filepath, "skybox2");
+    LoadSkybox(filepath, "skybox3");
+    //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
 
     // Wireframe mode
@@ -127,7 +128,7 @@ int main()
         glm::vec3(0.0f, 0.0f, -3.0f)
     };
 
-    LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
+    
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -223,8 +224,8 @@ int main()
         }
         
 
-        setVec3(modelShader, "dirLight.direction", sunDirection);
-        setVec3(modelShader, "dirLight.ambient", color.x, color.y, color.z);
+        setVec3(modelShader, "dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+        setVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
         setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
@@ -281,7 +282,7 @@ int main()
 
         
        
-        DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
+        //DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
 
         DrawScene(root_node);
 

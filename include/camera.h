@@ -102,7 +102,7 @@ Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pi
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
-		camera->Type = THIRDPERSON;
+		camera->Type = FREE;
 
         updateCameraVectors(camera);
 

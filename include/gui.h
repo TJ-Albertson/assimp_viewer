@@ -16,6 +16,8 @@ int fps = 0;
 
 int nodeId = 0;
 
+glm::vec3 sliderColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
 Camera* PlayerCamera;
 
 void CollisionWindow()
@@ -39,6 +41,29 @@ void CollisionWindow()
          ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
     }
     ImGui::EndChild();
+
+    ImGui::End();
+}
+
+void Lighting()
+{
+    ImGui::Begin("Lighting");
+
+    ImGui::Text("Directional Light");
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    ImGui::VSliderFloat("##redslider", ImVec2(20, 150), &sliderColor.x, 0.0f, 1.0f, "%.2f");
+    ImGui::PopStyleColor();
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+    ImGui::SameLine();
+    ImGui::VSliderFloat("##blueslide", ImVec2(20, 150), &sliderColor.y, 0.0f, 1.0f, "%.2f");
+    ImGui::PopStyleColor();
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+    ImGui::SameLine();
+    ImGui::VSliderFloat("##greenslider", ImVec2(20, 150), &sliderColor.z, 0.0f, 1.0f, "%.2f");
+    ImGui::PopStyleColor();
 
     ImGui::End();
 }
@@ -189,10 +214,11 @@ void Main_GUI_Loop(double time)
     ImGui::NewFrame();
 
     //ImGui::ShowMetricsWindow();
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 
     ImGui::Text("FPS %d", fps);
 
+    Lighting();
     playAnimationButton();
     SceneWindow();
     CollisionWindow();
