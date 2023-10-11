@@ -199,7 +199,7 @@ int main()
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = 0.72f; // You can adjust the speed of rotatiom
+        float angular_speed = 0.02f; // You can adjust the speed of rotatiom
         // Calculate the x, y, and z coordinates of the vector
 
         float time = currentTime + 160.0f;
