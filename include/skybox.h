@@ -70,6 +70,7 @@ unsigned int skyboxVAO;
 unsigned int skyboxVBO;
 unsigned int skyboxShader;
 unsigned int cubemapTexture;
+unsigned int cloudTexture;
 
 void LoadSkybox(std::string (*filepath)(std::string path));
 void DrawSkybox(Camera camera, glm::mat4 projection);
@@ -101,22 +102,32 @@ void LoadSkybox(std::string (*filepath)(std::string path), std::string skybox)
 
     stbi_set_flip_vertically_on_load(true);
 
+    cloudTexture = TextureFromFile("clouds.png", filepath("/resources/textures"));
+
     glUseProgram(skyboxShader);
     setShaderInt(skyboxShader, "skybox", 0);
+    setShaderInt(skyboxShader, "clouds", 1);
 }
 
 
-void DrawSkybox(Camera camera, glm::mat4 view, glm::mat4 projection) 
+void DrawSkybox(Camera camera, glm::mat4 view, glm::mat4 projection, float currentTime) 
 {
     glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     glUseProgram(skyboxShader);
     view = glm::mat4(glm::mat3(GetViewMatrix(camera))); // remove translation from the view matrix
     setShaderMat4(skyboxShader, "view", view);
     setShaderMat4(skyboxShader, "projection", projection);
+
+    setShaderFloat(skyboxShader, "time", currentTime);
     // skybox cube
     glBindVertexArray(skyboxVAO);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, cloudTexture);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS); // set depth function back to default

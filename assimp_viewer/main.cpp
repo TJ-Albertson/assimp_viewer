@@ -407,8 +407,8 @@ int main()
         
 
         // Needs to be drawn last; covers up everything after it
-        DrawSkybox(*PlayerCamera, view, projection);   
-
+        DrawSkybox(*PlayerCamera, view, projection, currentTime);   
+        //update, except for transparent stuff i guess
 
         glUseProgram(billboardShader);
         setShaderMat4(billboardShader, "projection", projection);
@@ -443,7 +443,7 @@ int main()
                 model = glm::translate(model, glm::vec3(i * 150.0f, 75.0f, j * 150.0f));
                 model = glm::scale(model, glm::vec3(75.0f, 1.0f, 75.0f));
                 setShaderMat4(animatedShader, "model", model);
-                DrawModel(clouds, animatedShader);
+                //DrawModel(clouds, animatedShader);
            }
         }
         
