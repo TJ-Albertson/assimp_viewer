@@ -23,24 +23,26 @@ void main()
 
     //+x
     else if(TexCoords.x >= 0.999f) {
-        vec2 coords = vec2(TexCoords.y, TexCoords.z);
-        FragColor = distort2(coords, time);
+        vec2 coords = vec2(TexCoords.z, TexCoords.y);
+        FragColor = distort(coords, time);
     }
 
     //-x
     else if(TexCoords.x <= -0.999f) {
-        vec2 coords = vec2(TexCoords.y, TexCoords.z);
-        FragColor = distort2(coords, time);
+        vec2 coords = vec2(TexCoords.z, TexCoords.y);
+        FragColor = distort(coords, time);
     }
 
     //+z
     else if(TexCoords.z >= 0.999f) {
-        vec2 coords = vec2(TexCoords.x, TexCoords.y);
+        vec2 coords = vec2(TexCoords.x, TexCoords.z);
         FragColor = distort(coords, time);
     }
-    //-z
+
+
+    //-z good
     else if(TexCoords.z <= -0.999f) {
-        vec2 coords = vec2(TexCoords.x, TexCoords.y);
+        vec2 coords = vec2(TexCoords.x, TexCoords.z);
         FragColor = distort(coords, time);
     }
     
