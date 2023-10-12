@@ -17,6 +17,7 @@ int fps = 0;
 int nodeId = 0;
 
 glm::vec3 sliderColor = glm::vec3(1.0f, 1.0f, 1.0f);
+float dayNightSpeed = 0.02f;
 
 Camera* PlayerCamera;
 
@@ -51,18 +52,20 @@ void Lighting()
 
     ImGui::Text("Directional Light");
 
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+    ImGui::SliderFloat("##timespeed", &dayNightSpeed, 0.0f, 1.0f, "%.2f");
+    ImGui::PopStyleColor();
+
     ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-    ImGui::VSliderFloat("##redslider", ImVec2(20, 150), &sliderColor.x, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("##redslider", &sliderColor.x, 0.0f, 1.0f, "%.2f");
     ImGui::PopStyleColor();
 
     ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::SameLine();
-    ImGui::VSliderFloat("##blueslide", ImVec2(20, 150), &sliderColor.y, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("##blueslide", &sliderColor.y, 0.0f, 1.0f, "%.2f");
     ImGui::PopStyleColor();
 
     ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-    ImGui::SameLine();
-    ImGui::VSliderFloat("##greenslider", ImVec2(20, 150), &sliderColor.z, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("##greenslider", &sliderColor.z, 0.0f, 1.0f, "%.2f");
     ImGui::PopStyleColor();
 
     ImGui::End();
@@ -75,6 +78,7 @@ void playAnimationButton()
         animationPlaying = !animationPlaying;
     }
     
+    ImGui::SliderFloat("##fovslider", &PlayerCamera->Zoom, 50, 150, "%.f");
     if (PlayerCamera->Type == 0) {
         ImGui::Text("Free Camera");
     } else {

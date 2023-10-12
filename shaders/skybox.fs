@@ -12,10 +12,13 @@ uniform float time;
 vec4 calculate(vec2 coords, float time);
 vec4 distort(vec2 coords, float time);
 vec4 distort2(vec2 coords, float time);
+vec4 distort3(vec2 coords, float time);
+vec4 distort4(vec2 coords, float time);
+vec4 m_distort(vec2 coords, float time, int index);
 
 void main()
 {   
-    // top
+    // top good
     if (TexCoords.y >= 0.999f) {
         vec2 coords = vec2(TexCoords.x, TexCoords.z);
         FragColor = calculate(coords, time);
@@ -23,27 +26,31 @@ void main()
 
     //+x
     else if(TexCoords.x >= 0.999f) {
-        vec2 coords = vec2(TexCoords.z, TexCoords.y);
-        FragColor = distort(coords, time);
+        vec2 coords = vec2(TexCoords.x, TexCoords.z);
+        //FragColor = distort4(coords, time);
+        FragColor = m_distort(coords, time, 4);
     }
 
-    //-x
+    //-x good
     else if(TexCoords.x <= -0.999f) {
-        vec2 coords = vec2(TexCoords.z, TexCoords.y);
-        FragColor = distort(coords, time);
+        vec2 coords = vec2(TexCoords.x, TexCoords.z);
+        //FragColor = distort2(coords, time);
+        FragColor = m_distort(coords, time, 2);
     }
 
-    //+z
+
+    //+z good? kinda misaligned
     else if(TexCoords.z >= 0.999f) {
         vec2 coords = vec2(TexCoords.x, TexCoords.z);
-        FragColor = distort(coords, time);
+        //FragColor = distort3(coords, time);
+        FragColor = m_distort(coords, time, 3);
     }
-
 
     //-z good
     else if(TexCoords.z <= -0.999f) {
         vec2 coords = vec2(TexCoords.x, TexCoords.z);
-        FragColor = distort(coords, time);
+        //FragColor = distort(coords, time);
+        FragColor = m_distort(coords, time, 1);
     }
     
     else {
@@ -56,7 +63,7 @@ vec4 calculate(vec2 coords, float time) {
         vec2 speed = vec2(1.0, 0.0);
     
         vec2 offset = speed * time * 0.2f;
-        float scale = 1.0f;
+        float scale = 0.5f;
         vec2 newTexCoord = coords * scale + offset;
 
         vec4 baseColor = texture(skybox, TexCoords);
@@ -68,12 +75,13 @@ vec4 calculate(vec2 coords, float time) {
 // need add decreas alpha at distance
 vec4 distort(vec2 coords, float time) {
 
-        vec2 speed = vec2(1.0, 0.0); // You can adjust this to control the direction and speed
+        vec2 speed = vec2(1.0, 0.0);
         vec2 offset = speed * time * 0.2f;
 
-        float scale = 1.0f / TexCoords.y;
+        float scale = 1.0f / TexCoords.y * 0.5f;
 
         vec2 newTexCoord = coords;
+
         newTexCoord.x *= scale;
         newTexCoord.y -= scale;
 
@@ -82,27 +90,121 @@ vec4 distort(vec2 coords, float time) {
         vec4 baseColor = texture(skybox, TexCoords);
         vec4 overlayColor = texture(clouds, newTexCoord);
 
+        overlayColor.a *= TexCoords.y;
+        if (TexCoords.y < 0.0) {
+            overlayColor.a = 0;
+        }
+
         return mix(baseColor, overlayColor, overlayColor.a);
 }
 
 vec4 distort2(vec2 coords, float time) {
 
-        vec2 speed = vec2(1.0, 0.0); // You can adjust this to control the direction and speed
+        vec2 speed = vec2(1.0, 0.0); 
         vec2 offset = speed * time * 0.2f;
 
-        
-        //(-y, z)
-        float scale = 1.0f / TexCoords.y;
+        float scale = 1.0f / TexCoords.y * 0.5f;
 
         vec2 newTexCoord = coords;
+
         newTexCoord.x -= scale;
         newTexCoord.y *= scale;
 
         newTexCoord += offset;
 
+        vec4 baseColor = texture(skybox, TexCoords);
+        vec4 overlayColor = texture(clouds, newTexCoord);
+
+        overlayColor.a *= TexCoords.y;
+        if (TexCoords.y < 0.0) {
+            overlayColor.a = 0;
+        }
+
+        return mix(baseColor, overlayColor, overlayColor.a);
+}
+
+vec4 distort3(vec2 coords, float time) {
+
+   
+        vec2 speed = vec2(1.0, 0.0);
+        vec2 offset = speed * time * 0.2f;
+
+        float scale = 1.0f / TexCoords.y * 0.5f;
+
+        vec2 newTexCoord = coords;
+
+        newTexCoord.x *= scale;
+        newTexCoord.y -= -scale;
+
+        newTexCoord += offset;
 
         vec4 baseColor = texture(skybox, TexCoords);
         vec4 overlayColor = texture(clouds, newTexCoord);
 
+        overlayColor.a *= TexCoords.y;
+        if (TexCoords.y < 0.0) {
+            overlayColor.a = 0;
+        }
+
         return mix(baseColor, overlayColor, overlayColor.a);
+}
+
+vec4 distort4(vec2 coords, float time) {
+
+        vec2 speed = vec2(1.0, 0.0); 
+        vec2 offset = speed * time * 0.2f;
+
+        float scale = 1.0f / TexCoords.y * 0.5f;
+
+        vec2 newTexCoord = coords;
+
+        newTexCoord.x -= -scale;
+        newTexCoord.y *= scale;
+
+        newTexCoord += offset;
+
+        vec4 baseColor = texture(skybox, TexCoords);
+        vec4 overlayColor = texture(clouds, newTexCoord);
+
+        overlayColor.a *= TexCoords.y;
+        if (TexCoords.y < 0.0) {
+            overlayColor.a = 0;
+        }
+
+        return mix(baseColor, overlayColor, overlayColor.a);
+}
+
+vec4 m_distort(vec2 coords, float time, int index) {
+    vec2 speed = vec2(1.0, 0.0);
+    vec2 offset = speed * time * 0.2f;
+
+    float scale = 1.0f / TexCoords.y * 0.5f;
+
+    vec2 newTexCoord = coords;
+    vec4 baseColor = texture(skybox, TexCoords);
+
+    if (index == 1) {
+        newTexCoord.x *= scale;
+        newTexCoord.y -= scale;
+    } else if (index == 2) {
+        newTexCoord.x -= scale;
+        newTexCoord.y *= scale;
+    } else if (index == 3) {
+        newTexCoord.x *= scale;
+        newTexCoord.y -= -scale;
+    } else if (index == 4) {
+       newTexCoord.x -= -scale;
+       newTexCoord.y *= scale;
+    }
+
+    newTexCoord += offset;
+
+    vec4 overlayColor = texture(clouds, newTexCoord);
+
+    overlayColor.a *= TexCoords.y;
+    if (TexCoords.y < 0.0) {
+        overlayColor.a = 0;
+    }
+
+    return mix(baseColor, overlayColor, overlayColor.a);
 }

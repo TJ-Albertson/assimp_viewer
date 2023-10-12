@@ -62,6 +62,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec4 OverlayMovingTexture(float time);
+float Convert_sRGB_ToLinear (float thesRGBValue);
 
 void main()
 {    
@@ -81,14 +82,21 @@ void main()
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
     // phase 3: spot light
-    result += CalcSpotLight(spotLight, norm, FragPos, viewDir); 
+    //result += CalcSpotLight(spotLight, norm, FragPos, viewDir); 
     
     //emission
     //vec3 emission = texture(material.emission, TexCoords).rgb;
     //result += emission;
     //result *= vec3(OverlayMovingTexture(time));
-    
+
+    //FragColor = vec4(Convert_sRGB_ToLinear(result.x),Convert_sRGB_ToLinear(result.y),Convert_sRGB_ToLinear(result.z), 1.0);
     FragColor = vec4(result, 1.0);
+}
+
+float Convert_sRGB_ToLinear (float thesRGBValue) {
+  return thesRGBValue <= 0.04045f
+       ? thesRGBValue / 12.92f
+       : pow ((thesRGBValue + 0.055f) / 1.055f, 2.4f);
 }
 
 vec4 OverlayMovingTexture(float time)

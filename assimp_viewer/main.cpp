@@ -31,8 +31,8 @@
 #include <log_file_functions.h>
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 2000;
+const unsigned int SCR_HEIGHT = 1200;
 const float RENDER_DISTANCE = 1000.0f;
 
 // camera
@@ -200,7 +200,7 @@ int main()
 
 
         float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = 0.02f; // You can adjust the speed of rotatiom
+        float angular_speed = dayNightSpeed; // You can adjust the speed of rotatiom
         // Calculate the x, y, and z coordinates of the vector
 
         float time = currentTime + 160.0f;
@@ -213,7 +213,7 @@ int main()
 
         glm::vec3 orange = glm::vec3(1.0f, 0.741f, 0.086f);
         glm::vec3 purple = glm::vec3(0.082f, 0.0f, 0.298f);
-        glm::vec3 white  = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 white  = glm::vec3(0.9f, 1.0f, 0.9f);
 
         sun_t *= 2.5f;
         if (sun_t > 0 && sun_t < 1) {
@@ -264,18 +264,6 @@ int main()
         setShaderFloat(modelShader, "pointLights[3].constant", 1.0f);
         setShaderFloat(modelShader, "pointLights[3].linear", 0.09f);
         setShaderFloat(modelShader, "pointLights[3].quadratic", 0.032f);
-
-        // spotLight
-        setVec3(modelShader, "spotLight.position", PlayerCamera->Position);
-        setVec3(modelShader, "spotLight.direction", PlayerCamera->Front);
-        setVec3(modelShader, "spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        setVec3(modelShader, "spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        setVec3(modelShader, "spotLight.specular", 1.0f, 1.0f, 1.0f);
-        setShaderFloat(modelShader, "spotLight.constant", 1.0f);
-        setShaderFloat(modelShader, "spotLight.linear", 0.09f);
-        setShaderFloat(modelShader, "spotLight.quadratic", 0.032f);
-        setShaderFloat(modelShader, "spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        setShaderFloat(modelShader, "spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
@@ -428,27 +416,6 @@ int main()
 
         DrawModel(moon, billboardShader);
 
-
- 
-        glUseProgram(animatedShader);
-        setShaderMat4(animatedShader, "projection", projection);
-        setShaderMat4(animatedShader, "view", view);
-
-        setShaderFloat(animatedShader, "time", currentTime * 0.1f);
-        
-        for (int i = -1; i <= 1; i++) {
-           for (int j = -1; j <= 1; j++) {
-
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(i * 150.0f, 75.0f, j * 150.0f));
-                model = glm::scale(model, glm::vec3(75.0f, 1.0f, 75.0f));
-                setShaderMat4(animatedShader, "model", model);
-                //DrawModel(clouds, animatedShader);
-           }
-        }
-        
-
-
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -599,6 +566,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    CameraProcessMouseScroll(PlayerCamera, yoffset);
+    //CameraProcessMouseScroll(PlayerCamera, yoffset);
 }
 
