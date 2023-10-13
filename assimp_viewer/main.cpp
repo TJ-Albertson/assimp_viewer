@@ -104,7 +104,7 @@ int main()
         printf("LoadScene Failed!\n");
     }
 
-    LoadSkybox(filepath, "skybox3");
+    LoadSkybox(filepath, "skybox5");
     //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
 

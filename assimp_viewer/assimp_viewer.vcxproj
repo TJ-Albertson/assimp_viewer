@@ -165,6 +165,7 @@
     <ClInclude Include="..\include\utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\resources\scenes\scene1.json" />
     <None Include="..\shaders\4.2.texture.fs" />
     <None Include="..\shaders\4.2.texture.vs" />
     <None Include="..\shaders\6.multiple_lights.fs" />
@@ -180,6 +181,7 @@
     <None Include="..\shaders\hitbox.fs" />
     <None Include="..\shaders\skybox.fs" />
     <None Include="..\shaders\skybox.vs" />
+    <None Include="..\shaders\skybox2.fs" />
     <None Include="..\shaders\terrain\8.3.gpuheight.fs" />
     <None Include="..\shaders\terrain\8.3.gpuheight.tcs" />
     <None Include="..\shaders\terrain\8.3.gpuheight.tes" />

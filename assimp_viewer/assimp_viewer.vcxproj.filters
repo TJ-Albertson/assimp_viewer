@@ -22,6 +22,9 @@
     <Filter Include="Resource Files\Shaders\terrain">
       <UniqueIdentifier>{e7007cd0-e321-4963-8d3b-86c0b09709da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Scenes">
+      <UniqueIdentifier>{c8e12684-fc45-4cbb-af50-b8b9da093ab8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -168,6 +171,12 @@
     </None>
     <None Include="..\shaders\terrain\8.3.gpuheight.tes">
       <Filter>Resource Files\Shaders\terrain</Filter>
+    </None>
+    <None Include="..\shaders\skybox2.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\resources\scenes\scene1.json">
+      <Filter>Resource Files\Scenes</Filter>
     </None>
   </ItemGroup>
 </Project>

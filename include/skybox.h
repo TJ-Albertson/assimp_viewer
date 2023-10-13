@@ -71,6 +71,7 @@ unsigned int skyboxVBO;
 unsigned int skyboxShader;
 unsigned int cubemapTexture;
 unsigned int cloudTexture;
+unsigned int cloudMapTexture;
 
 void LoadSkybox(std::string (*filepath)(std::string path));
 void DrawSkybox(Camera camera, glm::mat4 projection);
@@ -78,7 +79,7 @@ unsigned int loadCubemap(std::vector<std::string> faces);
 
 void LoadSkybox(std::string (*filepath)(std::string path), std::string skybox)
 {
-    skyboxShader = createShader(filepath("/shaders/skybox.vs"), filepath("/shaders/skybox.fs"));
+    skyboxShader = createShader(filepath("/shaders/skybox.vs"), filepath("/shaders/skybox2.fs"));
     
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -100,6 +101,18 @@ void LoadSkybox(std::string (*filepath)(std::string path), std::string skybox)
     };
     cubemapTexture = loadCubemap(faces);
 
+
+    std::vector<std::string> cloud {
+        filepath("/resources/skybox/skybox6/right.jpg"),
+        filepath("/resources/skybox/skybox6/left.jpg"),
+        filepath("/resources/skybox/skybox6/top.jpg"),
+        filepath("/resources/skybox/skybox6/bottom.jpg"),
+        filepath("/resources/skybox/skybox6/front.jpg"),
+        filepath("/resources/skybox/skybox6/back.jpg"),
+    };
+
+    cloudMapTexture = loadCubemap(cloud);
+
     stbi_set_flip_vertically_on_load(true);
 
     cloudTexture = TextureFromFile("clouds.png", filepath("/resources/textures"));
@@ -107,6 +120,8 @@ void LoadSkybox(std::string (*filepath)(std::string path), std::string skybox)
     glUseProgram(skyboxShader);
     setShaderInt(skyboxShader, "skybox", 0);
     setShaderInt(skyboxShader, "clouds", 1);
+    setShaderInt(skyboxShader, "cloudMap", 2);
+
 }
 
 
@@ -128,10 +143,40 @@ void DrawSkybox(Camera camera, glm::mat4 view, glm::mat4 projection, float curre
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, cloudTexture);
 
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cloudMapTexture);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS); // set depth function back to default
 }
+
+unsigned int loadCubemapAlpha(std::vector<std::string> faces)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,  0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        } else {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}  
 
 unsigned int loadCubemap(std::vector<std::string> faces)
 {
@@ -143,8 +188,9 @@ unsigned int loadCubemap(std::vector<std::string> faces)
     for (unsigned int i = 0; i < faces.size(); i++) {
         unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
             stbi_image_free(data);
         } else {
             std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
