@@ -100,10 +100,18 @@ void gui_model() {
     if (selectedNode) {
         ImGui::Text("currentModel: %s", selectedNode->name);
 
-        if (ImGui::Button("Click Me")) {
+        if (ImGui::Button("Move +X")) {
             glm::mat4 model = selectedNode->m_modelMatrix;
 
             model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+
+            selectedNode->m_modelMatrix = model;
+        }
+
+        if (ImGui::Button("Move +Y")) {
+            glm::mat4 model = selectedNode->m_modelMatrix;
+
+            model = glm::translate(model, glm::vec3(0.0f, 15.0f, 0.0f));
 
             selectedNode->m_modelMatrix = model;
         }
