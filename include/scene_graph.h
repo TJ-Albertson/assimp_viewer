@@ -32,6 +32,8 @@ struct SceneNode {
 
 SceneNode* root_node;
 
+unsigned int id;
+
 unsigned int shaderIdArray[10];
 
 SceneNode* CreateNode(SceneNode* parent, std::string const& path);
@@ -44,6 +46,8 @@ int LoadScene(std::string const& path);
 
 void DrawScene(SceneNode* root);
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform);
+
+int generate_random_int(unsigned int address);
 
 // Used in runtime model loading
 SceneNode* CreateNode(SceneNode* parent, std::string const& path) {
@@ -142,6 +146,12 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     node->firstChild = NULL;
     node->nextSibling = NULL;
 
+    int newId = generate_random_int((unsigned int)node);
+
+    printf("id: %d\n", newId);
+
+    node->id = newId;
+
     return node;
 }
 
@@ -212,12 +222,15 @@ int LoadScene(std::string const& path)
 
     int num_models = cJSON_GetArraySize(root);
 
+    id = 0;
+
     root_node = (SceneNode*)malloc(sizeof(SceneNode));
     strncpy(root_node->name, "root_node", sizeof(root_node->name));
     root_node->shaderID = 0;
     root_node->m_modelMatrix = glm::mat4(1.0f);
     root_node->firstChild = NULL;
     root_node->nextSibling = NULL;
+    root_node->id = id;
 
     for (int i = 0; i < num_models; ++i)
     {
@@ -286,5 +299,16 @@ void PrintTree(SceneNode* root)
     }
 
 }
+
+int generate_random_int(unsigned int address)
+{
+    srand(address);
+
+    // Generate and print a random number
+    int randomNumber = rand();
+
+    return randomNumber;
+}
+
 
 #endif

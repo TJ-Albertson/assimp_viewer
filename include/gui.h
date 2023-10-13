@@ -21,6 +21,8 @@ float dayNightSpeed = 0.02f;
 
 Camera* PlayerCamera;
 
+SceneNode* selectedNode;
+
 void CollisionWindow()
 {
     ImGui::Begin("Collision");
@@ -92,6 +94,24 @@ void playAnimationButton()
     ImGui::End();
 }
 
+void gui_model() {
+    ImGui::Begin("Model");
+
+    if (selectedNode) {
+        ImGui::Text("currentModel: %s", selectedNode->name);
+
+        if (ImGui::Button("Click Me")) {
+            glm::mat4 model = selectedNode->m_modelMatrix;
+
+            model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+
+            selectedNode->m_modelMatrix = model;
+        }
+    }
+    
+
+    ImGui::End();
+}
 
 void DrawTree(SceneNode* node)
 {
@@ -104,6 +124,11 @@ void DrawTree(SceneNode* node)
             ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
         }
         
+        ImGui::Text("id: %d", node->id);
+
+        if (ImGui::Button("Click Me")) {
+            selectedNode = node;
+        }
 
         SceneNode* child = node->firstChild;
         while (child != NULL) {
@@ -113,6 +138,7 @@ void DrawTree(SceneNode* node)
 
         ImGui::TreePop();
     }
+
 }
 
 void SceneWindow()
@@ -222,6 +248,7 @@ void Main_GUI_Loop(double time)
 
     ImGui::Text("FPS %d", fps);
 
+    gui_model();
     Lighting();
     playAnimationButton();
     SceneWindow();

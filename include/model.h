@@ -144,6 +144,35 @@ Model* LoadModel(std::string const& path) {
 	directory = path.substr(0, path.find_last_of('/'));
 
 	printf("name: %s\n", newModel->m_Name);
+	
+	if (strcmp(newModel->m_Name, "untitled") == 0) {
+                printf("1\n");
+
+				aiMesh* aiMesh = scene->mMeshes[0];
+
+				int hasColor = aiMesh->HasVertexColors(0);
+
+				if (hasColor) {
+                                    printf("hasColor\n");
+				}
+
+				printf("scene->mNumMeshes: %d\n", scene->mNumMeshes);
+				
+				int numMeshes = newModel->m_NumMeshes;
+				
+				for (int i = 0; i < numMeshes; ++i) {
+					
+					Mesh mesh = newModel->m_Meshes[i];
+                    int numTextures = mesh.numTextures;
+                                        printf("2\n");
+
+					for (int j = 0; j < numTextures; ++j) {
+
+							Texture texture = mesh.textures[j];
+							printf("	%s\n", texture.path);
+					}
+				}
+	}
 
 	processNode(scene->mRootNode, scene, newModel);
 
@@ -216,14 +245,6 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 	}
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-	int color = mesh->GetNumColorChannels();
-
-	if (color > 1) {
-                printf("color > 1\n");
-        } else {
-                printf("No color attribute\n");
-	}
 
 	int numDiffuse  = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
 	int numSpecular = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);

@@ -55,15 +55,7 @@
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
     },
-    {
-        "name": "grass",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/grass.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
+ 
     {
         "name": "exposed_rock",
         "type": "model",
@@ -73,7 +65,15 @@
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0"
     },
- 
+    {
+        "name": "grass_patches",
+        "type": "model",
+        "filepath": "/resources/models/zelda/field/grass_patches.obj",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
     {
         "name": "paths",
         "type": "model",
@@ -113,11 +113,11 @@
     {
         "name": "test",
         "type": "model",
-        "filepath": "/resources/models/zelda/test.gltf",
+        "filepath": "/resources/models/zelda/untitled.dae",
         "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
     }
 
 ]
