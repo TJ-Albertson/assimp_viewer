@@ -142,7 +142,12 @@
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\3Dutils.h" />
@@ -160,6 +165,7 @@
     <ClInclude Include="..\include\shader_t.h" />
     <ClInclude Include="..\include\skeleton.h" />
     <ClInclude Include="..\include\skybox.h" />
+    <ClInclude Include="..\include\space.h" />
     <ClInclude Include="..\include\terrain.h" />
     <ClInclude Include="..\include\test.h" />
     <ClInclude Include="..\include\utils.h" />
@@ -179,6 +185,7 @@
     <None Include="..\shaders\grid.fs" />
     <None Include="..\shaders\grid.vs" />
     <None Include="..\shaders\hitbox.fs" />
+    <None Include="..\shaders\hitbox.vs" />
     <None Include="..\shaders\skybox.fs" />
     <None Include="..\shaders\skybox.vs" />
     <None Include="..\shaders\skybox2.fs" />

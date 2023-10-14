@@ -148,8 +148,6 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
 
     int newId = generate_random_int((unsigned int)node);
 
-    printf("id: %d\n", newId);
-
     node->id = newId;
 
     return node;

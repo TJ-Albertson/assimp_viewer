@@ -162,6 +162,24 @@
         "rotation": "0.0, 30.0, 90.0"
     },
     {
+        "name": "lonlon_fence1",
+        "type": "model",
+        "filepath": "/resources/models/zelda/lonlon_fence1.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "lonlon_fence2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/lonlon_fence2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
         "name": "riverbed",
         "type": "model",
         "filepath": "/resources/models/zelda/riverbed.dae",

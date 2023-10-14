@@ -75,7 +75,7 @@ int main()
     shaderIdArray[0] = modelShader;
     unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
-    unsigned int hitboxShader = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/hitbox.fs"));
+    unsigned int hitboxShader = createShader(filepath("/shaders/hitbox.vs"), filepath("/shaders/hitbox.fs"));
     shaderIdArray[1] = basicShader;
     unsigned int animatedShader = createShader(filepath("/shaders/animated_texture.vs"), filepath("/shaders/animated_texture.fs"));
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
@@ -95,9 +95,8 @@ int main()
 
     Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
 
-    Model* clouds = LoadModel(filepath("/resources/models/planes/clouds.obj"));
-
-    Model* grass = LoadModel(filepath("/resources/models/planes/plane.obj"));
+    //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
+    unsigned int cube = CreateHitbox();
 
     if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
         printf("LoadScene Failed!\n");
@@ -110,6 +109,7 @@ int main()
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glLineWidth(2.0f);
 
     glm::vec3 color = glm::vec3(0.0f);
 
@@ -272,21 +272,13 @@ int main()
 
         DrawScene(root_node);
 
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
 
         glUseProgram(animatedShader);
         setShaderMat4(animatedShader, "projection", projection);
         setShaderMat4(animatedShader, "view", view);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-5.0f, 1.5f, -5.0f));
-        setShaderMat4(animatedShader, "model", model);
-        DrawModel(grass, animatedShader);
-
-        
 
         glUseProgram(modelShader);
         
@@ -387,6 +379,9 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
         DrawModel(sphere, hitboxShader);    
 
+
+
+
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
         
@@ -395,6 +390,32 @@ int main()
         // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection, currentTime);   
         //update, except for transparent stuff i guess
+
+
+        glLineWidth(5.0f);
+        glUseProgram(hitboxShader);
+        setShaderMat4(hitboxShader, "projection", projection);
+        setShaderMat4(hitboxShader, "view", view);
+        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
+
+        float scale = 10.0f;
+        float x_size = 3;
+        float y_size = 1;
+        float z_size = 3;
+         
+        for (int x = -x_size; x <= x_size; x++) {
+           for (int y = -y_size; y <= y_size; y++) {
+                for (int z = -z_size; z <= z_size; z++) {
+                    glm::mat4 cube_space = glm::mat4(1.0f);
+                    cube_space = glm::translate(cube_space, glm::vec3(x, y, z) * scale);
+                    cube_space = glm::scale(cube_space, glm::vec3(scale));
+                    setShaderMat4(hitboxShader, "model", cube_space);
+                    setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
+                    DrawHitbox(cube, hitboxShader);
+                }
+           }
+        }
+
 
         glUseProgram(billboardShader);
         setShaderMat4(billboardShader, "projection", projection);

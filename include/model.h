@@ -100,8 +100,21 @@ Model* LoadModel(std::string const& path) {
 	// I want textures_loaded to remain global for now. In future I will make sure to only load every texture once in case different models share textures.
 	textures_loaded.clear();
 
+	size_t lastSlashPos = path.find_last_of('/');
+    std::string substring = path.substr(lastSlashPos + 1);
+    size_t dotPos = substring.find('.');
+    std::string nameFromPath = substring.substr(0, dotPos);
+
+	std::cout << "nameFromPath: " << nameFromPath << std::endl;
+
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+
+	// For hitbox visualization
+	if (nameFromPath == "cube") {
+            scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+    }
+
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -111,18 +124,12 @@ Model* LoadModel(std::string const& path) {
 
 	Model* newModel = (Model*)malloc(sizeof(Model));
 
-	size_t lastSlashPos = path.find_last_of('/');
-    std::string substring = path.substr(lastSlashPos + 1);
-    size_t dotPos = substring.find('.');
-	std::string nameFromPath = substring.substr(0, dotPos);
-	
-
 	newModel->m_Name = (char*)malloc(nameFromPath.size() * sizeof(char));
 
 	std::strcpy(newModel->m_Name, nameFromPath.c_str());
 
 
-	//std::cout << "Model Name: " << newModel->m_Name << std::endl;
+	
 
 	newModel->m_NumMeshes = scene->mNumMeshes;
 	newModel->m_Meshes = (Mesh*)malloc(scene->mNumMeshes * sizeof(Mesh));
@@ -146,7 +153,7 @@ Model* LoadModel(std::string const& path) {
 
 	//printf("name: %s\n", newModel->m_Name);
 	
-	if (strcmp(newModel->m_Name, "untitled") == 0) {
+	if (strcmp(newModel->m_Name, "cube_outline") == 0) {
                 printf("1\n");
 
 				aiMesh* aiMesh = scene->mMeshes[0];
@@ -233,7 +240,7 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 			vertexData.Color = glm::vec3(color.r, color.g, color.b);
 		}
 
-
+		
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 vec;
 			vec.x = mesh->mTextureCoords[0][i].x;
@@ -512,5 +519,61 @@ void DrawModel(Model* model, unsigned int shaderID)
 		glActiveTexture(GL_TEXTURE0);
 	}
 }
+
+void DrawHitbox(unsigned int VAO, unsigned int shaderID)
+
+{
+
+	unsigned int indices[] = {
+            0, 1, 1, 2, 2, 3, 3, 0,
+            4, 5, 5, 6, 6, 7, 7, 4,
+            0, 4, 1, 5, 2, 6, 3, 7
+        };
+        glBindVertexArray(VAO);
+        glDrawElements(GL_LINES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+}
+
+unsigned int CreateHitbox() {
+
+         // Define cube vertices
+		float vertices[] = {
+			// Front face
+			-0.5f, -0.5f, 0.5f,
+			 0.5f, -0.5f, 0.5f,
+			 0.5f,  0.5f, 0.5f,
+			-0.5f,  0.5f, 0.5f,
+			// Back face
+			-0.5f, -0.5f, -0.5f,
+			 0.5f, -0.5f, -0.5f,
+			 0.5f,  0.5f, -0.5f,
+			-0.5f,  0.5f, -0.5f,
+		};
+
+        unsigned int indices[] = {
+                    0, 1, 1, 2, 2, 3, 3, 0,
+                    4, 5, 5, 6, 6, 7, 7, 4,
+                    0, 4, 1, 5, 2, 6, 3, 7
+                };
+
+		unsigned int VAO, VBO, EBO;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        // Set the vertex attribute pointers
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+		return VAO;
+}
+
 
 #endif
