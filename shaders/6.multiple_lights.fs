@@ -70,6 +70,7 @@ void main()
     // properties
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
+
     
     // == =====================================================
     // Our lighting is set up in 3 phases: directional, point lights and an optional flashlight
@@ -91,7 +92,8 @@ void main()
     //result *= vec3(OverlayMovingTexture(time));
 
     //FragColor = vec4(Convert_sRGB_ToLinear(result.x),Convert_sRGB_ToLinear(result.y),Convert_sRGB_ToLinear(result.z), 1.0);
-    FragColor = vec4(result * VertexColor, 1.0);
+
+    FragColor = vec4(result * VertexColor * 1.5f, 1.0);
 }
 
 float Convert_sRGB_ToLinear (float thesRGBValue) {

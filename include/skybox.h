@@ -93,12 +93,12 @@ void LoadSkybox(std::string (*filepath)(std::string path), std::string skybox)
     stbi_set_flip_vertically_on_load(false);
 
     std::vector<std::string> faces {
-        filepath("/resources/skybox/" + skybox + "/right.jpg"),
-        filepath("/resources/skybox/" + skybox + "/left.jpg"),
+        filepath("/resources/skybox/" + skybox + "/side.jpg"),
+        filepath("/resources/skybox/" + skybox + "/side.jpg"),
         filepath("/resources/skybox/" + skybox + "/top.jpg"),
         filepath("/resources/skybox/" + skybox + "/bottom.jpg"),
-        filepath("/resources/skybox/" + skybox + "/front.jpg"),
-        filepath("/resources/skybox/" + skybox + "/back.jpg"),
+        filepath("/resources/skybox/" + skybox + "/side.jpg"),
+        filepath("/resources/skybox/" + skybox + "/side.jpg"),
     };
     cubemapTexture = loadCubemap(faces);
 

@@ -93,7 +93,6 @@ int main()
 
     Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
 
-
     Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
 
     Model* clouds = LoadModel(filepath("/resources/models/planes/clouds.obj"));
@@ -104,7 +103,7 @@ int main()
         printf("LoadScene Failed!\n");
     }
 
-    LoadSkybox(filepath, "skybox5");
+    LoadSkybox(filepath, "skybox7");
     //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
 
@@ -112,7 +111,7 @@ int main()
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-      glm::vec3 color = glm::vec3(0.0f);
+    glm::vec3 color = glm::vec3(0.0f);
 
     const double debounceDelay = 1.5; // 200 milliseconds
     double lastSpacePressTime = 0.0;
@@ -128,8 +127,7 @@ int main()
         glm::vec3(0.0f, 0.0f, -3.0f)
     };
 
-    
-    
+   
     while (!glfwWindowShouldClose(window)) {
 
         // per-frame time logic
@@ -224,7 +222,7 @@ int main()
         }
         
 
-        setVec3(modelShader, "dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+        setVec3(modelShader, "dirLight.direction", glm::vec3(-0.5f, -1.0f, 0.0f));
         setVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
         setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);

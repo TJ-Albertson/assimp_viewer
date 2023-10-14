@@ -88,5 +88,167 @@
         "translation": "70.0, 10.0, 30.0",
         "scale": "0.01, 0.01, 0.01",
         "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "outer",
+        "type": "model",
+        "filepath": "/resources/models/zelda/outer.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "desert",
+        "type": "model",
+        "filepath": "/resources/models/zelda/desert.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "desert2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/desert2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "desert3",
+        "type": "model",
+        "filepath": "/resources/models/zelda/desert3.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "castle1",
+        "type": "model",
+        "filepath": "/resources/models/zelda/castle1.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "castle2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/castle2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "castle3",
+        "type": "model",
+        "filepath": "/resources/models/zelda/castle3.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "lonlon",
+        "type": "model",
+        "filepath": "/resources/models/zelda/lonlon.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "riverbed",
+        "type": "model",
+        "filepath": "/resources/models/zelda/riverbed.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "flowers",
+        "type": "model",
+        "filepath": "/resources/models/zelda/flowers.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "flowers2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/flowers2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "lake_block",
+        "type": "model",
+        "filepath": "/resources/models/zelda/lake_block.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "fence1",
+        "type": "model",
+        "filepath": "/resources/models/zelda/fence1.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "fence2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/fence2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "trees1",
+        "type": "model",
+        "filepath": "/resources/models/zelda/trees1.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "trees2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/trees2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "houses",
+        "type": "model",
+        "filepath": "/resources/models/zelda/houses.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "stairs",
+        "type": "model",
+        "filepath": "/resources/models/zelda/stairs.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
     }
 ]
