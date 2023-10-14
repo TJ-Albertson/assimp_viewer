@@ -1,24 +1,4 @@
 [
-
-    {
-        "name": "labeled_alpha_cube",
-        "type": "model",
-        "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
-        "shaderId": 0,
-        "translation": "5.0, 1.0, 5.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "map2_hitbox",
-                "type": "hitbox",
-                "filepath": "/resources/models/labeled_alpha_cube/labeled_alpha_tri.obj",
-                "translation": "5.0, 1.0, 5.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
-    },
     {
         "name": "x_arrow",
         "type": "model",
@@ -47,77 +27,66 @@
         "rotation": "0.0, 0.0, 0.0"
     },
     {
-        "name": "box",
-        "type": "model",
-        "filepath": "/resources/models/container/box.obj",
-        "shaderId": 0,
-        "translation": "0.0, 1.0, 10.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
- 
-    {
-        "name": "exposed_rock",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/exposed_rock.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "grass_patches",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/grass_patches.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "paths",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/paths.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "wall_cliffs",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/wall_cliffs.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "path_end",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/path_end.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "low_wall",
-        "type": "model",
-        "filepath": "/resources/models/zelda/field/low_wall.obj",
-        "shaderId": 0,
-        "translation": "0.0, 0.0, 0.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
-    },
-    {
-        "name": "test",
+        "name": "untitled",
         "type": "model",
         "filepath": "/resources/models/zelda/untitled.dae",
         "shaderId": 0,
         "translation": "70.0, 10.0, 30.0",
         "scale": "0.01, 0.01, 0.01",
         "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "patches",
+        "type": "model",
+        "filepath": "/resources/models/zelda/patches.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "path",
+        "type": "model",
+        "filepath": "/resources/models/zelda/path.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "pathend",
+        "type": "model",
+        "filepath": "/resources/models/zelda/pathend.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "rock",
+        "type": "model",
+        "filepath": "/resources/models/zelda/rock.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "wall",
+        "type": "model",
+        "filepath": "/resources/models/zelda/wall.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
+    },
+    {
+        "name": "rock2",
+        "type": "model",
+        "filepath": "/resources/models/zelda/rock2.dae",
+        "shaderId": 0,
+        "translation": "70.0, 10.0, 30.0",
+        "scale": "0.01, 0.01, 0.01",
+        "rotation": "0.0, 30.0, 90.0"
     }
-
 ]

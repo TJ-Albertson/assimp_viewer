@@ -41,6 +41,7 @@ struct VertexData {
 	glm::vec2 TexCoords;
 	glm::vec3 Tangent;
 	glm::vec3 Bitangent;
+    glm::vec3 Color;
 	int m_BoneIDs[MAX_BONE_INFLUENCE];
 	float m_Weights[MAX_BONE_INFLUENCE];
 };
@@ -143,7 +144,7 @@ Model* LoadModel(std::string const& path) {
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	printf("name: %s\n", newModel->m_Name);
+	//printf("name: %s\n", newModel->m_Name);
 	
 	if (strcmp(newModel->m_Name, "untitled") == 0) {
                 printf("1\n");
@@ -223,6 +224,15 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 
 		vertexData.Position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
 		vertexData.Normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
+
+		vertexData.Color = glm::vec3(0.0f, 0.0f, 0.0f);
+		if (mesh->HasVertexColors(0)) {
+			aiColor4D color = mesh->mColors[0][i];
+			//std::cout << "Vertex " << i << " has color (" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")" << std::endl;
+
+			vertexData.Color = glm::vec3(color.r, color.g, color.b);
+		}
+
 
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 vec;
@@ -311,7 +321,6 @@ void AssignBoneId(VertexData* vertexData, aiMesh* mesh, const aiScene* scene)
 	}
 }
 
-
 unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
 {
 	unsigned int VAO, VBO, EBO;
@@ -357,11 +366,15 @@ unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int
 	// weights
 	glEnableVertexAttribArray(6);
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, m_Weights));
+
+	// vertex colors
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, Color));
+
 	glBindVertexArray(0);
 
 	return VAO;
 }
-
 
 unsigned int TextureFromFile(const char* path, const std::string& directory)
 {

@@ -48,6 +48,7 @@ struct SpotLight {
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
+in vec3 VertexColor;
 
 uniform vec3 viewPos;
 uniform DirLight dirLight;
@@ -90,7 +91,7 @@ void main()
     //result *= vec3(OverlayMovingTexture(time));
 
     //FragColor = vec4(Convert_sRGB_ToLinear(result.x),Convert_sRGB_ToLinear(result.y),Convert_sRGB_ToLinear(result.z), 1.0);
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result * VertexColor, 1.0);
 }
 
 float Convert_sRGB_ToLinear (float thesRGBValue) {

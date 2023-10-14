@@ -2,27 +2,32 @@
 out vec4 FragColor;
 
 in vec3 TexCoords;
-in vec3 MovingTexCoords;
+in vec3 FragPos;
 
 uniform samplerCube skybox;
-uniform samplerCube cloudMap;
+uniform sampler2D clouds;
 uniform float time;
 
 void main()
-{    
-    vec3 speed = vec3(0.0, 0.0, 0.0);
+{   
+    vec4 baseColor = texture(skybox, TexCoords);
 
-  
-    if (TexCoords.y >= 0.99) {
-        vec3 speed = vec3(1.0f, 0.0f, 1.0f);
-    }
+    // cloud overlay
+    vec2 speed = vec2(0.0, 1.0);
+    vec2 offset = speed * time * 0.2f;
 
-     vec3 offset = speed * time * 0.2f;
+    float scale = 1.0f / TexCoords.y;
 
+    vec2 newTexCoord = vec2(TexCoords.x, TexCoords.z);
+    newTexCoord *= scale;
+    newTexCoord += offset;
+      
+    vec4 overlayColor = texture(clouds, newTexCoord);
 
-    vec4 clouds = texture(cloudMap, MovingTexCoords);
-
-    vec4 sky = texture(skybox, TexCoords);
+    //overlayColor.a *= TexCoords.y;
+    if (TexCoords.y < 0.0) {
+        //overlayColor.a = 0;
+    } 
     
-    FragColor = mix(sky, clouds, 0.5f);
+    FragColor = mix(baseColor, overlayColor, overlayColor.a);
 }
