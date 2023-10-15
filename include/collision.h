@@ -275,14 +275,17 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
         triangles[i].vertices[2] = polygons[i].vertices[2];
         
         outputFile << "Triangle " << i << ": " << std::endl;
-        outputFile << "     vertices[0]: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
-        outputFile << "     vertices[1]: " << vertices[1].x << " " << vertices[1].y << " " << vertices[1].z << std::endl;
-        outputFile << "     vertices[2]: " << vertices[2].x << " " << vertices[2].y << " " << vertices[2].z << std::endl;
+        outputFile << "     vertices[0]: " << triangles[i].vertices[0].x << " " << triangles[i].vertices[0].y << " " << triangles[i].vertices[0].z << std::endl;
+        outputFile << "     vertices[1]: " << triangles[i].vertices[1].x << " " << triangles[i].vertices[1].y << " " << triangles[i].vertices[1].z << std::endl;
+        outputFile << "     vertices[2]: " << triangles[i].vertices[2].x << " " << triangles[i].vertices[2].y << " " << triangles[i].vertices[2].z << std::endl;
     }
 
     outputFile.close();
 
-    AABBTreeNode* root = buildAABBTree(triangles, polygons.size());
+    Node* root;
+    TopDownBVTree(&root, triangles, polygons.size());
+
+    //AABBTreeNode* root = buildAABBTree(triangles, polygons.size());
 
     return;
 }

@@ -39,21 +39,25 @@ typedef struct AABBTreeNode {
 } AABBTreeNode;
 
 // Function to compute the AABB of a set of triangles
-AABB computeAABB(Triangle* triangles, int numTriangles) {
+AABB computeAABB(const Triangle* triangles, int numTriangles)
+{
+    // Initialize the AABB with the first triangle's vertices
     AABB aabb;
-    aabb.min = aabb.max = triangles[0].vertices[0];  // Initialize with the first vertex
+    aabb.min = aabb.max = triangles[0].vertices[0];
 
-    for (int i = 0; i < numTriangles; i++) {
-        Triangle triangle = triangles[i];
+    for (int i = 0; i < numTriangles; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            const Point& vertex = triangles[i].vertices[j];
 
-        // Update the AABB's minimum and maximum corners
-        aabb.min.x = fminf(aabb.min.x, fminf(fminf(triangle.vertices[0].x, triangle.vertices[1].x), triangle.vertices[2].x));
-        aabb.min.y = fminf(aabb.min.y, fminf(fminf(triangle.vertices[0].y, triangle.vertices[1].y), triangle.vertices[2].y));
-        aabb.min.z = fminf(aabb.min.z, fminf(fminf(triangle.vertices[0].z, triangle.vertices[1].z), triangle.vertices[2].z));
+            // Update the minimum and maximum coordinates of the AABB
+            aabb.min.x = std::min(aabb.min.x, vertex.x);
+            aabb.min.y = std::min(aabb.min.y, vertex.y);
+            aabb.min.z = std::min(aabb.min.z, vertex.z);
 
-        aabb.max.x = fmaxf(aabb.max.x, fmaxf(fmaxf(triangle.vertices[0].x, triangle.vertices[1].x), triangle.vertices[2].x));
-        aabb.max.y = fmaxf(aabb.max.y, fmaxf(fmaxf(triangle.vertices[0].y, triangle.vertices[1].y), triangle.vertices[2].y));
-        aabb.max.z = fmaxf(aabb.max.z, fmaxf(fmaxf(triangle.vertices[0].z, triangle.vertices[1].z), triangle.vertices[2].z));
+            aabb.max.x = std::max(aabb.max.x, vertex.x);
+            aabb.max.y = std::max(aabb.max.y, vertex.y);
+            aabb.max.z = std::max(aabb.max.z, vertex.z);
+        }
     }
 
     return aabb;
@@ -116,13 +120,15 @@ AABBTreeNode* buildAABBTree(Triangle* triangles, int numTriangles) {
     // Find the longest axis of the AABB
     int axis = longestAxis(aabb);
 
+    printf("aabb.min: %f %f %f\n", aabb.min.x, aabb.min.y, aabb.min.z);
+    printf("aabb.max: %f %f %f\n", aabb.max.x, aabb.max.y, aabb.max.z);
+
     printf("axis: %d\n", axis);
 
     // Find the median of the axis
     float median = (aabb.min[axis] + aabb.max[axis]) / 2.0f;
 
-    printf("aabb.min[axis]: %f\n", aabb.min[axis]);
-    printf("aabb.max[axis]: %f\n", aabb.max[axis]);
+    
 
     printf("median: %f\n", median);
 
@@ -170,4 +176,140 @@ int main() {
 }
 */
 
+
+
+enum nodeType {
+    LEAF, // 0
+    NODE, // 1
+};
+
+typedef struct Node {
+    AABB aabb;
+    nodeType type;
+    int numObjects;
+    Triangle* object;
+    struct Node* left; // Pointer to left child node
+    struct Node* right; // Pointer to right child node
+} Node;
+
+
+AABB ComputeBoundingVolume(const Triangle* triangles, int numTriangles)
+{
+    // Initialize the AABB with the first triangle's vertices
+    AABB aabb;
+    aabb.min = aabb.max = triangles[0].vertices[0];
+
+    for (int i = 0; i < numTriangles; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            const Point& vertex = triangles[i].vertices[j];
+
+            // Update the minimum and maximum coordinates of the AABB
+            aabb.min.x = std::min(aabb.min.x, vertex.x);
+            aabb.min.y = std::min(aabb.min.y, vertex.y);
+            aabb.min.z = std::min(aabb.min.z, vertex.z);
+
+            aabb.max.x = std::max(aabb.max.x, vertex.x);
+            aabb.max.y = std::max(aabb.max.y, vertex.y);
+            aabb.max.z = std::max(aabb.max.z, vertex.z);
+        }
+    }
+
+    return aabb;
+}
+
+int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float median)
+{
+    std::vector<Triangle> left;
+    std::vector<Triangle> right;
+
+    for (int i = 0; i < numTriangles; i++) {
+        Triangle triangle = triangles[i];
+
+        // Calculate the midpoint of the triangle's projection onto the specified axis
+        float mid = 0.0f;
+        if (axis == 0) {
+            mid = (triangle.vertices[0].x + triangle.vertices[1].x + triangle.vertices[2].x) / 3.0f;
+        } else if (axis == 1) {
+            mid = (triangle.vertices[0].y + triangle.vertices[1].y + triangle.vertices[2].y) / 3.0f;
+        } else {
+            mid = (triangle.vertices[0].z + triangle.vertices[1].z + triangle.vertices[2].z) / 3.0f;
+        }
+
+        if (mid < median) {
+            left.push_back(triangle);
+        } else {
+            right.push_back(triangle);
+        }
+    }
+
+    printf("left.size(): %d\n", left.size());
+    printf("right.size(): %d\n", right.size());
+
+    for (int i = 0; i < left.size(); i++) {
+        triangles[i] = left[i];
+    }
+
+     for (int i = 0; i < right.size(); i++) {
+        triangles[i] = right[i];
+    }
+
+    int k = left.size();
+
+    return k;
+}
+
+// Construct a top-down tree. Rearranges object[] array during construction
+void TopDownBVTree(Node** tree, Triangle object[], int numObjects)
+{
+    //assert(numObjects > 0);
+
+    if (numObjects == 0) return;
+
+    //printf("numTriangles: %d\n", numObjects);
+    const int MIN_OBJECTS_PER_LEAF = 1;
+    Node* pNode = new Node;
+    *tree = pNode;
+    // Compute a bounding volume for object[0], ..., object[numObjects - 1]
+    pNode->aabb = ComputeBoundingVolume(&object[0], numObjects);
+
+    if (numObjects <= MIN_OBJECTS_PER_LEAF) {
+        pNode->type = LEAF;
+        pNode->numObjects = numObjects;
+        pNode->object = &object[0]; // Pointer to first object in leaf
+    } else {
+        pNode->type = NODE;
+        // Based on some partitioning strategy, arrange objects into
+        // two partitions: object[0..k-1], and object[k..numObjects-1]
+        int axis = longestAxis(pNode->aabb);
+        float median = (pNode->aabb.min[axis] + pNode->aabb.max[axis]) / 2.0f;
+
+        int k = PartitionObjects(&object[0], numObjects, axis, median);
+        // Recursively construct left and right subtree from subarrays and
+        // point the left and right fields of the current node at the subtrees
+        TopDownBVTree(&(pNode->left), &object[0], k);
+        TopDownBVTree(&(pNode->right), &object[k], numObjects - k);
+    }
+}
+
+/*
+int main() {
+    int numTriangles = 4;
+    Triangle triangles[4] = {
+        { { 0, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 } },
+        { { 1, 1, 0 }, { 1, 0, 0 }, { 0, 1, 0 } },
+        { { 0, 0, 1 }, { 1, 0, 1 }, { 0, 1, 1 } },
+        { { 1, 1, 1 }, { 1, 0, 1 }, { 0, 1, 1 } },
+    };
+
+    // Build the AABB tree
+    Node* root;
+    TopDownBVTree(&root, triangles, numTriangles);
+
+    // Now you have the AABB tree structure for your triangle polygon soup
+    // You can traverse the tree as needed for collision detection or other operations
+
+    return 0;
+    TopDownBVTree
+}
+*/
 #endif;
