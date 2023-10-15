@@ -28,7 +28,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 20.0f;
+const float SPEED = 3.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -51,7 +51,7 @@ struct Camera {
 	Camera_Type Type;
 };
 
-glm::vec3 playerPosition = glm::vec3(5.0f, 15.0f, 0.0f);
+glm::vec3 playerPosition = glm::vec3(55.0f, 15.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
 glm::vec3 gravityVector = glm::vec3(0.0f, -0.15f, 0.0f);

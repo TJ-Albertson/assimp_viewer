@@ -34,6 +34,7 @@ Functions:
 #include <animation.h>
 #include <skeleton.h>
 
+#include <space.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -565,6 +566,94 @@ unsigned int CreateHitbox() {
         glEnableVertexAttribArray(0);
 
 		return VAO;
+}
+
+std::vector<unsigned int> aabb_vao;
+
+void DrawAABB_Hitboxes() {
+
+	for (int i = 0; i < aabb_vao.size(); i++) {
+                unsigned int indices[] = {
+                    0, 1, 1, 2, 2, 3, 3, 0,
+                    4, 5, 5, 6, 6, 7, 7, 4,
+                    0, 4, 1, 5, 2, 6, 3, 7
+                };
+                glBindVertexArray(aabb_vao[i]);
+                glDrawElements(GL_LINES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+                glBindVertexArray(0);
+	}
+                
+}
+
+void LoadAABB_Hitboxes(Node* node)
+{
+                if (node == NULL || node->type == LEAF) {
+                return;
+                }
+
+				AABB aabb = node->aabb;
+
+
+				float vertices[] = {
+                                    aabb.min.x,
+                                    aabb.min.y,
+                                    aabb.max.z,
+
+                                    aabb.max.x,
+                                    aabb.min.y,
+                                    aabb.max.z,
+
+                                    aabb.max.x,
+                                    aabb.max.y,
+                                    aabb.max.z,
+
+                                    aabb.min.x,
+                                    aabb.max.y,
+                                    aabb.max.z,
+
+                                    aabb.min.x,
+                                    aabb.min.y,
+                                    aabb.min.z,
+
+                                    aabb.max.x,
+                                    aabb.min.y,
+                                    aabb.min.z,
+
+                                    aabb.max.x,
+                                    aabb.max.y,
+                                    aabb.min.z,
+
+                                    aabb.min.x,
+                                    aabb.max.y,
+                                    aabb.min.z
+                                };
+
+                unsigned int indices[] = {
+                    0, 1, 1, 2, 2, 3, 3, 0,
+                    4, 5, 5, 6, 6, 7, 7, 4,
+                    0, 4, 1, 5, 2, 6, 3, 7
+                };
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Set the vertex attribute pointers
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+				aabb_vao.push_back(VAO);
+
+				LoadAABB_Hitboxes(node->left);
+                LoadAABB_Hitboxes(node->right);
 }
 
 

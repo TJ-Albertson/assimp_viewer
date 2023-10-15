@@ -30,7 +30,6 @@ struct Triangle {
     Point vertices[3];
 };
 
-
 // Define a structure for an AABB tree node
 typedef struct AABBTreeNode {
     AABB aabb;
@@ -65,13 +64,17 @@ AABB computeAABB(const Triangle* triangles, int numTriangles)
 
 // Function to find the longest axis of an AABB
 int longestAxis(AABB aabb) {
-    Vector extent = {aabb.max.x - aabb.min.x, aabb.max.y - aabb.min.y, aabb.max.z - aabb.min.z};
-    if (extent.x > extent.y && extent.x > extent.z) {
-        return 0;  // X-axis is the longest
-    } else if (extent.y > extent.z) {
-        return 1;  // Y-axis is the longest
+    Vector diff;
+    diff.x = aabb.max.x - aabb.min.x;
+    diff.y = aabb.max.y - aabb.min.y;
+    diff.z = aabb.max.z - aabb.min.z;
+
+    if (diff.x >= diff.y && diff.x >= diff.z) {
+        return 0;
+    } else if (diff.y >= diff.x && diff.y >= diff.z) {
+        return 1;
     } else {
-        return 2;  // Z-axis is the longest
+        return 2;
     }
 }
 
@@ -217,40 +220,52 @@ AABB ComputeBoundingVolume(const Triangle* triangles, int numTriangles)
     return aabb;
 }
 
+float testMidpoint(Triangle triangle, int axis)
+{
+    float mid = 0.0f;
+    if (axis == 0) {
+        mid = (triangle.vertices[0].x + triangle.vertices[1].x + triangle.vertices[2].x) / 3.0f;
+    } else if (axis == 1) {
+        mid = (triangle.vertices[0].y + triangle.vertices[1].y + triangle.vertices[2].y) / 3.0f;
+    } else {
+        mid = (triangle.vertices[0].z + triangle.vertices[1].z + triangle.vertices[2].z) / 3.0f;
+    }
+
+    return mid;
+}
+
 int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float median)
 {
     std::vector<Triangle> left;
     std::vector<Triangle> right;
 
+
     for (int i = 0; i < numTriangles; i++) {
         Triangle triangle = triangles[i];
 
-        // Calculate the midpoint of the triangle's projection onto the specified axis
-        float mid = 0.0f;
-        if (axis == 0) {
-            mid = (triangle.vertices[0].x + triangle.vertices[1].x + triangle.vertices[2].x) / 3.0f;
-        } else if (axis == 1) {
-            mid = (triangle.vertices[0].y + triangle.vertices[1].y + triangle.vertices[2].y) / 3.0f;
-        } else {
-            mid = (triangle.vertices[0].z + triangle.vertices[1].z + triangle.vertices[2].z) / 3.0f;
-        }
+        float mid = testMidpoint(triangle, axis);
 
         if (mid < median) {
             left.push_back(triangle);
         } else {
             right.push_back(triangle);
         }
-    }
+    };
 
-    printf("left.size(): %d\n", left.size());
-    printf("right.size(): %d\n", right.size());
+
+    //(" left.size(): %d\n", left.size());
+    //printf(" right.size(): %d\n", right.size());
 
     for (int i = 0; i < left.size(); i++) {
         triangles[i] = left[i];
     }
 
-     for (int i = 0; i < right.size(); i++) {
-        triangles[i] = right[i];
+    for (int i = 0; i < right.size(); i++) {
+        triangles[left.size() + i] = right[i];
+    }
+
+    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
+        return 0;
     }
 
     int k = left.size();
@@ -259,36 +274,68 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 }
 
 // Construct a top-down tree. Rearranges object[] array during construction
-void TopDownBVTree(Node** tree, Triangle object[], int numObjects)
+void TopDownBVTree(Node** tree, Triangle triangles[], int numObjects)
 {
     //assert(numObjects > 0);
-
+     //printf("numObjects: %d\n", numObjects);
     if (numObjects == 0) return;
+    /*
+    for (int i = 0; i < numObjects; i++) {
+        std::cout << "Triangle " << i << ": " << std::endl;
+        std::cout << "     vertices[0]: " << triangles[i].vertices[0].x << " " << triangles[i].vertices[0].y << " " << triangles[i].vertices[0].z << std::endl;
+        std::cout << "     vertices[1]: " << triangles[i].vertices[1].x << " " << triangles[i].vertices[1].y << " " << triangles[i].vertices[1].z << std::endl;
+        std::cout << "     vertices[2]: " << triangles[i].vertices[2].x << " " << triangles[i].vertices[2].y << " " << triangles[i].vertices[2].z << std::endl;
+    }
+    */
 
     //printf("numTriangles: %d\n", numObjects);
     const int MIN_OBJECTS_PER_LEAF = 1;
     Node* pNode = new Node;
     *tree = pNode;
     // Compute a bounding volume for object[0], ..., object[numObjects - 1]
-    pNode->aabb = ComputeBoundingVolume(&object[0], numObjects);
+    pNode->aabb = ComputeBoundingVolume(&triangles[0], numObjects);
 
     if (numObjects <= MIN_OBJECTS_PER_LEAF) {
         pNode->type = LEAF;
         pNode->numObjects = numObjects;
-        pNode->object = &object[0]; // Pointer to first object in leaf
+        pNode->object = &triangles[0]; // Pointer to first object in leaf
     } else {
         pNode->type = NODE;
-        // Based on some partitioning strategy, arrange objects into
-        // two partitions: object[0..k-1], and object[k..numObjects-1]
+        
         int axis = longestAxis(pNode->aabb);
         float median = (pNode->aabb.min[axis] + pNode->aabb.max[axis]) / 2.0f;
+            
+        // Based on some partitioning strategy, arrange objects into
+        // two partitions: object[0..k-1], and object[k..numObjects-1]
+        int k = PartitionObjects(&triangles[0], numObjects, axis, median);
 
-        int k = PartitionObjects(&object[0], numObjects, axis, median);
+        if (k == 0) {
+            pNode->type = LEAF;
+            pNode->numObjects = numObjects;
+            pNode->object = &triangles[0];
+            return;
+        }
+
         // Recursively construct left and right subtree from subarrays and
         // point the left and right fields of the current node at the subtrees
-        TopDownBVTree(&(pNode->left), &object[0], k);
-        TopDownBVTree(&(pNode->right), &object[k], numObjects - k);
+        TopDownBVTree(&(pNode->left), &triangles[0], k);
+        TopDownBVTree(&(pNode->right), &triangles[k], numObjects - k);
     }
+}
+
+
+void printAABBMinMax(Node* node)
+{
+    if (node == NULL || node->type == LEAF) {
+        return;
+    }
+
+    printf("Node: Min (%.2f, %.2f, %.2f), Max (%.2f, %.2f, %.2f)\n",
+        node->aabb.min.x, node->aabb.min.y, node->aabb.min.z,
+        node->aabb.max.x, node->aabb.max.y, node->aabb.max.z);
+
+    printAABBMinMax(node->left);
+    printAABBMinMax(node->right);
 }
 
 /*

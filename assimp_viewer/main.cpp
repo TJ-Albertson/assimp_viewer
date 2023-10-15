@@ -104,7 +104,10 @@ int main()
     LoadSkybox(filepath, "skybox7");
     //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
-
+    for (int i = 0; i < root_AABB_nodes.size(); i++) {
+        LoadAABB_Hitboxes(root_AABB_nodes[i]);
+    }
+    
     // Wireframe mode
     // --------------------
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -270,8 +273,9 @@ int main()
        
         //DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         DrawScene(root_node);
-
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
 
 
@@ -362,7 +366,7 @@ int main()
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
-        DrawModel(sphere, hitboxShader);
+        //DrawModel(sphere, hitboxShader);
 
         // Collision Point Ball
         model = glm::mat4(1.0f);
@@ -370,14 +374,14 @@ int main()
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        DrawModel(sphere, hitboxShader);
+        //DrawModel(sphere, hitboxShader);
 
         // Player hitbox
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
-        DrawModel(sphere, hitboxShader);    
+        //DrawModel(sphere, hitboxShader);    
 
 
 
@@ -385,18 +389,22 @@ int main()
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
         
-        
+        glLineWidth(1.0f);
+        glUseProgram(hitboxShader);
+        setShaderMat4(hitboxShader, "projection", projection);
+        setShaderMat4(hitboxShader, "view", view);
+        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.5f, 0.5f));
+        setShaderMat4(hitboxShader, "model", glm::mat4(1.0f));
+
+        DrawAABB_Hitboxes();
 
         // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection, currentTime);   
         //update, except for transparent stuff i guess
 
+        
+        
         /*
-        glLineWidth(5.0f);
-        glUseProgram(hitboxShader);
-        setShaderMat4(hitboxShader, "projection", projection);
-        setShaderMat4(hitboxShader, "view", view);
-        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
 
         float scale = 10.0f;
         float x_size = 3;

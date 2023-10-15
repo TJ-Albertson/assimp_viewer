@@ -7,7 +7,6 @@
 
 #include <space.h>
 
-
 const float EPSILON = 1e-6;
 float scaleFactor = 1;
 
@@ -27,7 +26,10 @@ struct Plane {
     float d; // d = dot(n,p) for a given point p on the plane
 };
 
+
 std::vector<Polygon> potentialColliders;
+std::vector<Node*> root_AABB_nodes;
+
 glm::vec3 collisionBallPosition;
 glm::vec3 vectorPosition;
 
@@ -45,7 +47,8 @@ int IntersectRaySphere(Point p, Vector d, Sphere s, float& t, Point& q);
 void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d);
 void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 
-/*
+
+    /*
 1. sphere-plane test
         5.5.3 Intersecting Moving Sphere Against Plane
 
@@ -241,7 +244,16 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
             }
         } else if (line[0] == 'f') {
             int vertex_1, vertex_2, vertex_3, vertex_normal;
-            sscanf(line, "f %d/%*d/%d %d/%*d/%*d %d/%*d/%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
+
+            int basic = sscanf(line, "f %d/%*d/%d %d/%*d/%*d %d/%*d/%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
+            int with_color = sscanf(line, "f %d//%d %d//%*d %d//%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
+
+            if (basic == 4) {
+                sscanf(line, "f %d/%*d/%d %d/%*d/%*d %d/%*d/%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
+            } else if (with_color == 4) {
+                sscanf(line, "f %d//%d %d//%*d %d//%*d", &vertex_1, &vertex_normal, &vertex_2, &vertex_3);
+            }
+
 
             Polygon polygon;
 
@@ -282,9 +294,13 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     outputFile.close();
 
-    Node* root;
-    TopDownBVTree(&root, triangles, polygons.size());
+    Node* rootAABBnode;
+    
+    TopDownBVTree(&rootAABBnode, triangles, polygons.size());
 
+    printAABBMinMax(rootAABBnode);
+
+    root_AABB_nodes.push_back(rootAABBnode);
     //AABBTreeNode* root = buildAABBTree(triangles, polygons.size());
 
     return;
