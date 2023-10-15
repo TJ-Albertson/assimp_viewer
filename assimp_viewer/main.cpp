@@ -66,11 +66,10 @@ int main()
 {
     GLFWwindow* window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
-
     
     unsigned int grid_VAO = LoadGrid();
 
-    unsigned int basicShader  = createShader(filepath("/shaders/4.2.texture.vs"), filepath("/shaders/anim_model.fs"));
+    unsigned int basicShader  = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
     shaderIdArray[0] = modelShader;
     unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
@@ -98,7 +97,7 @@ int main()
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     unsigned int cube = CreateHitbox();
 
-    if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
+    if (LoadScene(filepath("/resources/scenes/scene2.json"))) {
         printf("LoadScene Failed!\n");
     }
 
@@ -163,8 +162,9 @@ int main()
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
         */
-        
-        
+        glUseProgram(basicShader);
+        setShaderMat4(basicShader, "projection", projection);
+        setShaderMat4(basicShader, "view", view);
        
         glUseProgram(animShader);
         
@@ -391,7 +391,7 @@ int main()
         DrawSkybox(*PlayerCamera, view, projection, currentTime);   
         //update, except for transparent stuff i guess
 
-
+        /*
         glLineWidth(5.0f);
         glUseProgram(hitboxShader);
         setShaderMat4(hitboxShader, "projection", projection);
@@ -415,7 +415,7 @@ int main()
                 }
            }
         }
-
+        */
 
         glUseProgram(billboardShader);
         setShaderMat4(billboardShader, "projection", projection);

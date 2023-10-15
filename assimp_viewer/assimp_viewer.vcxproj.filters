@@ -25,6 +25,9 @@
     <Filter Include="Resource Files\Scenes">
       <UniqueIdentifier>{c8e12684-fc45-4cbb-af50-b8b9da093ab8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\basic">
+      <UniqueIdentifier>{13c5f3b1-7317-4325-b7d7-5bbbd29af053}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -186,6 +189,15 @@
     </None>
     <None Include="..\shaders\hitbox.vs">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\resources\scenes\scene2.json">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="..\shaders\basic\basic.fs">
+      <Filter>Resource Files\Shaders\basic</Filter>
+    </None>
+    <None Include="..\shaders\basic\basic.vs">
+      <Filter>Resource Files\Shaders\basic</Filter>
     </None>
   </ItemGroup>
 </Project>

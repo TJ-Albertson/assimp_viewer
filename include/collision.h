@@ -5,12 +5,12 @@
 
 #include <vector>
 
+#include <space.h>
+
+
 const float EPSILON = 1e-6;
 float scaleFactor = 1;
 
-// Define Point and Vector as glm types
-typedef glm::vec3 Point;
-typedef glm::vec3 Vector;
 
 struct Polygon {
     std::vector<Point> vertices;
@@ -20,10 +20,6 @@ struct Polygon {
 struct Sphere {
     Point center;
     float radius;
-};
-
-struct Triangle {
-    Point vertices[3];
 };
 
 struct Plane {
@@ -263,9 +259,30 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     fclose(file);
 
+    Triangle* triangles = (Triangle*)malloc(sizeof(Triangle) * polygons.size());
+        
+    std::ofstream outputFile;
+    outputFile.open("C:\\Users\\tjalb\\Documents\\assimp.txt");
+    if (!outputFile) {
+        std::cout << "Failed to /open assimp_viewer_output.txt" << std::endl;
+    }
+
     for (int i = 0; i < polygons.size(); ++i) {
         potentialColliders.push_back(polygons[i]);
+
+        triangles[i].vertices[0] = polygons[i].vertices[0];
+        triangles[i].vertices[1] = polygons[i].vertices[1];
+        triangles[i].vertices[2] = polygons[i].vertices[2];
+        
+        outputFile << "Triangle " << i << ": " << std::endl;
+        outputFile << "     vertices[0]: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
+        outputFile << "     vertices[1]: " << vertices[1].x << " " << vertices[1].y << " " << vertices[1].z << std::endl;
+        outputFile << "     vertices[2]: " << vertices[2].x << " " << vertices[2].y << " " << vertices[2].z << std::endl;
     }
+
+    outputFile.close();
+
+    AABBTreeNode* root = buildAABBTree(triangles, polygons.size());
 
     return;
 }

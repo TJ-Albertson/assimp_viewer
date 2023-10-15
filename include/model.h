@@ -105,16 +105,8 @@ Model* LoadModel(std::string const& path) {
     size_t dotPos = substring.find('.');
     std::string nameFromPath = substring.substr(0, dotPos);
 
-	std::cout << "nameFromPath: " << nameFromPath << std::endl;
-
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
-
-	// For hitbox visualization
-	if (nameFromPath == "cube") {
-            scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
-    }
-
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
