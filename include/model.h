@@ -585,7 +585,7 @@ void DrawAABB_Hitboxes() {
                 
 }
 
-void LoadAABB_Hitboxes(Node* node)
+void LoadAABB_Hitboxes(AABB_node* node)
 {
                 if (node == NULL || node->type == LEAF) {
                 return;

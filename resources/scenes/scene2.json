@@ -74,24 +74,5 @@
                 "rotation": "0.0, 0.0, 0.0"
             }
         ]
-    },
-    {
-        "name": "plane_twist",
-        "type": "model",
-        "filepath": "/resources/models/test/plane_twist.obj",
-        "shaderId": 0,
-        "translation": "-6.0, 0.0, 7.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "diamond",
-                "type": "hitbox",
-                "filepath": "/resources/models/test/plane_twist.obj",
-                "translation": "-6.0, 0.0, 7.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
     }
 ]

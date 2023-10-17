@@ -28,7 +28,7 @@ struct Plane {
 
 
 std::vector<Polygon> potentialColliders;
-std::vector<Node*> root_AABB_nodes;
+std::vector<AABB_node*> root_AABB_nodes;
 
 glm::vec3 collisionBallPosition;
 glm::vec3 vectorPosition;
@@ -294,7 +294,7 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     outputFile.close();
 
-    Node* rootAABBnode;
+    AABB_node* rootAABBnode;
     
     TopDownBVTree(&rootAABBnode, triangles, polygons.size());
 

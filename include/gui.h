@@ -94,6 +94,17 @@ void playAnimationButton()
     ImGui::End();
 }
 
+
+void move_children(SceneNode* node, glm::vec3 translation)
+{
+    SceneNode* child = node->firstChild;
+
+    while (child != NULL) {
+        move_children(child, translation);
+        child = child->nextSibling;
+    }
+}
+
 void gui_model() {
     ImGui::Begin("Model");
 
