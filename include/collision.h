@@ -26,9 +26,17 @@ struct Plane {
     float d; // d = dot(n,p) for a given point p on the plane
 };
 
+struct Hitbox {
+    Polygon* m_Polygons;
+    glm::mat4 m_Matrix;
+    AABB_node* rootAABB;
+    std::vector<unsigned int> vaos;
+};
+
 
 std::vector<Polygon> potentialColliders;
 std::vector<AABB_node*> root_AABB_nodes;
+std::vector<Hitbox> hitboxes;
 
 glm::vec3 collisionBallPosition;
 glm::vec3 vectorPosition;
@@ -298,10 +306,21 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
     
     TopDownBVTree(&rootAABBnode, triangles, polygons.size());
 
-    printAABBMinMax(rootAABBnode);
+    //printAABBMinMax(rootAABBnode);
 
     root_AABB_nodes.push_back(rootAABBnode);
-    //AABBTreeNode* root = buildAABBTree(triangles, polygons.size());
+
+
+    Hitbox hitbox;
+    hitbox.m_Polygons = (Polygon*)malloc(sizeof(Polygon) * polygons.size());
+    hitbox.m_Matrix = matrix;
+    hitbox.rootAABB = rootAABBnode;
+
+    for (int i = 0; i < polygons.size(); i++) {
+        //hitbox.m_Polygons[i] = polygons[i];
+    }
+
+    hitboxes.push_back(hitbox);
 
     return;
 }

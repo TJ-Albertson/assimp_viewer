@@ -104,9 +104,21 @@ int main()
     LoadSkybox(filepath, "skybox7");
     //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
     
-    for (int i = 0; i < root_AABB_nodes.size(); i++) {
-        LoadAABB_Hitboxes(root_AABB_nodes[i]);
+
+
+    for (int i = 0; i < hitboxes.size(); i++) {
+        Hitbox hitbox = hitboxes[i];
+        LoadHitboxVAOs(hitbox.rootAABB, hitboxes[i].vaos);
     }
+
+
+
+    for (int i = 0; i < root_AABB_nodes.size(); i++) {
+       // LoadAABB_Hitboxes(root_AABB_nodes[i]);
+    }
+
+
+
     
     // Wireframe mode
     // --------------------
@@ -396,7 +408,13 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.5f, 0.5f));
         setShaderMat4(hitboxShader, "model", glm::mat4(1.0f));
 
-        DrawAABB_Hitboxes();
+        for (int i = 0; i < hitboxes.size(); i++) {
+           //printf("%d\n", i);
+           DrawAABB_Hitboxes(hitboxShader, hitboxes[i]);
+
+            
+        }
+        
 
         // Needs to be drawn last; covers up everything after it
         DrawSkybox(*PlayerCamera, view, projection, currentTime);   

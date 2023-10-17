@@ -35,6 +35,7 @@ Functions:
 #include <skeleton.h>
 
 #include <space.h>
+#include <collision.h>
 
 struct VertexData {
 	glm::vec3 Position;
@@ -570,15 +571,22 @@ unsigned int CreateHitbox() {
 
 std::vector<unsigned int> aabb_vao;
 
-void DrawAABB_Hitboxes() {
-
-	for (int i = 0; i < aabb_vao.size(); i++) {
+void DrawAABB_Hitboxes(unsigned int shaderID, Hitbox hitbox)
+{
+               
+	for (int i = 0; i < hitbox.vaos.size(); i++) {
                 unsigned int indices[] = {
                     0, 1, 1, 2, 2, 3, 3, 0,
                     4, 5, 5, 6, 6, 7, 7, 4,
                     0, 4, 1, 5, 2, 6, 3, 7
                 };
-                glBindVertexArray(aabb_vao[i]);
+
+				glm::mat4 model = glm::mat4(1.0f);
+
+                glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, &hitbox.m_Matrix[0][0]);
+				
+
+                glBindVertexArray(hitbox.vaos[i]);
                 glDrawElements(GL_LINES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
                 glBindVertexArray(0);
 	}
@@ -587,73 +595,79 @@ void DrawAABB_Hitboxes() {
 
 void LoadAABB_Hitboxes(AABB_node* node)
 {
-                if (node == NULL || node->type == LEAF) {
-                return;
-                }
-
-				AABB aabb = node->aabb;
+                
+}
 
 
-				float vertices[] = {
-                                    aabb.min.x,
-                                    aabb.min.y,
-                                    aabb.max.z,
+void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
+{
+        if (node == NULL || node->type == LEAF) {
+                                return;
+        }
 
-                                    aabb.max.x,
-                                    aabb.min.y,
-                                    aabb.max.z,
+        AABB aabb = node->aabb;
 
-                                    aabb.max.x,
-                                    aabb.max.y,
-                                    aabb.max.z,
+        float vertices[] = {
+            aabb.min.x,
+            aabb.min.y,
+            aabb.max.z,
 
-                                    aabb.min.x,
-                                    aabb.max.y,
-                                    aabb.max.z,
+            aabb.max.x,
+            aabb.min.y,
+            aabb.max.z,
 
-                                    aabb.min.x,
-                                    aabb.min.y,
-                                    aabb.min.z,
+            aabb.max.x,
+            aabb.max.y,
+            aabb.max.z,
 
-                                    aabb.max.x,
-                                    aabb.min.y,
-                                    aabb.min.z,
+            aabb.min.x,
+            aabb.max.y,
+            aabb.max.z,
 
-                                    aabb.max.x,
-                                    aabb.max.y,
-                                    aabb.min.z,
+            aabb.min.x,
+            aabb.min.y,
+            aabb.min.z,
 
-                                    aabb.min.x,
-                                    aabb.max.y,
-                                    aabb.min.z
-                                };
+            aabb.max.x,
+            aabb.min.y,
+            aabb.min.z,
 
-                unsigned int indices[] = {
-                    0, 1, 1, 2, 2, 3, 3, 0,
-                    4, 5, 5, 6, 6, 7, 7, 4,
-                    0, 4, 1, 5, 2, 6, 3, 7
-                };
+            aabb.max.x,
+            aabb.max.y,
+            aabb.min.z,
 
-                unsigned int VAO, VBO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
+            aabb.min.x,
+            aabb.max.y,
+            aabb.min.z
+        };
 
-                glBindVertexArray(VAO);
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        unsigned int indices[] = {
+            0, 1, 1, 2, 2, 3, 3, 0,
+            4, 5, 5, 6, 6, 7, 7, 4,
+            0, 4, 1, 5, 2, 6, 3, 7
+        };
 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        unsigned int VAO, VBO, EBO;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
 
-                // Set the vertex attribute pointers
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-				aabb_vao.push_back(VAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-				LoadAABB_Hitboxes(node->left);
-                LoadAABB_Hitboxes(node->right);
+        // Set the vertex attribute pointers
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+		
+        vaos.push_back(VAO);
+
+        LoadHitboxVAOs(node->left, vaos);
+        LoadHitboxVAOs(node->right, vaos);
 }
 
 

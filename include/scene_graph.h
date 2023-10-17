@@ -264,6 +264,12 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
         DrawModel(node->model, shaderIdArray[node->shaderID]);
     }
 
+    if (strcmp(node->type, "hitbox") == 0) {
+        
+        // do dissss
+        //JUST SSET HITBOX MODEL DYUMBO
+    }
+
     SceneNode* child = node->firstChild;
     while (child != NULL) {
         DrawSceneNode(child, model);

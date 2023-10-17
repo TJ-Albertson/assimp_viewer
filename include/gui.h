@@ -97,8 +97,13 @@ void playAnimationButton()
 
 void move_children(SceneNode* node, glm::vec3 translation)
 {
-    SceneNode* child = node->firstChild;
+    glm::mat4 model = node->m_modelMatrix;
 
+    model = glm::translate(model, translation);
+
+    node->m_modelMatrix = model;
+
+    SceneNode* child = node->firstChild;
     while (child != NULL) {
         move_children(child, translation);
         child = child->nextSibling;
@@ -112,11 +117,7 @@ void gui_model() {
         ImGui::Text("currentModel: %s", selectedNode->name);
 
         if (ImGui::Button("Move +X")) {
-            glm::mat4 model = selectedNode->m_modelMatrix;
-
-            model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-
-            selectedNode->m_modelMatrix = model;
+            move_children(selectedNode, glm::vec3(5.0f, 0.0f, 0.0f));
         }
 
         if (ImGui::Button("Move +Y")) {
