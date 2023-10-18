@@ -31,8 +31,8 @@
 #include <log_file_functions.h>
 
 // settings
-const unsigned int SCR_WIDTH = 2000;
-const unsigned int SCR_HEIGHT = 1200;
+unsigned int SCR_WIDTH = 2000;
+unsigned int SCR_HEIGHT = 1200;
 const float RENDER_DISTANCE = 1000.0f;
 
 // camera
@@ -95,7 +95,7 @@ int main()
     Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
 
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
-    unsigned int cube = CreateHitbox();
+    //unsigned int cube = CreateHitbox();
 
     if (LoadScene(filepath("/resources/scenes/scene2.json"))) {
         printf("LoadScene Failed!\n");
@@ -536,6 +536,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+
+    SCR_HEIGHT = height;
+    SCR_WIDTH = width;
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

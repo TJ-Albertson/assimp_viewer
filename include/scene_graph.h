@@ -107,6 +107,10 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
         node->model = LoadModel(filepath(path));
     }
 
+    if (strcmp(node->type, "hitbox") == 0) {
+        node->model = LoadModel(filepath(path));
+    }
+
     glm::vec3 translation;
     glm::vec3 rotation;
     glm::vec3 scale;
@@ -267,7 +271,7 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
     if (strcmp(node->type, "hitbox") == 0) {
         
         // do dissss
-        //JUST SSET HITBOX MODEL DYUMBO
+        //JUST SSET HITBOX MODEL 
     }
 
     SceneNode* child = node->firstChild;
