@@ -106,19 +106,6 @@ int main()
     
 
 
-    for (int i = 0; i < hitboxes.size(); i++) {
-        Hitbox hitbox = hitboxes[i];
-        //LoadHitboxVAOs(hitbox.rootAABB, hitboxes[i].vaos);
-    }
-
-
-
-    for (int i = 0; i < root_AABB_nodes.size(); i++) {
-       // LoadAABB_Hitboxes(root_AABB_nodes[i]);
-    }
-
-
-
     
     // Wireframe mode
     // --------------------
@@ -282,6 +269,37 @@ int main()
         setShaderMat4(modelShader, "view", view);
 
         
+        if (one) {
+            updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
+            one = false;
+        }
+
+        if (two) {
+            updateAABB(hitboxes[1].rootAABB, (*hitboxes[1].m_Matrix));
+        }
+        
+        
+
+        AABB aabb1 = hitboxes[0].rootAABB->aabb;
+        AABB aabb2 = hitboxes[0].rootAABB->aabb;
+
+        printf("aabb1\n");
+        printf("Minimum coordinates: (%f, %f, %f)\n", aabb1.min.x, aabb1.min.y, aabb1.min.z);
+        printf("Maximum coordinates: (%f, %f, %f)\n", aabb1.max.x, aabb1.max.y, aabb1.max.z);
+
+        printf("aabb2\n");
+        printf("Minimum coordinates: (%f, %f, %f)\n", aabb2.min.x, aabb2.min.y, aabb2.min.z);
+        printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
+
+        BVHCollision(hitboxes[0].rootAABB, hitboxes[1].rootAABB);
+
+
+
+
+
+
+
+
         glLineWidth(1.0f);
         glUseProgram(hitboxShader);
         setShaderMat4(hitboxShader, "projection", projection);
@@ -410,12 +428,7 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.5f, 0.5f));
         setShaderMat4(hitboxShader, "model", glm::mat4(1.0f));
 
-        for (int i = 0; i < hitboxes.size(); i++) {
-           //printf("%d\n", i);
-           //DrawAABB_Hitboxes(hitboxShader, hitboxes[i]);
-
-            
-        }
+        
         
 
         // Needs to be drawn last; covers up everything after it

@@ -26,6 +26,10 @@ SceneNode* selectedNode;
 
 bool showCollisionData = false;
 
+
+bool one = false;
+bool two = false;
+
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
     static int location = 1;
@@ -159,6 +163,11 @@ void TransformModel()
             modelMatrix[3][1] = translation.y;
             modelMatrix[3][2] = translation.z;
             selectedNode->m_modelMatrix = modelMatrix;
+
+
+            if (strcmp(selectedNode->name, "diamond_hitbox") == 0) { 
+                one = true;
+            }
         }
 
         if (scale != glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2])) {

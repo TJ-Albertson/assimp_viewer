@@ -536,20 +536,7 @@ unsigned int CreateHitbox()
     return VAO;
 }
 
-void DrawAABB_Hitboxes(unsigned int shaderID, Hitbox hitbox)
-{
 
-    for (int i = 0; i < hitbox.vaos.size(); i++) {
-
-        glm::mat4 model = glm::mat4(1.0f);
-
-        glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, &hitbox.m_Matrix[0][0]);
-
-        glBindVertexArray(hitbox.vaos[i]);
-        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-}
 
 void DrawAABB_Model(Model* model, unsigned int shaderID)
 {

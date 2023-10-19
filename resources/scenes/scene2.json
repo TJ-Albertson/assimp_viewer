@@ -1,78 +1,18 @@
 [
     {
-        "name": "ico_sphere",
-        "type": "model",
+        "name": "diamond_hitbox",
+        "type": "hitbox",
+        "filepath": "/resources/models/test/diamond.obj",
+        "translation": "5.0, 0.0, 0.0",
+        "scale": "1.0, 1.0, 1.0",
+        "rotation": "0.0, 0.0, 0.0"
+    },
+    {
+        "name": "monkey_hitbox",
+        "type": "hitbox",
         "filepath": "/resources/models/test/ico_sphere.obj",
-        "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "monkey_hitbox",
-                "type": "hitbox",
-                "filepath": "/resources/models/test/ico_sphere.obj",
-                "translation": "0.0, 0.0, 0.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
-    },
-    {
-        "name": "diamond",
-        "type": "model",
-        "filepath": "/resources/models/test/diamond.obj",
-        "shaderId": 0,
-        "translation": "4.0, 0.0, 2.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "diamond",
-                "type": "hitbox",
-                "filepath": "/resources/models/test/diamond.obj",
-                "translation": "0.0, 0.0, 0.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
-    },
-    {
-        "name": "gear",
-        "type": "model",
-        "filepath": "/resources/models/test/gear.obj",
-        "shaderId": 0,
-        "translation": "-4.0, 0.0, 2.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "diamond",
-                "type": "hitbox",
-                "filepath": "/resources/models/test/gear.obj",
-                "translation": "0.0, 0.0, 0.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
-    },
-    {
-        "name": "monkey",
-        "type": "model",
-        "filepath": "/resources/models/test/monkey.obj",
-        "shaderId": 0,
-        "translation": "6.0, 0.0, 7.0",
-        "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0",
-        "children": [
-            {
-                "name": "diamond",
-                "type": "hitbox",
-                "filepath": "/resources/models/test/monkey.obj",
-                "translation": "0.0, 0.0, 0.0",
-                "scale": "1.0, 1.0, 1.0",
-                "rotation": "0.0, 0.0, 0.0"
-            }
-        ]
+        "rotation": "0.0, 0.0, 0.0"
     }
 ]

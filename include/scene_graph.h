@@ -149,6 +149,11 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     if (strcmp(node->type, "hitbox") == 0) {
         AABB_node* aabb_node = CreateHitbox(filepath(path), model_matrix);
         node->model = LoadAABB_Model(aabb_node);
+
+        Hitbox hitbox;
+        hitbox.m_Matrix = &(node->m_modelMatrix);
+        hitbox.rootAABB = aabb_node;
+        hitboxes.push_back(hitbox);
     }
 
     node->firstChild = NULL;
