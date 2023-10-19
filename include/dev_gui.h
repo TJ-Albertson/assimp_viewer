@@ -166,7 +166,7 @@ void TransformModel()
 
 
             if (strcmp(selectedNode->name, "diamond_hitbox") == 0) { 
-                one = true;
+                updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
             }
         }
 
