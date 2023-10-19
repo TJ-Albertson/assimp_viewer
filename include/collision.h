@@ -312,7 +312,7 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     root_AABB_nodes.push_back(rootAABBnode);
 
-    updateAABB(rootAABBnode, matrix);
+    //updateAABB(rootAABBnode, matrix);
 
     for (int i = 0; i < polygons.size(); i++) {
         //hitbox.m_Polygons[i] = polygons[i];

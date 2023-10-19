@@ -136,14 +136,24 @@ SceneNode* CreateTreeNode(cJSON* jsonNode, glm::mat4 matrix)
     const char* rotation_str = cJSON_GetObjectItem(jsonNode, "rotation")->valuestring;
     sscanf(rotation_str, "%f, %f, %f", &rotation.x, &rotation.y, &rotation.z);
 
-    node->m_modelMatrix = matrix;
+    
 
     node->m_pos = translation;
     node->m_eulerRot = rotation;
     node->m_scale = scale;
 
+    glm::mat4 localMatrix = glm::mat4(1.0f);
+
+    localMatrix = glm::translate(localMatrix, node->m_pos);
+
+    localMatrix = my_rotation(localMatrix, node->m_eulerRot);
+
+    localMatrix = glm::scale(localMatrix, node->m_scale);
+
+    node->m_modelMatrix = matrix * localMatrix;
+
     if (strcmp(node->type, "hitbox") == 0) {
-        AABB_node* aabb_node = CreateHitbox(filepath(path), matrix);
+        AABB_node* aabb_node = CreateHitbox(filepath(path), node->m_modelMatrix);
         node->model = LoadAABB_Model(aabb_node);
 
         Hitbox hitbox;
@@ -334,11 +344,6 @@ void MarkChildNodes(SceneNode* node)
         child = child->nextSibling;
     }
 }
-
-
-
-
-
 
 
 void PrintTree(SceneNode* root)
