@@ -131,16 +131,28 @@ void TransformModel()
     ImGui::Begin("Model");
 
     if (selectedNode) {
-        ImGui::Text("Selected Modedl: %s", selectedNode->name);
+        ImGui::Text("Selected Model: %s", selectedNode->name);
 
         glm::mat4 modelMatrix = selectedNode->m_modelMatrix;
 
-        glm::vec3 translation = glm::vec3(modelMatrix[3]);
-        glm::vec3 scale = glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
-        glm::vec3 rotation;
-        rotation.x = glm::degrees(atan2(modelMatrix[2][1], modelMatrix[2][2]));
-        rotation.y = glm::degrees(atan2(-modelMatrix[2][0], glm::length(glm::vec2(modelMatrix[2][1], modelMatrix[2][2]))));
-        rotation.z = glm::degrees(atan2(modelMatrix[1][0], modelMatrix[0][0]));
+        glm::vec3 worldTranslation = glm::vec3(modelMatrix[3]);
+        glm::vec3 worldScale = glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
+        glm::vec3 worldRotation;
+        worldRotation.x = glm::degrees(atan2(modelMatrix[2][1], modelMatrix[2][2]));
+        worldRotation.y = glm::degrees(atan2(-modelMatrix[2][0], glm::length(glm::vec2(modelMatrix[2][1], modelMatrix[2][2]))));
+        worldRotation.z = glm::degrees(atan2(modelMatrix[1][0], modelMatrix[0][0]));
+
+
+        ImGui::Separator();
+        ImGui::SeparatorText("World Position");
+        ImGui::Text("Translation: %0.2f %0.2f %0.2f", worldTranslation.x, worldTranslation.y, worldTranslation.z);
+        ImGui::Text("   Rotation: %0.2f %0.2f %0.2f", worldRotation.x, worldRotation.y, worldRotation.z);
+        ImGui::Text("      Scale: %0.2f %0.2f %0.2f", worldScale.x, worldScale.y, worldScale.z);
+
+
+        glm::vec3 translation = selectedNode->m_pos;
+        glm::vec3 rotation = selectedNode->m_eulerRot;
+        glm::vec3 scale = selectedNode->m_scale;
 
         ImGui::Separator();
         ImGui::SeparatorText("Translation");
@@ -158,23 +170,20 @@ void TransformModel()
         ImGui::DragFloat("Scale Y", &scale.y, 0.005f);
         ImGui::DragFloat("Scale Z", &scale.z, 0.005f);
 
-        if (translation != glm::vec3(modelMatrix[3])) {
-            modelMatrix[3][0] = translation.x;
-            modelMatrix[3][1] = translation.y;
-            modelMatrix[3][2] = translation.z;
-            selectedNode->m_modelMatrix = modelMatrix;
 
-
-            if (strcmp(selectedNode->name, "diamond_hitbox") == 0) { 
-                updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
-            }
+        if (translation != selectedNode->m_pos) {
+            selectedNode->m_pos = translation;
+            MarkChildNodes(selectedNode);
         }
 
-        if (scale != glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2])) {
-            modelMatrix[0][0] = scale.x;
-            modelMatrix[1][1] = scale.y;
-            modelMatrix[2][2] = scale.z;
-            selectedNode->m_modelMatrix = modelMatrix;
+        if (scale != selectedNode->m_scale) {
+            selectedNode->m_scale = scale;
+            MarkChildNodes(selectedNode);
+        }
+
+        if (rotation != selectedNode->m_eulerRot) {
+            selectedNode->m_eulerRot = rotation;
+            MarkChildNodes(selectedNode);
         }
 
     } else {

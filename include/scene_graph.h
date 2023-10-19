@@ -5,6 +5,9 @@ Functions to load, create and draw scene.
 Loads from json and creates a node tree.
 Draws the node tree.
 
+Builds a tree from every top level node in the json array, then adds that node to
+the root node.
+
 \-------------------------------------------------------------------------------*/
 #ifndef SCENE_GRAPH_H
 #define SCENE_GRAPH_H
@@ -27,7 +30,16 @@ struct SceneNode {
 
     Hitbox hitbox;
 
+    // Global Position
     glm::mat4 m_modelMatrix;
+
+    // Local Position
+    glm::vec3 m_pos = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_eulerRot = { 0.0f, 0.0f, 0.0f }; // In degrees
+    glm::vec3 m_scale = { 1.0f, 1.0f, 1.0f };
+
+    //need to change l8r
+    bool dirty_flag = false;
 
     struct SceneNode* firstChild; // Pointer to the first child node
     struct SceneNode* nextSibling; // Pointer to the next sibling node
@@ -42,8 +54,8 @@ unsigned int shaderIdArray[10];
 SceneNode* CreateNode(SceneNode* parent, std::string const& path);
 void AddChild(SceneNode* parent, SceneNode* child);
 
-SceneNode* CreateTreeNode(cJSON* jsonNode);
-SceneNode* BuildTree(cJSON* jsonNode);
+SceneNode* CreateTreeNode(cJSON* jsonNode, glm::mat4 matrix);
+SceneNode* BuildTree(cJSON* jsonNode, glm::mat4 matrix);
 
 int LoadScene(std::string const& path);
 
@@ -75,6 +87,7 @@ SceneNode* CreateNode(SceneNode* parent, std::string const& path) {
     return node;
 }
 
+// Used to add trees to rootnode
 void AddChild(SceneNode* parent, SceneNode* child)
 {
     if (parent == NULL || child == NULL) {
@@ -93,7 +106,7 @@ void AddChild(SceneNode* parent, SceneNode* child)
 }
 
 // Function to create a new tree node
-SceneNode* CreateTreeNode(cJSON* jsonNode)
+SceneNode* CreateTreeNode(cJSON* jsonNode, glm::mat4 matrix)
 {
     SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
 
@@ -110,7 +123,6 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
         node->model = LoadModel(filepath(path));
     }
 
-
     glm::vec3 translation;
     glm::vec3 rotation;
     glm::vec3 scale;
@@ -124,30 +136,14 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     const char* rotation_str = cJSON_GetObjectItem(jsonNode, "rotation")->valuestring;
     sscanf(rotation_str, "%f, %f, %f", &rotation.x, &rotation.y, &rotation.z);
 
-    glm::mat4 model_matrix = glm::mat4(1.0f);
+    node->m_modelMatrix = matrix;
 
-    // Translation
-    model_matrix = glm::translate(model_matrix, translation);
-
-    // Rotation
-    /*
-    glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::quat finalRotation = rotationX * rotationY * rotationZ;
-    glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
-    model_matrix = model_matrix * rotationMatrix;
-    */
-    model_matrix = my_rotation(model_matrix, rotation);
-
-    // Scale
-    model_matrix = glm::scale(model_matrix, scale);
-
-    node->m_modelMatrix = model_matrix;
+    node->m_pos = translation;
+    node->m_eulerRot = rotation;
+    node->m_scale = scale;
 
     if (strcmp(node->type, "hitbox") == 0) {
-        AABB_node* aabb_node = CreateHitbox(filepath(path), model_matrix);
+        AABB_node* aabb_node = CreateHitbox(filepath(path), matrix);
         node->model = LoadAABB_Model(aabb_node);
 
         Hitbox hitbox;
@@ -167,22 +163,28 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
 }
 
 // Function to build the tree structure recursively
-SceneNode* BuildTree(cJSON* jsonNode)
+SceneNode* BuildTree(cJSON* jsonNode, glm::mat4 matrix)
 {
     if (!jsonNode) {
         return NULL;
     }
 
-    SceneNode* node = CreateTreeNode(jsonNode);
+    SceneNode* node = CreateTreeNode(jsonNode, matrix);
 
     cJSON* children = cJSON_GetObjectItem(jsonNode, "children");
+
     if (cJSON_IsArray(children)) {
+
         cJSON* child = children->child;
+
         if (child) {
-            node->firstChild = BuildTree(child);
+
+            node->firstChild = BuildTree(child, node->m_modelMatrix);
             SceneNode* sibling = node->firstChild;
+
             while ((child = child->next)) {
-                sibling->nextSibling = BuildTree(child);
+
+                sibling->nextSibling = BuildTree(child, node->m_modelMatrix);
                 sibling = sibling->nextSibling;
             }
         }
@@ -249,7 +251,7 @@ int LoadScene(std::string const& path)
 
         SceneNode* node = (SceneNode*)malloc(sizeof(SceneNode));
 
-        node = BuildTree(model);
+        node = BuildTree(model, root_node->m_modelMatrix);
 
         AddChild(root_node, node);
     }
@@ -263,7 +265,24 @@ int LoadScene(std::string const& path)
 
 void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 {
-    glm::mat4 model = node->m_modelMatrix * parentTransform;
+    glm::mat4 model = node->m_modelMatrix;
+
+    if (node->dirty_flag) {
+
+        glm::mat4 localMatrix = glm::mat4(1.0f);
+
+        localMatrix = glm::translate(localMatrix, node->m_pos);
+
+        localMatrix = my_rotation(localMatrix, node->m_eulerRot);
+
+        localMatrix = glm::scale(localMatrix, node->m_scale);
+
+        model = parentTransform * localMatrix; // node->m_modelMatrix * parentTransform;
+
+        node->m_modelMatrix = model;
+
+        node->dirty_flag = false;
+    }
 
     if (strcmp(node->type, "model") == 0) {
         // This will be changed in future. Plan is to use universal shader program.
@@ -288,7 +307,7 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 
     SceneNode* child = node->firstChild;
     while (child != NULL) {
-        DrawSceneNode(child, model);
+        DrawSceneNode(child, node->m_modelMatrix);
         child = child->nextSibling;
     }
 }
@@ -303,6 +322,24 @@ void DrawScene(SceneNode* root)
         child = child->nextSibling;
     }
 }
+
+
+void MarkChildNodes(SceneNode* node)
+{
+    node->dirty_flag = true;
+
+    SceneNode* child = node->firstChild;
+    while (child != NULL) {
+        MarkChildNodes(child);
+        child = child->nextSibling;
+    }
+}
+
+
+
+
+
+
 
 void PrintTree(SceneNode* root)
 {

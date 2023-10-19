@@ -268,7 +268,7 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
-        
+        /*
         if (one) {
             updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
             one = false;
@@ -292,7 +292,7 @@ int main()
         printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
 
         BVHCollision(hitboxes[0].rootAABB, hitboxes[1].rootAABB);
-
+        */
 
 
 
