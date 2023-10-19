@@ -287,11 +287,41 @@ void Pop(StackNode** root, AABB_node* a, AABB_node* b)
     return;
 }
 
+AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
+{
+   
+    AABB_node newNode = *node;  
+     if (node == nullptr || node->type == LEAF) {
+        return newNode;
+    }
+    
+
+    // Update the AABB using the transformation matrix
+    Vector min = newNode.aabb.min;
+    Vector max = newNode.aabb.max;
+
+    glm::vec3 translate = transformationMatrix[3];
+
+    min += translate;
+    max += translate;
+
+    newNode.aabb.min = min;
+    newNode.aabb.max = max;
+
+    // Recursively update the children
+    updateAABB(newNode.left, transformationMatrix);
+    updateAABB(newNode.right, transformationMatrix);
+
+    return newNode;
+}
+
 
 
 // Stack-use optimized, non-recursive version
 void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
 {
+
+
     StackNode* s = (StackNode*)malloc(sizeof(StackNode));
     s->next = NULL;
 
@@ -347,45 +377,7 @@ int TestAABBAABB(AABB_node node_a, AABB_node node_b)
 
 
 
-void updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
-{
-    if (node == nullptr || node->type == LEAF) {
-        return;
-    }
 
-    // Update the AABB using the transformation matrix
-    Vector min = node->aabb.min;
-    Vector max = node->aabb.max;
-
-    // Transform the eight corners of the AABB
-    glm::vec4 corners[8] = {
-        transformationMatrix * glm::vec4(min.x, min.y, min.z, 1.0f),
-        transformationMatrix * glm::vec4(min.x, min.y, max.z, 1.0f),
-        transformationMatrix * glm::vec4(min.x, max.y, min.z, 1.0f),
-        transformationMatrix * glm::vec4(min.x, max.y, max.z, 1.0f),
-        transformationMatrix * glm::vec4(max.x, min.y, min.z, 1.0f),
-        transformationMatrix * glm::vec4(max.x, min.y, max.z, 1.0f),
-        transformationMatrix * glm::vec4(max.x, max.y, min.z, 1.0f),
-        transformationMatrix * glm::vec4(max.x, max.y, max.z, 1.0f)
-    };
-
-    // Calculate the new AABB by finding the min and max of the transformed corners
-    Vector newMin = glm::vec3(corners[0]);
-    Vector newMax = glm::vec3(corners[0]);
-
-    for (int i = 1; i < 8; ++i) {
-        newMin = glm::min(newMin, glm::vec3(corners[i]));
-        newMax = glm::max(newMax, glm::vec3(corners[i]));
-    }
-
-    // Update the AABB of the current node
-    node->aabb.min = newMin;
-    node->aabb.max = newMax;
-
-    // Recursively update the children
-    updateAABB(node->left, transformationMatrix);
-    updateAABB(node->right, transformationMatrix);
-}
 
 
 

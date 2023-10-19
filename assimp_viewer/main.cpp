@@ -268,31 +268,8 @@ int main()
         setShaderMat4(modelShader, "projection", projection);
         setShaderMat4(modelShader, "view", view);
 
-        /*
-        if (one) {
-            updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
-            one = false;
-        }
-
-        if (two) {
-            updateAABB(hitboxes[1].rootAABB, (*hitboxes[1].m_Matrix));
-        }
-        
         
 
-        AABB aabb1 = hitboxes[0].rootAABB->aabb;
-        AABB aabb2 = hitboxes[0].rootAABB->aabb;
-
-        printf("aabb1\n");
-        printf("Minimum coordinates: (%f, %f, %f)\n", aabb1.min.x, aabb1.min.y, aabb1.min.z);
-        printf("Maximum coordinates: (%f, %f, %f)\n", aabb1.max.x, aabb1.max.y, aabb1.max.z);
-
-        printf("aabb2\n");
-        printf("Minimum coordinates: (%f, %f, %f)\n", aabb2.min.x, aabb2.min.y, aabb2.min.z);
-        printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
-
-        BVHCollision(hitboxes[0].rootAABB, hitboxes[1].rootAABB);
-        */
 
 
 
@@ -309,6 +286,32 @@ int main()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         DrawScene(root_node);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+
+
+
+
+
+
+        AABB_node aabb1_node = updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
+        AABB_node aabb2_node = updateAABB(hitboxes[1].rootAABB, (*hitboxes[1].m_Matrix));
+
+        AABB aabb1 = aabb1_node.aabb;
+        AABB aabb2 = aabb2_node.aabb;
+
+        printf("aabb1\n");
+        printf("Minimum coordinates: (%f, %f, %f)\n", aabb1.min.x, aabb1.min.y, aabb1.min.z);
+        printf("Maximum coordinates: (%f, %f, %f)\n", aabb1.max.x, aabb1.max.y, aabb1.max.z);
+
+        printf("aabb2\n");
+        printf("Minimum coordinates: (%f, %f, %f)\n", aabb2.min.x, aabb2.min.y, aabb2.min.z);
+        printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
+
+        BVHCollision(&aabb1_node, &aabb2_node);
+
+
+
 
 
         

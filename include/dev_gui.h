@@ -27,8 +27,6 @@ SceneNode* selectedNode;
 bool showCollisionData = false;
 
 
-bool one = false;
-bool two = false;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
