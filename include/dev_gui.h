@@ -1,13 +1,14 @@
-#ifndef GUI_H
-#define GUI_H
+#ifndef DEV_GUI_H
+#define DEV_GUI_H
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include <camera.h>
 #include <nfd/nfd.h>
 #include <scene_graph.h>
-#include <camera.h>
+#include <my_math.h>
 
 bool animationPlaying = false;
 double previousTimeFPS;
@@ -23,12 +24,11 @@ Camera* PlayerCamera;
 
 SceneNode* selectedNode;
 
-
-bool animationModal = false;
+bool showCollisionData = false;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
-    static int location = 0;
+    static int location = 1;
     ImGuiIO& io = ImGui::GetIO();
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     if (location >= 0) {
@@ -82,10 +82,7 @@ static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
     ImGui::End();
 }
 
-
-
-
-void CollisionWindow()
+void CollisionData()
 {
     ImGui::Begin("Collision");
 
@@ -93,71 +90,22 @@ void CollisionWindow()
 
     ImGui::CollapsingHeader("Polygons");
     ImGui::BeginChild("Scrolling");
-    
+
     for (size_t i = 0; i < potentialColliders.size(); ++i) {
-        ImGui::Text("Face: %d", i+1);
+        ImGui::Text("Face: %d", i + 1);
         ImGui::Text("    Vertices: ");
 
         for (int j = 0; j < 3; ++j) {
             glm::vec3 vertex = potentialColliders[i].vertices[j];
             ImGui::Text("       {%.2f,%.2f,%.2f} ", vertex.x, vertex.y, vertex.z);
         }
-        
-         ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
+
+        ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
     }
     ImGui::EndChild();
 
     ImGui::End();
 }
-
-void Lighting()
-{
-    ImGui::Begin("Lighting");
-
-    ImGui::Text("Directional Light");
-
-    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::SliderFloat("##timespeed", &dayNightSpeed, 0.0f, 1.0f, "%.2f");
-    ImGui::PopStyleColor();
-
-    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-    ImGui::SliderFloat("##redslider", &sliderColor.x, 0.0f, 1.0f, "%.2f");
-    ImGui::PopStyleColor();
-
-    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::SliderFloat("##blueslide", &sliderColor.y, 0.0f, 1.0f, "%.2f");
-    ImGui::PopStyleColor();
-
-    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-    ImGui::SliderFloat("##greenslider", &sliderColor.z, 0.0f, 1.0f, "%.2f");
-    ImGui::PopStyleColor();
-
-    ImGui::End();
-}
-
-void playAnimationButton()
-{
-    ImGui::Begin("Camera");
-    if (ImGui::Button("Play Animation")) {
-        animationPlaying = !animationPlaying;
-    }
-    
-    ImGui::SliderFloat("##fovslider", &PlayerCamera->Zoom, 50, 150, "%.f");
-    if (PlayerCamera->Type == 0) {
-        ImGui::Text("Free Camera");
-    } else {
-        ImGui::Text("Thirdperson Camera");
-    }
-    
-    if (ImGui::Button("Switch Camera")) {
-        switchCamera(PlayerCamera);
-    }
-    
-    ImGui::End();
-}
-
-
-
 
 void move_children(SceneNode* node, glm::vec3 translation)
 {
@@ -174,25 +122,55 @@ void move_children(SceneNode* node, glm::vec3 translation)
     }
 }
 
-void gui_model() {
+void TransformModel()
+{
     ImGui::Begin("Model");
 
     if (selectedNode) {
-        ImGui::Text("currentModel: %s", selectedNode->name);
+        ImGui::Text("Selected Modedl: %s", selectedNode->name);
 
-        if (ImGui::Button("Move +X")) {
-            move_children(selectedNode, glm::vec3(5.0f, 0.0f, 0.0f));
+        glm::mat4 modelMatrix = selectedNode->m_modelMatrix;
+
+        glm::vec3 translation = glm::vec3(modelMatrix[3]);
+        glm::vec3 scale = glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
+        glm::vec3 rotation;
+        rotation.x = glm::degrees(atan2(modelMatrix[2][1], modelMatrix[2][2]));
+        rotation.y = glm::degrees(atan2(-modelMatrix[2][0], glm::length(glm::vec2(modelMatrix[2][1], modelMatrix[2][2]))));
+        rotation.z = glm::degrees(atan2(modelMatrix[1][0], modelMatrix[0][0]));
+
+        ImGui::Separator();
+        ImGui::SeparatorText("Translation");
+        ImGui::DragFloat("Translation X", &translation.x, 0.005f);
+        ImGui::DragFloat("Translation Y", &translation.y, 0.005f);
+        ImGui::DragFloat("Translation Z", &translation.z, 0.005f);
+
+        ImGui::SeparatorText("Rotation");
+        ImGui::DragFloat("Rotation X", &rotation.x, 0.005f);
+        ImGui::DragFloat("Rotation Y", &rotation.y, 0.005f);
+        ImGui::DragFloat("Rotation Z", &rotation.z, 0.005f);
+
+        ImGui::SeparatorText("Scale");
+        ImGui::DragFloat("Scale X", &scale.x, 0.005f);
+        ImGui::DragFloat("Scale Y", &scale.y, 0.005f);
+        ImGui::DragFloat("Scale Z", &scale.z, 0.005f);
+
+        if (translation != glm::vec3(modelMatrix[3])) {
+            modelMatrix[3][0] = translation.x;
+            modelMatrix[3][1] = translation.y;
+            modelMatrix[3][2] = translation.z;
+            selectedNode->m_modelMatrix = modelMatrix;
         }
 
-        if (ImGui::Button("Move +Y")) {
-            glm::mat4 model = selectedNode->m_modelMatrix;
-
-            model = glm::translate(model, glm::vec3(0.0f, 15.0f, 0.0f));
-
-            selectedNode->m_modelMatrix = model;
+        if (scale != glm::vec3(modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2])) {
+            modelMatrix[0][0] = scale.x;
+            modelMatrix[1][1] = scale.y;
+            modelMatrix[2][2] = scale.z;
+            selectedNode->m_modelMatrix = modelMatrix;
         }
+
+    } else {
+        ImGui::Text("No Model Selected");
     }
-    
 
     ImGui::End();
 }
@@ -201,13 +179,12 @@ void DrawTree(SceneNode* node)
 {
     if (ImGui::TreeNode(node->name)) {
 
-
         if (node->type == "model") {
             ImGui::Text("shaderID: %d", node->shaderID);
             ImGui::Text("m_NumMeshes: %d", node->model->m_NumMeshes);
             ImGui::Text("m_NumAnimations: %d", node->model->m_NumAnimations);
         }
-        
+
         ImGui::Text("id: %d", node->id);
 
         if (ImGui::Button("Click Me")) {
@@ -222,18 +199,27 @@ void DrawTree(SceneNode* node)
 
         ImGui::TreePop();
     }
-
 }
 
 void SceneWindow()
 {
-    bool my_tool_active = true;
+    ImGui::Begin("Scene");
 
-    ImGui::Begin("Menu", &my_tool_active, ImGuiWindowFlags_MenuBar);
-    if (ImGui::BeginMenuBar()) {
+    SceneNode* child = root_node->firstChild;
+    while (child != NULL) {
+        DrawTree(child);
+        child = child->nextSibling;
+    }
+
+    ImGui::End();
+}
+
+void MainMenuBar()
+{
+    if (ImGui::BeginMainMenuBar()) {
+
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open..", "Ctrl+O")) {
-
+            if (ImGui::MenuItem("Open", "Ctrl+O")) {
                 nfdchar_t* outPath = NULL;
                 nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
 
@@ -259,8 +245,7 @@ void SceneWindow()
                     printf("Error: %s\n", NFD_GetError());
                 }
             }
-
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { 
+            if (ImGui::MenuItem("Save", "Ctrl+S")) {
                 nfdchar_t* outPath = NULL;
                 nfdresult_t result = NFD_SaveDialog(".json", NULL, &outPath);
 
@@ -270,56 +255,13 @@ void SceneWindow()
                     printf("Selected file: %s\n", outPath);
                     // You can free the 'outPath' memory when you're done with it
                     free(outPath);
-                }
-                else if (result == NFD_CANCEL) {
+                } else if (result == NFD_CANCEL) {
                     // The user canceled the dialog
                     printf("Dialog canceled by the user.\n");
-                }
-                else {
+                } else {
                     // Handle other error cases
                     printf("Error: %s\n", NFD_GetError());
                 }
-            
-            }
-            if (ImGui::MenuItem("Close", "Ctrl+W")) {
-                my_tool_active = false;
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-
-    if (ImGui::CollapsingHeader("Scene")) {
-
-        SceneNode* child = root_node->firstChild;
-        while (child != NULL) {
-            DrawTree(child);
-            child = child->nextSibling;
-        }
-    }
-
-    if (ImGui::CollapsingHeader("Model")) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-        ImGui::BeginChild("Scrolling");
-        for (int n = 0; n < 10; n++)
-            ImGui::Text("Model.%04d: Some text", n);
-        ImGui::EndChild();
-    }
-
-    ImGui::End();
-}
-
-
-void MainMenuBar()
-{
-    if (ImGui::BeginMainMenuBar()) {
-
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open", "Ctrl+O")) {
-                // Handle the "Open" action
-            }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) {
-                // Handle the "Save" action
             }
             if (ImGui::MenuItem("Exit", "Alt+F4")) {
                 // Handle the "Exit" action
@@ -328,17 +270,96 @@ void MainMenuBar()
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Animations")) {
-            if (ImGui::MenuItem("Camera")) { 
-                animationModal = true;
+        if (ImGui::BeginMenu("Scene")) {
+            if (ImGui::MenuItem("Open")) {
             }
+            if (ImGui::MenuItem("Save")) {
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Model")) {
+            if (ImGui::MenuItem("Open")) {
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Camera")) {
+
+            static int e = 0;
+
+            ImGui::Text("Camera Type");
+            ImGui::RadioButton("Third", &e, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("First", &e, 1);
+            ImGui::SameLine();
+            ImGui::RadioButton("Free", &e, 2);
+
+            ImGui::Separator();
+
+            ImGui::Text("FOV");
+            ImGui::SliderFloat("##fovslider", &PlayerCamera->Zoom, 50, 150, "%.f");
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Lighting")) {
+
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.8f, 0.8f));
+            ImGui::Button("Day");
+            ImGui::PopStyleColor(3);
+
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(5 / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(5 / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
+            ImGui::Button("Night");
+            ImGui::PopStyleColor(3);
+
+            ImGui::Separator();
+
+            ImGui::Text("Day/Time Speed");
+            ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::SliderFloat("##timespeed", &dayNightSpeed, 0.0f, 1.0f, "%.2f");
+            ImGui::PopStyleColor();
+
+            ImGui::Separator();
+
+            ImGui::Text("Color");
+            ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::SliderFloat("##redslider", &sliderColor.x, 0.0f, 1.0f, "%.2f");
+            ImGui::PopStyleColor();
+
+            ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::SliderFloat("##blueslide", &sliderColor.y, 0.0f, 1.0f, "%.2f");
+            ImGui::PopStyleColor();
+
+            ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            ImGui::SliderFloat("##greenslider", &sliderColor.z, 0.0f, 1.0f, "%.2f");
+            ImGui::PopStyleColor();
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Collision")) {
+
+            static bool check = true;
+            ImGui::Checkbox("Show Hitboxes", &check);
+            ImGui::Separator();
+
+            if (ImGui::MenuItem(" Collision Data Window")) {
+                showCollisionData = !showCollisionData;
+            }
+
             ImGui::EndMenu();
         }
         // Add more menus and items here
         ImGui::EndMainMenuBar();
     }
 }
-
 
 void Main_GUI_Loop(double time)
 {
@@ -358,24 +379,20 @@ void Main_GUI_Loop(double time)
     // Frame Start
     ImGui::NewFrame();
 
-    //ImGui::ShowMetricsWindow();
+    // ImGui::ShowMetricsWindow();
     ImGui::ShowDemoWindow();
 
     bool t = true;
 
     ShowExampleAppSimpleOverlay(&t, fps);
 
-    if (animationModal) {
-        playAnimationButton();
+    if (showCollisionData) {
+        CollisionData();
     }
 
-
     MainMenuBar();
-    gui_model();
-    Lighting();
-    
     SceneWindow();
-    CollisionWindow();
+    TransformModel();
 
     // Frame End
     ImGui::Render();

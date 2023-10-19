@@ -293,13 +293,11 @@ void Pop(StackNode** root, AABB_node* a, AABB_node* b)
 
 
 
-
-
-
 // Stack-use optimized, non-recursive version
-void BVHCollision( /*CollisionResult* r,*/ AABB_node* a, AABB_node* b)
+void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
 {
     StackNode* s = (StackNode*)malloc(sizeof(StackNode));
+
     while (1) {
         if (TestAABBAABB(*a, *b)) {
             if (IsLeaf(a) && IsLeaf(b)) {

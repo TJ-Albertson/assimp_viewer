@@ -15,6 +15,7 @@ Draws the node tree.
 
 #include <collision.h>
 #include <utils.h>
+#include <my_math.h>
 
 struct SceneNode {
     char name[24];
@@ -23,6 +24,8 @@ struct SceneNode {
 
     Model* model;
     unsigned int shaderID;
+
+    Hitbox hitbox;
 
     glm::mat4 m_modelMatrix;
 
@@ -107,9 +110,6 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
         node->model = LoadModel(filepath(path));
     }
 
-    if (strcmp(node->type, "hitbox") == 0) {
-        node->model = LoadModel(filepath(path));
-    }
 
     glm::vec3 translation;
     glm::vec3 rotation;
@@ -130,6 +130,7 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     model_matrix = glm::translate(model_matrix, translation);
 
     // Rotation
+    /*
     glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -137,6 +138,8 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     glm::quat finalRotation = rotationX * rotationY * rotationZ;
     glm::mat4 rotationMatrix = glm::toMat4(finalRotation);
     model_matrix = model_matrix * rotationMatrix;
+    */
+    model_matrix = my_rotation(model_matrix, rotation);
 
     // Scale
     model_matrix = glm::scale(model_matrix, scale);
@@ -144,7 +147,8 @@ SceneNode* CreateTreeNode(cJSON* jsonNode)
     node->m_modelMatrix = model_matrix;
 
     if (strcmp(node->type, "hitbox") == 0) {
-        CreateHitbox(filepath(path), model_matrix);
+        AABB_node* aabb_node = CreateHitbox(filepath(path), model_matrix);
+        node->model = LoadAABB_Model(aabb_node);
     }
 
     node->firstChild = NULL;
@@ -262,7 +266,6 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
         // shader programs.
         
         glUseProgram(shaderIdArray[node->shaderID]);
-
         setShaderMat4(shaderIdArray[node->shaderID], "model", model);
 
         DrawModel(node->model, shaderIdArray[node->shaderID]);
@@ -272,6 +275,10 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
         
         // do dissss
         //JUST SSET HITBOX MODEL 
+        glUseProgram(shaderIdArray[1]);
+        setShaderMat4(shaderIdArray[1], "model", model);
+
+        DrawAABB_Model(node->model, shaderIdArray[1]);
     }
 
     SceneNode* child = node->firstChild;

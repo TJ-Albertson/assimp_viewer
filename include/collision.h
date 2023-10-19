@@ -14,6 +14,7 @@ float scaleFactor = 1;
 struct Polygon {
     std::vector<Point> vertices;
     Vector normal;
+    glm::mat4* matrix;
 };
 
 struct Sphere {
@@ -23,7 +24,7 @@ struct Sphere {
 
 struct Plane {
     Vector n; // Plane normal. Points x on the plane satisfy Dot(n,x) = d
-    float d; // d = dot(n,p) for a given point p on the plane
+    float d;  // d = dot(n,p) for a given point p on the plane
 };
 
 struct Hitbox {
@@ -44,7 +45,7 @@ glm::vec3 vectorPosition;
 int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point);
 void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
 
-void CreateHitbox(std::string const& path, glm::mat4 matrix);
+AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix);
 
 Point ClosestPtPointPlane(Point q, Plane p);
 float DistPointPlane(Point q, Plane p);
@@ -215,14 +216,14 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
 
 
 //Create hitbox from .obj and add to hitbox array. Assumes triangulated
-void CreateHitbox(std::string const& path, glm::mat4 matrix)
+AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
 {
     const char* file_path = path.c_str();
 
     FILE* file = fopen(file_path, "r");
     if (file == NULL) {
         perror("Error opening file");
-        return;
+        return NULL;
     }
 
     int vertexCount = 0;
@@ -322,7 +323,7 @@ void CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     hitboxes.push_back(hitbox);
 
-    return;
+    return rootAABBnode;
 }
 
 Point ClosestPtPointPlane(Point q, Plane p)

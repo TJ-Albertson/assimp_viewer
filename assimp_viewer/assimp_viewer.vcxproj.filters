@@ -86,7 +86,7 @@
     <ClInclude Include="..\include\grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\gui.h">
+    <ClInclude Include="..\include\dev_gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\scene_graph.h">

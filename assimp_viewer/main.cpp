@@ -21,7 +21,7 @@
 #include <shader_m.h>
 #include <animation.h>
 #include <grid.h>
-#include <gui.h>
+#include <dev_gui.h>
 #include <skybox.h>
 #include <collision.h>
 #include <my_math.h>
@@ -75,7 +75,7 @@ int main()
     unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
     unsigned int gridShader   = createShader(filepath("/shaders/grid.vs"),        filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/hitbox.vs"), filepath("/shaders/hitbox.fs"));
-    shaderIdArray[1] = basicShader;
+    shaderIdArray[1] = hitboxShader;
     unsigned int animatedShader = createShader(filepath("/shaders/animated_texture.vs"), filepath("/shaders/animated_texture.fs"));
     //unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
@@ -108,7 +108,7 @@ int main()
 
     for (int i = 0; i < hitboxes.size(); i++) {
         Hitbox hitbox = hitboxes[i];
-        LoadHitboxVAOs(hitbox.rootAABB, hitboxes[i].vaos);
+        //LoadHitboxVAOs(hitbox.rootAABB, hitboxes[i].vaos);
     }
 
 
@@ -282,12 +282,17 @@ int main()
         setShaderMat4(modelShader, "view", view);
 
         
-       
+        glLineWidth(1.0f);
+        glUseProgram(hitboxShader);
+        setShaderMat4(hitboxShader, "projection", projection);
+        setShaderMat4(hitboxShader, "view", view);
         //DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         DrawScene(root_node);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
         
 
 
@@ -401,16 +406,13 @@ int main()
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
         
-        glLineWidth(1.0f);
-        glUseProgram(hitboxShader);
-        setShaderMat4(hitboxShader, "projection", projection);
-        setShaderMat4(hitboxShader, "view", view);
+        
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.5f, 0.5f));
         setShaderMat4(hitboxShader, "model", glm::mat4(1.0f));
 
         for (int i = 0; i < hitboxes.size(); i++) {
            //printf("%d\n", i);
-           DrawAABB_Hitboxes(hitboxShader, hitboxes[i]);
+           //DrawAABB_Hitboxes(hitboxShader, hitboxes[i]);
 
             
         }

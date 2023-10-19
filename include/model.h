@@ -55,9 +55,9 @@ struct Texture {
 
 struct Mesh {
     unsigned int VAO;
-    unsigned int numVertices;
+    //unsigned int numVertices;
 
-    unsigned int* indices;
+   // unsigned int* indices;
     unsigned int numIndices;
 
     Texture* textures;
@@ -147,7 +147,6 @@ Model* LoadModel(std::string const& path)
 
 void processNode(aiNode* node, const aiScene* scene, Model* model)
 {
-
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
@@ -169,7 +168,6 @@ void SetVertexBoneDataToDefault(VertexData& vertex)
 
 Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 {
-
     int numVertices = mesh->mNumVertices;
 
     VertexData* vertices = (VertexData*)malloc(numVertices * sizeof(VertexData));
@@ -245,7 +243,7 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 
     unsigned int VAO = LoadMeshVertexData(vertices, indices, numVertices, numIndices);
 
-    Mesh newMesh = { VAO, numVertices, indices, numIndices, textures, numTextures };
+    Mesh newMesh = { VAO, numIndices, textures, numTextures };
 
     return newMesh;
 }
@@ -382,7 +380,6 @@ unsigned int TextureFromFile(const char* path, const std::string& directory)
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture structs
-
 void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, aiMaterial* mat, aiTextureType type, const char* typeName)
 {
     for (unsigned int i = 0; i < numTextures; ++i) {
@@ -470,9 +467,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 }
 
 void DrawHitbox(unsigned int VAO, unsigned int shaderID)
-
 {
-
     unsigned int indices[] = {
         0, 1, 1, 2, 2, 3, 3, 0,
         4, 5, 5, 6, 6, 7, 7, 4,
@@ -541,8 +536,6 @@ unsigned int CreateHitbox()
     return VAO;
 }
 
-std::vector<unsigned int> aabb_vao;
-
 void DrawAABB_Hitboxes(unsigned int shaderID, Hitbox hitbox)
 {
 
@@ -558,9 +551,18 @@ void DrawAABB_Hitboxes(unsigned int shaderID, Hitbox hitbox)
     }
 }
 
-void LoadAABB_Hitboxes(AABB_node* node)
+void DrawAABB_Model(Model* model, unsigned int shaderID)
 {
+    for (int i = 0; i < model->m_NumMeshes; i++) {
+
+        Mesh mesh = model->m_Meshes[i];
+
+        glBindVertexArray(mesh.VAO);
+        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 }
+
 
 void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
 {
@@ -631,5 +633,29 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
     LoadHitboxVAOs(node->left, vaos);
     LoadHitboxVAOs(node->right, vaos);
 }
+
+Model* LoadAABB_Model(AABB_node* node)
+{
+    Model* model = (Model*)malloc(sizeof(Model));
+
+    std::vector<unsigned int> vaos;
+
+    LoadHitboxVAOs(node, vaos);
+
+    Mesh* meshes = (Mesh*)malloc(vaos.size() * sizeof(Mesh));
+
+    for (int i = 0; i < vaos.size(); i++) {
+        meshes[i].VAO = vaos[i];
+        meshes[i].numIndices = 24;
+
+        meshes[i].numTextures = 0;
+    }
+
+    model->m_NumMeshes = vaos.size();
+    model->m_Meshes = meshes;
+
+    return model;
+}
+
 
 #endif
