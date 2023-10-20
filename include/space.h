@@ -119,28 +119,25 @@ int GetNextAxis(int currentAxis)
     return (currentAxis + 1) % 3; // 0, 1, 2, 0, 1, 2, ...
 }
 
-int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float median)
+
+
+int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb)
 {
     std::vector<Triangle> left;
     std::vector<Triangle> right;
 
+    float median = (aabb.min[axis] + aabb.max[axis]) / 2.0f;
+
+    printf("newAxis: %d\n", axis);
     for (int i = 0; i < numTriangles; i++) {
         Triangle triangle = triangles[i];
 
-        printf("newAxis: %d\n", axis);
+        
         float mid = testMidpoint(triangle, axis);
         printf("mid tri %d: %f\n", i, mid);
 
         if (mid < median) {
             left.push_back(triangle);
-        } else if (mid == 0) {
-            if (right.size() > left.size()) {
-                left.push_back(triangle);
-            } else if (right.size() < left.size()) {
-                right.push_back(triangle);
-            } else {
-                left.push_back(triangle);
-            }
         } else {
             right.push_back(triangle);
         }
@@ -154,6 +151,8 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
         newAxis = GetNextAxis(axis);
         printf("newAxis: %d\n", newAxis);
 
+        float median = (aabb.min[newAxis] + aabb.max[newAxis]) / 2.0f;
+
         for (int i = 0; i < numTriangles; i++) {
             Triangle triangle = triangles[i];
 
@@ -162,14 +161,6 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 
             if (mid < median) {
                 left.push_back(triangle);
-            } else if (mid == 0) {
-                if (right.size() > left.size()) {
-                    left.push_back(triangle);
-                } else if (right.size() < left.size()) {
-                    right.push_back(triangle);
-                } else {
-                    left.push_back(triangle);
-                }
             } else {
                 right.push_back(triangle);
             }
@@ -183,6 +174,8 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
         int newAxis2 = GetNextAxis(newAxis);
         printf("newAxis2: %d\n", newAxis2);
 
+        float median = (aabb.min[newAxis2] + aabb.max[newAxis2]) / 2.0f;
+
         for (int i = 0; i < numTriangles; i++) {
             Triangle triangle = triangles[i];
 
@@ -191,14 +184,6 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 
             if (mid < median) {
                 left.push_back(triangle);
-            } else if (mid == 0) {
-                if (right.size() > left.size()) {
-                    left.push_back(triangle);
-                } else if (right.size() < left.size()) {
-                    right.push_back(triangle);
-                } else {
-                    left.push_back(triangle);
-                }
             } else {
                 right.push_back(triangle);
             }
@@ -225,8 +210,8 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
    
 
 
-    //printf(" left.size(): %d\n", left.size());
-    //printf(" right.size(): %d\n", right.size());
+    printf("        left.size():  %d\n", left.size());
+    printf("        right.size(): %d\n", right.size());
 
     for (int i = 0; i < left.size(); i++) {
         triangles[i] = left[i];
@@ -244,17 +229,17 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 // Construct a top-down tree. Rearranges object[] array during construction
 void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
 {
-    //assert(numObjects > 0);
-    printf("numObjects: %d\n", numObjects);
-    if (numObjects == 0) return;
+    assert(numObjects > 0);
+    //printf("numObjects: %d\n", numObjects);
     
+    /*
     for (int i = 0; i < numObjects; i++) {
         std::cout << "Triangle " << i << ": " << std::endl;
         std::cout << "     vertices[0]: " << triangles[i].vertices[0].x << " " << triangles[i].vertices[0].y << " " << triangles[i].vertices[0].z << std::endl;
         std::cout << "     vertices[1]: " << triangles[i].vertices[1].x << " " << triangles[i].vertices[1].y << " " << triangles[i].vertices[1].z << std::endl;
         std::cout << "     vertices[2]: " << triangles[i].vertices[2].x << " " << triangles[i].vertices[2].y << " " << triangles[i].vertices[2].z << std::endl;
     }
-    
+    */
 
     //printf("numTriangles: %d\n", numObjects);
     const int MIN_OBJECTS_PER_LEAF = 1;
@@ -272,11 +257,11 @@ void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
         
         int axis = longestAxis(pNode->aabb);
         printf("axis: %d\n", axis);
-        float median = (pNode->aabb.min[axis] + pNode->aabb.max[axis]) / 2.0f;
+        
             
         // Based on some partitioning strategy, arrange objects into
         // two partitions: object[0..k-1], and object[k..numObjects-1]
-        int k = PartitionObjects(&triangles[0], numObjects, axis, median);
+        int k = PartitionObjects(&triangles[0], numObjects, axis, pNode->aabb);
 
         /*
         if (k == 0) {

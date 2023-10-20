@@ -577,7 +577,9 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
             glLineWidth(1.0f);
         } 
 
-       
+       glBindVertexArray(mesh.VAO);
+        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         if (collision) {
            
@@ -598,7 +600,7 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
         return;
     }
 
-    printf("node->type: %d\n", node->type);
+    //printf("node->type: %d\n", node->type);
 
     AABB aabb = node->aabb;
     
@@ -663,6 +665,10 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
 
     //aabb_map[VAO] = *node;
     node->id = VAO;
+
+    if (node->type == LEAF) {
+        return;
+    }
 
     if (node->left != NULL) {
         LoadHitboxVAOs(node->left, vaos);
