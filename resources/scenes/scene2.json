@@ -1,18 +1,29 @@
 [
     {
-        "name": "diamond_hitbox",
-        "type": "hitbox",
+        "name": "diamond",
+        "type": "model",
         "filepath": "/resources/models/test/diamond.obj",
-        "translation": "5.0, 0.0, 0.0",
+        "shaderId": 0,
+        "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
-        "rotation": "0.0, 0.0, 0.0"
+        "rotation": "0.0, 0.0, 0.0",
+        "children": [
+            {
+                "name": "diamond_hitbox",
+                "type": "hitbox",
+                "filepath": "/resources/models/test/diamond.obj",
+                "translation": "0.0, 0.0, 0.0",
+                "scale": "1.0, 1.0, 1.0",
+                "rotation": "0.0, 0.0, 0.0"
+            }
+        ]
     },
     {
         "name": "ico_sphere",
         "type": "model",
         "filepath": "/resources/models/test/ico_sphere.obj",
         "shaderId": 0,
-        "translation": "0.0, 3.0, 0.0",
+        "translation": "3.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0",
         "children": [

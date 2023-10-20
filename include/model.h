@@ -95,6 +95,10 @@ unsigned int LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int
 
 void DrawModel(Model* model, unsigned int shaderID);
 
+
+
+
+
 Model* LoadModel(std::string const& path)
 {
 
@@ -536,18 +540,55 @@ unsigned int CreateHitbox()
     return VAO;
 }
 
-
-
 void DrawAABB_Model(Model* model, unsigned int shaderID)
 {
     for (int i = 0; i < model->m_NumMeshes; i++) {
 
         Mesh mesh = model->m_Meshes[i];
 
-        glBindVertexArray(mesh.VAO);
-        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        /*
+        glLineWidth(3.0f);
+        glm::vec3 redColor = glm::vec3(1.0f, 0.0f, 0.0f);
+        glm::vec3 blueColor = glm::vec3(0.0f, 0.0f, 1.0f);
+        float t = static_cast<float>(i) / static_cast<float>(model->m_NumMeshes - 1);
+        glm::vec3 interpolatedColor = glm::mix(redColor, blueColor, t);
+        glm::vec4 red = glm::vec4(interpolatedColor, 1.0f);
+        glUniform4fv(glGetUniformLocation(shaderID, "color"), 1, &red[0]);
+        */
+        glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        glUniform4fv(glGetUniformLocation(shaderID, "color"), 1, &red[0]);
+
+        glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        bool collision = false;
+
+        for (const unsigned int& element : colliding_aabbs) {
+            if (element == mesh.VAO) {
+                collision = true;
+                color = glm::vec4(1.0f / i, 1.0f, 0.0f, 1.0f);
+            }
+        }
+
+        if (collision) {
+            glLineWidth(2.0f);
+            glUniform4fv(glGetUniformLocation(shaderID, "color"), 1, &color[0]);
+            glBindVertexArray(mesh.VAO);
+            glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+            glLineWidth(1.0f);
+        } 
+
+       
+
+        if (collision) {
+           
+        }
     }
+}
+
+void MarkAABBs(AABB_node* node, std::vector<unsigned int>& ids)
+{
+    MarkAABBs(node->left, ids);
+    MarkAABBs(node->right, ids);
 }
 
 
@@ -558,6 +599,7 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
     }
 
     AABB aabb = node->aabb;
+    
 
     float vertices[] = {
         aabb.min.x,
@@ -616,6 +658,9 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
     glEnableVertexAttribArray(0);
 
     vaos.push_back(VAO);
+
+    //aabb_map[VAO] = *node;
+    node->id = VAO;
 
     LoadHitboxVAOs(node->left, vaos);
     LoadHitboxVAOs(node->right, vaos);

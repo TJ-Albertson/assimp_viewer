@@ -41,7 +41,15 @@ typedef struct AABB_node {
     Triangle* object;
     struct AABB_node* left; // Pointer to left child node
     struct AABB_node* right; // Pointer to right child node
+
+    //for map to color when collision
+    unsigned int id;
 } AABB_node;
+
+
+
+
+std::vector<unsigned int> colliding_aabbs;
 
 
 int TestAABBAABB(AABB_node node_a, AABB_node node_b);
@@ -234,7 +242,9 @@ bool DescendA(AABB_node a, AABB_node b)
 // ‘Descend larger’ descent rule
 bool DescendA(AABB_node* a, AABB_node* b)
 {
-    return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
+    //return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
+    //return !IsLeaf(a);
+    return IsLeaf(b);
 }
 
 
@@ -242,11 +252,16 @@ bool DescendA(AABB_node* a, AABB_node* b)
 
 
 typedef struct StackNode {
-    AABB_node* a_node;
-    AABB_node* b_node;
+    AABB_node a;
+    AABB_node b;
     StackNode* next;
 } StackNode;
 
+typedef struct Stack {
+    StackNode* top;
+} Stack;
+
+/*
 // Function to check if the stack is empty
 int IsEmpty(StackNode* root)
 {
@@ -270,7 +285,7 @@ void Push( StackNode** root, AABB_node* a, AABB_node* b)
 
     newNode->next = *root;
     *root = newNode;
-    printf("%d pushed to the stack\n");
+    printf("pushed to the stack\n");
 }
 
 // Function to pop an element from the stack
@@ -282,19 +297,167 @@ void Pop(StackNode** root, AABB_node* a, AABB_node* b)
     }
     struct StackNode* temp = *root;
 
+    a = temp->a_node;
+    b = temp->b_node;
+
     *root = temp->next;
     free(temp);
     return;
 }
+*/
+
+int IsEmpty(Stack* stack)
+{
+    return stack->top == NULL;
+}
+
+
+// Function to push elements onto the stack
+void Push(Stack* stack, AABB_node* a, AABB_node* b)
+{
+    // Create a new stack node
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    if (newNode == NULL) {
+        // Handle memory allocation failure
+        // You may want to return an error code or exit the program
+    }
+
+    newNode->a = *a;
+    newNode->b = *b;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+// Function to pop elements from the stack
+void Pop(Stack* stack, AABB_node* a, AABB_node* b)
+{
+    if (stack->top == NULL) {
+        // Handle stack underflow (e.g., return an error code or exit)
+        // The stack is empty, so there's nothing to pop.
+        return;
+    }
+
+    // Pop the top element
+    StackNode* poppedNode = stack->top;
+    *a = poppedNode->a;
+    *b = poppedNode->b;
+
+    // Update the stack's top to the next node
+    stack->top = poppedNode->next;
+
+    // Free the memory of the popped node
+    free(poppedNode);
+}
+
+
+
+// Stack-use optimized, non-recursive version
+void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
+{
+    //StackNode* s = (StackNode*)malloc(sizeof(StackNode));
+    //s->next = NULL;
+    Stack s;
+    s.top = NULL;
+
+    while (1) {
+
+        if (TestAABBAABB(*a, *b)) {
+            //printf("AABB Collision\n");
+            /*
+            add node.id to collision map
+            */
+
+            
+
+            // If a and b are both leaves
+            if (IsLeaf(a) && IsLeaf(b)) {
+                // At leaf nodes. Perform collision tests on leaf node contents
+                //CollidePrimitives(r, a, b);
+                // Could have an exit rule here (eg. exit on first hit)
+                // 
+                // 
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(a->id);
+                }
+
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(b->id);
+                }
+                printf("Colliding leaves found\n");
+                
+                return;
+
+            } else {
+                // if a is bigger than b descend a
+                if (DescendA(a, b)) {
+                    Push(&s, a->right, b);
+                    a = a->left;
+                    continue;
+                // descend b
+                } else {
+                    Push(&s, a, b->right);
+                    b = b->left;   
+                    continue;
+                }
+            }
+        }
+
+        if (IsEmpty(&s)) {
+            colliding_aabbs.clear();
+            //printf("exit");
+            break;
+        }
+            
+        Pop(&s, a, b);
+    }
+}
+
+
+
+// Generic recursive BVH traversal code.
+// Assumes that leaves too have BVs
+void BVHCollision2(AABB_node* a, AABB_node* b)
+{
+    if (!TestAABBAABB(*a, *b)) {
+        
+        return;
+    }
+        
+
+    
+    if (IsLeaf(a) && IsLeaf(b)) {
+        // At leaf nodes. Perform collision tests on leaf node contents
+        //CollidePrimitives(r, a, b);
+        printf("yo\n");
+        if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
+            colliding_aabbs.push_back(a->id);
+        }
+
+        if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
+            colliding_aabbs.push_back(b->id);
+        }
+
+        
+    } else {
+        if (DescendA(a, b)) {
+            BVHCollision2(a->left, b);
+            BVHCollision2(a->right, b);
+        } else {
+            BVHCollision2(a, b->left);
+            BVHCollision2(a, b->right);
+        }
+    }
+}
+
+
+
 
 AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
 {
-   
-    AABB_node newNode = *node;  
-     if (node == nullptr || node->type == LEAF) {
+    AABB_node newNode = *node;
+    if (node == nullptr || node->type == LEAF) {
         return newNode;
     }
-    
 
     // Update the AABB using the transformation matrix
     Vector min = newNode.aabb.min;
@@ -316,22 +479,25 @@ AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
 }
 
 
+/*
+std::vector<unsigned int> colliding_aabbs;
 
-// Stack-use optimized, non-recursive version
-void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
+void BVHCollision(AABB_node* a, AABB_node* b)
 {
-
-
     StackNode* s = (StackNode*)malloc(sizeof(StackNode));
     s->next = NULL;
 
     while (1) {
+
         if (TestAABBAABB(*a, *b)) {
-            printf("AABB Collision\n");
+
+
+            colliding_aabbs.push_back(a->id);
+
             if (IsLeaf(a) && IsLeaf(b)) {
-                // At leaf nodes. Perform collision tests on leaf node contents
-                //CollidePrimitives(r, a, b);
-                // Could have an exit rule here (eg. exit on first hit)
+
+                CollidePrimitives(a, b);
+
             } else {
                 if (DescendA(a, b)) {
                     Push(&s, a->right, b);
@@ -344,15 +510,15 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
                 }
             }
         }
-        if (IsEmpty(s))
+
+        if (IsEmpty(s)) {
             break;
+        }
+
         Pop(&s, a, b);
     }
 }
-
-
-
-
+*/
 
 
 

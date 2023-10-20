@@ -307,9 +307,25 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
 
     if (strcmp(node->type, "hitbox") == 0) {
         
-        // do dissss
-        //JUST SSET HITBOX MODEL 
-        glUseProgram(shaderIdArray[1]);
+         glUseProgram(shaderIdArray[1]);
+        /*
+        if (node.id is in collisionMap) {
+            set hitbox shader color green
+        }
+        
+        
+        */
+
+        for (const unsigned int& element : colliding_aabbs)
+        {
+            if (element == node->id) {
+                printf("colliding\n");
+                setShaderVec4(shaderIdArray[1], "color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+            }
+        }
+        //setShaderVec4(shaderIdArray[1], "color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
         setShaderMat4(shaderIdArray[1], "model", model);
 
         DrawAABB_Model(node->model, shaderIdArray[1]);
