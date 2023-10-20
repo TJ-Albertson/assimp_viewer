@@ -417,6 +417,9 @@ void loadMaterialTextures(Texture* textures, int startIndex, int numTextures, ai
     }
 }
 
+
+std::vector<unsigned int> leaf_nodes;
+
 void DrawModel(Model* model, unsigned int shaderID)
 {
     for (unsigned int i = 0; i < model->m_NumMeshes; i++) {
@@ -561,7 +564,8 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
         glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         bool collision = false;
 
-        for (const unsigned int& element : colliding_aabbs) {
+        //collising_aabbs
+        for (const unsigned int& element : leaf_nodes) {
             if (element == mesh.VAO) {
                 collision = true;
                 color = glm::vec4(1.0f / i, 1.0f, 0.0f, 1.0f);
@@ -574,15 +578,11 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
             glBindVertexArray(mesh.VAO);
             glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
-            glLineWidth(1.0f);
+           
         } 
 
-       glBindVertexArray(mesh.VAO);
-        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-
         if (collision) {
-           
+            glLineWidth(1.0f);
         }
     }
 }
@@ -667,6 +667,7 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
     node->id = VAO;
 
     if (node->type == LEAF) {
+        leaf_nodes.push_back(VAO);
         return;
     }
 

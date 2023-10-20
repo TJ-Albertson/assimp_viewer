@@ -300,7 +300,7 @@ int main()
         AABB aabb1 = aabb1_node.aabb;
         AABB aabb2 = aabb2_node.aabb;
 
-        /*
+        
         printf("aabb1\n");
         printf("Minimum coordinates: (%f, %f, %f)\n", aabb1.min.x, aabb1.min.y, aabb1.min.z);
         printf("Maximum coordinates: (%f, %f, %f)\n", aabb1.max.x, aabb1.max.y, aabb1.max.z);
@@ -308,7 +308,7 @@ int main()
         printf("aabb2\n");
         printf("Minimum coordinates: (%f, %f, %f)\n", aabb2.min.x, aabb2.min.y, aabb2.min.z);
         printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
-        */
+        
 
         BVHCollision(&aabb1_node, &aabb2_node);
 

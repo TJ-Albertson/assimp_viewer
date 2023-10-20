@@ -443,7 +443,16 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
             /*
             add node.id to collision map
             */
+            if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
+                colliding_aabbs.push_back(a->id);
 
+                // printf("colliding a id: %d\n", a->id);
+            }
+
+            if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
+                colliding_aabbs.push_back(b->id);
+                // printf("colliding b id: %d\n", b->id);
+            }
             
 
             // If a and b are both leaves
@@ -453,17 +462,8 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
                 // Could have an exit rule here (eg. exit on first hit)
                 // 
                 // 
-                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
-                    colliding_aabbs.push_back(a->id);
-
-                    printf("colliding a id: %d\n", a->id);
-                }
-
-                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
-                    colliding_aabbs.push_back(b->id);
-                    printf("colliding b id: %d\n", b->id);
-                }
-                printf("Colliding leaves found\n");
+               
+                //printf("Colliding leaves found\n");
                 
                 return;
 
