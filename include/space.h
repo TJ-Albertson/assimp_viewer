@@ -462,7 +462,7 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
                 // Could have an exit rule here (eg. exit on first hit)
                 // 
                 // 
-               
+
                 //printf("Colliding leaves found\n");
                 
                 return;

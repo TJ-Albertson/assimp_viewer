@@ -565,7 +565,7 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
         bool collision = false;
 
         //collising_aabbs
-        for (const unsigned int& element : leaf_nodes) {
+        for (const unsigned int& element : colliding_aabbs) {
             if (element == mesh.VAO) {
                 collision = true;
                 color = glm::vec4(1.0f / i, 1.0f, 0.0f, 1.0f);
