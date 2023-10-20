@@ -114,26 +114,118 @@ float testMidpoint(Triangle triangle, int axis)
     return mid;
 }
 
+int GetNextAxis(int currentAxis)
+{
+    return (currentAxis + 1) % 3; // 0, 1, 2, 0, 1, 2, ...
+}
+
 int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float median)
 {
     std::vector<Triangle> left;
     std::vector<Triangle> right;
 
-
     for (int i = 0; i < numTriangles; i++) {
         Triangle triangle = triangles[i];
 
+        printf("newAxis: %d\n", axis);
         float mid = testMidpoint(triangle, axis);
+        printf("mid tri %d: %f\n", i, mid);
 
         if (mid < median) {
             left.push_back(triangle);
+        } else if (mid == 0) {
+            if (right.size() > left.size()) {
+                left.push_back(triangle);
+            } else if (right.size() < left.size()) {
+                right.push_back(triangle);
+            } else {
+                left.push_back(triangle);
+            }
         } else {
             right.push_back(triangle);
         }
     };
 
+    int newAxis;
+    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
+        left.clear();
+        right.clear();
 
-    //(" left.size(): %d\n", left.size());
+        newAxis = GetNextAxis(axis);
+        printf("newAxis: %d\n", newAxis);
+
+        for (int i = 0; i < numTriangles; i++) {
+            Triangle triangle = triangles[i];
+
+            float mid = testMidpoint(triangle, newAxis);
+            printf("mid tri %d: %f\n", i, mid);
+
+            if (mid < median) {
+                left.push_back(triangle);
+            } else if (mid == 0) {
+                if (right.size() > left.size()) {
+                    left.push_back(triangle);
+                } else if (right.size() < left.size()) {
+                    right.push_back(triangle);
+                } else {
+                    left.push_back(triangle);
+                }
+            } else {
+                right.push_back(triangle);
+            }
+        };
+    }
+
+    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
+        left.clear();
+        right.clear();
+
+        int newAxis2 = GetNextAxis(newAxis);
+        printf("newAxis2: %d\n", newAxis2);
+
+        for (int i = 0; i < numTriangles; i++) {
+            Triangle triangle = triangles[i];
+
+            float mid = testMidpoint(triangle, newAxis2);
+            printf("mid tri %d: %f\n", i, mid);
+
+            if (mid < median) {
+                left.push_back(triangle);
+            } else if (mid == 0) {
+                if (right.size() > left.size()) {
+                    left.push_back(triangle);
+                } else if (right.size() < left.size()) {
+                    right.push_back(triangle);
+                } else {
+                    left.push_back(triangle);
+                }
+            } else {
+                right.push_back(triangle);
+            }
+        };
+
+        //printf(" left.size(): %d\n", left.size());
+        //printf(" right.size(): %d\n", right.size());
+    }
+
+     if (right.size() == 2 && left.size() == 0) {
+        triangles[0] = right[0];
+        triangles[1] = right[1];
+
+        return 1;
+    }
+
+    if (left.size() == 2 && right.size() == 0) {
+        triangles[0] = left[0];
+        triangles[1] = left[1];
+
+        return 1;
+    }
+
+   
+
+
+    //printf(" left.size(): %d\n", left.size());
     //printf(" right.size(): %d\n", right.size());
 
     for (int i = 0; i < left.size(); i++) {
@@ -142,10 +234,6 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 
     for (int i = 0; i < right.size(); i++) {
         triangles[left.size() + i] = right[i];
-    }
-
-    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
-        return 0;
     }
 
     int k = left.size();
@@ -157,20 +245,20 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, float med
 void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
 {
     //assert(numObjects > 0);
-     //printf("numObjects: %d\n", numObjects);
+    printf("numObjects: %d\n", numObjects);
     if (numObjects == 0) return;
-    /*
+    
     for (int i = 0; i < numObjects; i++) {
         std::cout << "Triangle " << i << ": " << std::endl;
         std::cout << "     vertices[0]: " << triangles[i].vertices[0].x << " " << triangles[i].vertices[0].y << " " << triangles[i].vertices[0].z << std::endl;
         std::cout << "     vertices[1]: " << triangles[i].vertices[1].x << " " << triangles[i].vertices[1].y << " " << triangles[i].vertices[1].z << std::endl;
         std::cout << "     vertices[2]: " << triangles[i].vertices[2].x << " " << triangles[i].vertices[2].y << " " << triangles[i].vertices[2].z << std::endl;
     }
-    */
+    
 
     //printf("numTriangles: %d\n", numObjects);
     const int MIN_OBJECTS_PER_LEAF = 1;
-    AABB_node* pNode = new AABB_node;
+    AABB_node* pNode = (AABB_node*)malloc(sizeof(AABB_node));
     *tree = pNode;
     // Compute a bounding volume for object[0], ..., object[numObjects - 1]
     pNode->aabb = ComputeBoundingVolume(&triangles[0], numObjects);
@@ -183,18 +271,22 @@ void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
         pNode->type = NODE;
         
         int axis = longestAxis(pNode->aabb);
+        printf("axis: %d\n", axis);
         float median = (pNode->aabb.min[axis] + pNode->aabb.max[axis]) / 2.0f;
             
         // Based on some partitioning strategy, arrange objects into
         // two partitions: object[0..k-1], and object[k..numObjects-1]
         int k = PartitionObjects(&triangles[0], numObjects, axis, median);
 
+        /*
         if (k == 0) {
             pNode->type = LEAF;
             pNode->numObjects = numObjects;
             pNode->object = &triangles[0];
+
             return;
         }
+        */
 
         // Recursively construct left and right subtree from subarrays and
         // point the left and right fields of the current node at the subtrees
@@ -378,10 +470,13 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
                 // 
                 if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
                     colliding_aabbs.push_back(a->id);
+
+                    printf("colliding a id: %d\n", a->id);
                 }
 
                 if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
                     colliding_aabbs.push_back(b->id);
+                    printf("colliding b id: %d\n", b->id);
                 }
                 printf("Colliding leaves found\n");
                 

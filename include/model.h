@@ -594,9 +594,11 @@ void MarkAABBs(AABB_node* node, std::vector<unsigned int>& ids)
 
 void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
 {
-    if (node == NULL || node->type == LEAF) {
+    if (node == NULL) {
         return;
     }
+
+    printf("node->type: %d\n", node->type);
 
     AABB aabb = node->aabb;
     
@@ -662,8 +664,14 @@ void LoadHitboxVAOs(AABB_node* node, std::vector<unsigned int>& vaos)
     //aabb_map[VAO] = *node;
     node->id = VAO;
 
-    LoadHitboxVAOs(node->left, vaos);
-    LoadHitboxVAOs(node->right, vaos);
+    if (node->left != NULL) {
+        LoadHitboxVAOs(node->left, vaos);
+    }
+    if (node->right != NULL) {
+        LoadHitboxVAOs(node->right, vaos);
+    }
+    
+    
 }
 
 Model* LoadAABB_Model(AABB_node* node)
