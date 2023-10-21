@@ -230,6 +230,81 @@ void SceneWindow()
     ImGui::End();
 }
 
+
+void AABB_Tree(AABB_node* node)
+{
+    AABB aabb = node->aabb;
+
+    std::string type = "NODE";
+
+    if (node->type == LEAF) {
+        type = "LEAF";
+    }
+
+    if ( ImGui::TreeNode(type.c_str()) ) {
+        ImGui::Text("Minimum coordinates: (%f, %f, %f)\n", aabb.min.x, aabb.min.y, aabb.min.z);
+        ImGui::Text("Maximum coordinates: (%f, %f, %f)\n", aabb.max.x, aabb.max.y, aabb.max.z);
+
+        if (type == "NODE") {
+            AABB_Tree(node->left);
+            AABB_Tree(node->right);
+        }
+
+        ImGui::TreePop();
+    }
+}
+
+
+void AABB_Window()
+{
+    ImGui::Begin("AABB");
+
+    for (int i = 0; i < hitboxes.size(); i++) {
+
+        std::string headerName = std::string("AABB %d", i);
+
+        ImGui::CollapsingHeader("AABB");
+
+        Hitbox hitbox = hitboxes[i];
+        AABB_node* node = hitbox.rootAABB;
+        AABB aabb = node->aabb;
+
+        glm::mat4 matrix = *hitbox.m_Matrix;
+
+        std::string matrixStr;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                matrixStr += std::to_string(matrix[i][j]);
+                if (j < 3) {
+                    matrixStr += ", ";
+                }
+            }
+            if (i < 3) {
+                matrixStr += "\n";
+            }
+        }
+
+        // Inside your ImGui rendering loop
+        ImGui::Text("Matrix Contents:");
+        ImGui::Text(matrixStr.c_str());
+
+        if (ImGui::TreeNode("Root Node")) {
+            ImGui::Text("Minimum coordinates: (%f, %f, %f)\n", aabb.min.x, aabb.min.y, aabb.min.z);
+            ImGui::Text("Maximum coordinates: (%f, %f, %f)\n", aabb.max.x, aabb.max.y, aabb.max.z);
+
+            AABB_Tree(node->left);
+            AABB_Tree(node->right);
+
+            ImGui::TreePop();
+        }
+
+        
+
+    }
+
+    ImGui::End();
+}
+
 void MainMenuBar()
 {
     if (ImGui::BeginMainMenuBar()) {
@@ -409,6 +484,7 @@ void Main_GUI_Loop(double time)
     MainMenuBar();
     SceneWindow();
     TransformModel();
+    AABB_Window();
 
     // Frame End
     ImGui::Render();

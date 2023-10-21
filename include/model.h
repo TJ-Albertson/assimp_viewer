@@ -573,7 +573,7 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
         }
 
         if (collision) {
-            glLineWidth(2.0f);
+            glLineWidth(3.0f);
             glUniform4fv(glGetUniformLocation(shaderID, "color"), 1, &color[0]);
             glBindVertexArray(mesh.VAO);
             glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
@@ -581,8 +581,10 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
            
         } 
 
+        
+
         if (collision) {
-            glLineWidth(1.0f);
+            glLineWidth(0.5f);
         }
     }
 }

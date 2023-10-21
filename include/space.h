@@ -52,8 +52,6 @@ typedef struct AABB_node {
 std::vector<unsigned int> colliding_aabbs;
 
 
-int TestAABBAABB(AABB_node node_a, AABB_node node_b);
-
 
 // Function to find the longest axis of an AABB
 int longestAxis(AABB aabb) {
@@ -319,9 +317,9 @@ bool DescendA(AABB_node a, AABB_node b)
 // ‘Descend larger’ descent rule
 bool DescendA(AABB_node* a, AABB_node* b)
 {
-    //return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
+    return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
     //return !IsLeaf(a);
-    return IsLeaf(b);
+    //return IsLeaf(b);
 }
 
 
@@ -427,55 +425,89 @@ void Pop(Stack* stack, AABB_node* a, AABB_node* b)
 }
 
 
+int TestAABBAABB(AABB_node node_a, AABB_node node_b, glm::mat4* a_matrix, glm::mat4* b_matrix)
+{
+    AABB a = node_a.aabb;
+    AABB b = node_b.aabb;
+
+    glm::mat4 amat = (*a_matrix);
+    glm::mat4 bmat = (*b_matrix);
+
+    glm::mat3 tab = glm::inverse(amat) * bmat;
+
+    //glm::vec3 b_min = tab * glm::vec3(b.min);
+    //glm::vec3 b_max = tab * glm::vec3(b.max);
+
+    glm::vec3 b_min = b.min + glm::vec3(bmat[3]);
+    glm::vec3 b_max = b.max + glm::vec3(bmat[3]);
+
+    glm::vec3 a_min = a.min + glm::vec3(amat[3]);
+    glm::vec3 a_max = a.max + glm::vec3(amat[3]);
+
+    // Exit with no intersection if separated along an axis
+    
+    if (a_max[0] < b_min[0] || a_min[0] > b_max[0])
+        return 0;
+    if (a_max[1] < b_min[1] || a_min[1] > b_max[1])
+        return 0;
+    if (a_max[2] < b_min[2] || a_min[2] > b_max[2])
+        return 0;
+    
+
+    // Overlapping on all axes means AABBs are intersecting
+    return 1;
+}
+
 
 // Stack-use optimized, non-recursive version
-void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
+void BVHCollision(/*CollisionResult* r,*/ AABB_node* a, AABB_node* b, glm::mat4* a_matrix, glm::mat4* b_matrix)
 {
     //StackNode* s = (StackNode*)malloc(sizeof(StackNode));
     //s->next = NULL;
     Stack s;
     s.top = NULL;
 
+    //glm::mat3 c_matrix
+
+    int stackSize = 0;
+
     while (1) {
 
-        if (TestAABBAABB(*a, *b)) {
-            //printf("AABB Collision\n");
-            /*
-            add node.id to collision map
-            */
-            if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
-                colliding_aabbs.push_back(a->id);
+        printf("stackSize: %d\n", stackSize);
 
-                // printf("colliding a id: %d\n", a->id);
-            }
-
-            if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
-                colliding_aabbs.push_back(b->id);
-                // printf("colliding b id: %d\n", b->id);
-            }
-            
-
-            // If a and b are both leaves
+        if (TestAABBAABB(*a, *b, a_matrix, b_matrix)) {
             if (IsLeaf(a) && IsLeaf(b)) {
                 // At leaf nodes. Perform collision tests on leaf node contents
                 //CollidePrimitives(r, a, b);
                 // Could have an exit rule here (eg. exit on first hit)
                 // 
                 // 
+                
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(a->id);
 
+                    // printf("colliding a id: %d\n", a->id);
+                }
+
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(b->id);
+                    //printf("colliding b id: %d\n", b->id);
+                }
                 //printf("Colliding leaves found\n");
                 
-                return;
+                break;
 
             } else {
                 // if a is bigger than b descend a
                 if (DescendA(a, b)) {
                     Push(&s, a->right, b);
+                    stackSize++;
                     a = a->left;
                     continue;
                 // descend b
                 } else {
                     Push(&s, a, b->right);
+                    stackSize++;
                     b = b->left;   
                     continue;
                 }
@@ -489,43 +521,7 @@ void BVHCollision( /*CollisionResult* r,*/AABB_node* a, AABB_node* b)
         }
             
         Pop(&s, a, b);
-    }
-}
-
-
-
-// Generic recursive BVH traversal code.
-// Assumes that leaves too have BVs
-void BVHCollision2(AABB_node* a, AABB_node* b)
-{
-    if (!TestAABBAABB(*a, *b)) {
-        
-        return;
-    }
-        
-
-    
-    if (IsLeaf(a) && IsLeaf(b)) {
-        // At leaf nodes. Perform collision tests on leaf node contents
-        //CollidePrimitives(r, a, b);
-        printf("yo\n");
-        if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
-            colliding_aabbs.push_back(a->id);
-        }
-
-        if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
-            colliding_aabbs.push_back(b->id);
-        }
-
-        
-    } else {
-        if (DescendA(a, b)) {
-            BVHCollision2(a->left, b);
-            BVHCollision2(a->right, b);
-        } else {
-            BVHCollision2(a, b->left);
-            BVHCollision2(a, b->right);
-        }
+        stackSize--;
     }
 }
 
@@ -535,7 +531,7 @@ void BVHCollision2(AABB_node* a, AABB_node* b)
 AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
 {
     AABB_node newNode = *node;
-    if (node == nullptr || node->type == LEAF) {
+    if (node == nullptr) {
         return newNode;
     }
 
@@ -543,13 +539,22 @@ AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
     Vector min = newNode.aabb.min;
     Vector max = newNode.aabb.max;
 
+    
+
     glm::vec3 translate = transformationMatrix[3];
+
+
+    //glm::vec3 inverse = glm::inverse(translate);
 
     min += translate;
     max += translate;
 
     newNode.aabb.min = min;
     newNode.aabb.max = max;
+
+    if (node->type == LEAF) {
+        return newNode;
+    }
 
     // Recursively update the children
     updateAABB(newNode.left, transformationMatrix);
@@ -603,22 +608,6 @@ void BVHCollision(AABB_node* a, AABB_node* b)
 
 
 
-int TestAABBAABB(AABB_node node_a, AABB_node node_b)
-{
-    AABB a = node_a.aabb;
-    AABB b = node_b.aabb;
-
-    // Exit with no intersection if separated along an axis
-    if (a.max.x < b.min.x || a.min.x > b.max.x)
-        return 0;
-    if (a.max.y < b.min[1] || a.min[1] > b.max[1])
-        return 0;
-    if (a.max[2] < b.min[2] || a.min[2] > b.max[2])
-        return 0;
-    // Overlapping on all axes means AABBs are intersecting
-    return 1;
-}
-
 
 
 
@@ -634,13 +623,17 @@ int TestAABBAABB(AABB_node node_a, AABB_node node_b)
 
 void printAABBMinMax(AABB_node* node)
 {
-    if (node == NULL || node->type == LEAF) {
+    if (node == NULL) {
         return;
     }
 
     printf("Node: Min (%.2f, %.2f, %.2f), Max (%.2f, %.2f, %.2f)\n",
         node->aabb.min.x, node->aabb.min.y, node->aabb.min.z,
         node->aabb.max.x, node->aabb.max.y, node->aabb.max.z);
+
+    if (node->type == LEAF) {
+        return;
+    }
 
     printAABBMinMax(node->left);
     printAABBMinMax(node->right);
