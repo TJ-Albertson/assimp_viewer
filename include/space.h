@@ -14,6 +14,8 @@ spacial partioning
 #include <stdlib.h>
 #include <math.h>
 
+#include <stack>
+
 // Define a structure for 3D vectors
 typedef glm::vec3 Vector;
 typedef glm::vec3 Point;
@@ -285,13 +287,13 @@ void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
 
 
 
-bool IsLeaf(AABB_node* node) {
-    return (node->type == LEAF);
+bool IsLeaf(AABB_node node) {
+    return (node.type == LEAF);
 }
 
-float SizeOfBV(AABB_node* node)
+float SizeOfBV(AABB_node node)
 {
-    AABB aabb = node->aabb;
+    AABB aabb = node.aabb;
     
     float width = aabb.max.x - aabb.min.x;
     float height = aabb.max.y - aabb.min.y;
@@ -315,7 +317,7 @@ bool DescendA(AABB_node a, AABB_node b)
 }
 */
 // ‘Descend larger’ descent rule
-bool DescendA(AABB_node* a, AABB_node* b)
+bool DescendA(AABB_node a, AABB_node b)
 {
     return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
     //return !IsLeaf(a);
@@ -381,47 +383,36 @@ void Pop(StackNode** root, AABB_node* a, AABB_node* b)
 }
 */
 
-int IsEmpty(Stack* stack)
+
+//std::vector<StackNode> stack;
+
+bool IsEmpty(std::vector<StackNode> stack)
 {
-    return stack->top == NULL;
+    return stack.empty();
 }
 
-
 // Function to push elements onto the stack
-void Push(Stack* stack, AABB_node* a, AABB_node* b)
+void Push(std::vector<StackNode>& stack, AABB_node a, AABB_node b)
 {
-    // Create a new stack node
-    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
-    if (newNode == NULL) {
-        // Handle memory allocation failure
-        // You may want to return an error code or exit the program
-    }
+    StackNode newNode;
 
-    newNode->a = *a;
-    newNode->b = *b;
-    newNode->next = stack->top;
-    stack->top = newNode;
+    newNode.a = a;
+    newNode.b = b;
+
+    stack.push_back(newNode);
 }
 
 // Function to pop elements from the stack
-void Pop(Stack* stack, AABB_node* a, AABB_node* b)
+void Pop(std::vector<StackNode>& stack, AABB_node& a, AABB_node& b)
 {
-    if (stack->top == NULL) {
-        // Handle stack underflow (e.g., return an error code or exit)
-        // The stack is empty, so there's nothing to pop.
-        return;
+    if (!IsEmpty(stack)) {
+        StackNode pop = stack.back();
+
+        a = pop.a;
+        b = pop.b;
+
+        stack.pop_back();
     }
-
-    // Pop the top element
-    StackNode* poppedNode = stack->top;
-    *a = poppedNode->a;
-    *b = poppedNode->b;
-
-    // Update the stack's top to the next node
-    stack->top = poppedNode->next;
-
-    // Free the memory of the popped node
-    free(poppedNode);
 }
 
 
@@ -460,14 +451,9 @@ int TestAABBAABB(AABB_node node_a, AABB_node node_b, glm::mat4* a_matrix, glm::m
 
 
 // Stack-use optimized, non-recursive version
-void BVHCollision(/*CollisionResult* r,*/ AABB_node* a, AABB_node* b, glm::mat4* a_matrix, glm::mat4* b_matrix)
+void BVHCollision(/*CollisionResult* r,*/ AABB_node a, AABB_node b, glm::mat4* a_matrix, glm::mat4* b_matrix)
 {
-    //StackNode* s = (StackNode*)malloc(sizeof(StackNode));
-    //s->next = NULL;
-    Stack s;
-    s.top = NULL;
-
-    //glm::mat3 c_matrix
+    std::vector<StackNode> s;
 
     int stackSize = 0;
 
@@ -475,52 +461,45 @@ void BVHCollision(/*CollisionResult* r,*/ AABB_node* a, AABB_node* b, glm::mat4*
 
         printf("stackSize: %d\n", stackSize);
 
-        if (TestAABBAABB(*a, *b, a_matrix, b_matrix)) {
+        if (TestAABBAABB(a, b, a_matrix, b_matrix)) {
             if (IsLeaf(a) && IsLeaf(b)) {
-                // At leaf nodes. Perform collision tests on leaf node contents
                 //CollidePrimitives(r, a, b);
-                // Could have an exit rule here (eg. exit on first hit)
-                // 
-                // 
+                printf("Leaf Collision\n");
                 
-                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a->id) == colliding_aabbs.end()) {
-                    colliding_aabbs.push_back(a->id);
-
-                    // printf("colliding a id: %d\n", a->id);
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a.id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(a.id);
                 }
 
-                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b->id) == colliding_aabbs.end()) {
-                    colliding_aabbs.push_back(b->id);
-                    //printf("colliding b id: %d\n", b->id);
+                if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), b.id) == colliding_aabbs.end()) {
+                    colliding_aabbs.push_back(b.id);
                 }
-                //printf("Colliding leaves found\n");
                 
                 break;
 
             } else {
                 // if a is bigger than b descend a
                 if (DescendA(a, b)) {
-                    Push(&s, a->right, b);
+                    Push(s, *a.right, b);
                     stackSize++;
-                    a = a->left;
+                    a = *a.left;
                     continue;
                 // descend b
                 } else {
-                    Push(&s, a, b->right);
+                    Push(s, a, *b.right);
                     stackSize++;
-                    b = b->left;   
+                    b = *b.left;
                     continue;
                 }
             }
         }
 
-        if (IsEmpty(&s)) {
+        if (IsEmpty(s)) {
             colliding_aabbs.clear();
             //printf("exit");
             break;
         }
             
-        Pop(&s, a, b);
+        Pop(s, a, b);
         stackSize--;
     }
 }

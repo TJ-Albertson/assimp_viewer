@@ -293,13 +293,13 @@ int main()
 
 
 
-
+        /*
         AABB_node aabb1_node = updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
         AABB_node aabb2_node = updateAABB(hitboxes[1].rootAABB, (*hitboxes[1].m_Matrix));
 
         AABB aabb1 = aabb1_node.aabb;
         AABB aabb2 = aabb2_node.aabb;
-
+        */
         
         /*
         printf("aabb1\n");
@@ -312,7 +312,14 @@ int main()
         */
 
         //BVHCollision(&aabb1_node, &aabb2_node);
-        BVHCollision(hitboxes[0].rootAABB, hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
+
+        AABB_node aabb1_node = *hitboxes[0].rootAABB;
+        AABB_node aabb2_node = *hitboxes[1].rootAABB;
+
+        ///AABB_node a = aabb1_node;
+        //AABB_node b = aabb2_node;
+
+        BVHCollision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
 
 
 

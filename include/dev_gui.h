@@ -289,6 +289,7 @@ void AABB_Window()
         ImGui::Text(matrixStr.c_str());
 
         if (ImGui::TreeNode("Root Node")) {
+
             ImGui::Text("Minimum coordinates: (%f, %f, %f)\n", aabb.min.x, aabb.min.y, aabb.min.z);
             ImGui::Text("Maximum coordinates: (%f, %f, %f)\n", aabb.max.x, aabb.max.y, aabb.max.z);
 
