@@ -173,6 +173,7 @@
   <ItemGroup>
     <None Include="..\resources\scenes\scene1.json" />
     <None Include="..\resources\scenes\scene2.json" />
+    <None Include="..\resources\scenes\scene3.json" />
     <None Include="..\shaders\4.2.texture.fs" />
     <None Include="..\shaders\4.2.texture.vs" />
     <None Include="..\shaders\6.multiple_lights.fs" />

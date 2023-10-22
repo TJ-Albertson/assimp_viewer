@@ -103,14 +103,6 @@ int main()
 
     LoadSkybox(filepath, "skybox7");
     //LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
-    
-
-
-    
-    // Wireframe mode
-    // --------------------
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //glLineWidth(2.0f);
 
     glm::vec3 color = glm::vec3(0.0f);
 
@@ -289,43 +281,8 @@ int main()
 
 
 
-
-
-
-
-        /*
-        AABB_node aabb1_node = updateAABB(hitboxes[0].rootAABB, (*hitboxes[0].m_Matrix));
-        AABB_node aabb2_node = updateAABB(hitboxes[1].rootAABB, (*hitboxes[1].m_Matrix));
-
-        AABB aabb1 = aabb1_node.aabb;
-        AABB aabb2 = aabb2_node.aabb;
-        */
-        
-        /*
-        printf("aabb1\n");
-        printf("Minimum coordinates: (%f, %f, %f)\n", aabb1.min.x, aabb1.min.y, aabb1.min.z);
-        printf("Maximum coordinates: (%f, %f, %f)\n", aabb1.max.x, aabb1.max.y, aabb1.max.z);
-
-        printf("aabb2\n");
-        printf("Minimum coordinates: (%f, %f, %f)\n", aabb2.min.x, aabb2.min.y, aabb2.min.z);
-        printf("Maximum coordinates: (%f, %f, %f)\n", aabb2.max.x, aabb2.max.y, aabb2.max.z);
-        */
-
-        //BVHCollision(&aabb1_node, &aabb2_node);
-
-        AABB_node aabb1_node = *hitboxes[0].rootAABB;
-        AABB_node aabb2_node = *hitboxes[1].rootAABB;
-
-        ///AABB_node a = aabb1_node;
-        //AABB_node b = aabb2_node;
-
         AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
-
-
-
-
         
-
 
 
         glUseProgram(animatedShader);

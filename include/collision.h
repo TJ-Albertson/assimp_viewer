@@ -1,4 +1,9 @@
-﻿#ifndef COLLISION_H
+﻿/*-------------------------------------------------------------------------------\
+collision.h
+
+
+\-------------------------------------------------------------------------------*/
+#ifndef COLLISION_H
 #define COLLISION_H
 
 #include <glad/glad.h>s
@@ -9,7 +14,6 @@
 
 const float EPSILON = 1e-6;
 float scaleFactor = 1;
-
 
 struct Polygon {
     std::vector<Point> vertices;
@@ -45,6 +49,7 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
 
 AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix);
 
+// Primitive Equations
 Point ClosestPtPointPlane(Point q, Plane p);
 float DistPointPlane(Point q, Plane p);
 int IntersectMovingSpherePlane(Sphere s, Vector v, Plane p, float& t, Point& q);
@@ -52,6 +57,8 @@ int PointInTriangle(Point p, Point a, Point b, Point c);
 int IntersectSegmentCylinder(Point sa, Point sb, Point p, Point q, float r, float& t);
 int IntersectRaySphere(Point p, Vector d, Sphere s, float& t, Point& q);
 void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d);
+
+// Utility
 void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 
 
@@ -283,11 +290,6 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     Triangle* triangles = (Triangle*)malloc(sizeof(Triangle) * polygons.size());
         
-    std::ofstream outputFile;
-    outputFile.open("C:\\Users\\tjalb\\Documents\\assimp.txt");
-    if (!outputFile) {
-        std::cout << "Failed to /open assimp_viewer_output.txt" << std::endl;
-    }
 
     for (int i = 0; i < polygons.size(); ++i) {
         potentialColliders.push_back(polygons[i]);
@@ -295,14 +297,8 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
         triangles[i].vertices[0] = polygons[i].vertices[0];
         triangles[i].vertices[1] = polygons[i].vertices[1];
         triangles[i].vertices[2] = polygons[i].vertices[2];
-        
-        outputFile << "Triangle " << i << ": " << std::endl;
-        outputFile << "     vertices[0]: " << triangles[i].vertices[0].x << " " << triangles[i].vertices[0].y << " " << triangles[i].vertices[0].z << std::endl;
-        outputFile << "     vertices[1]: " << triangles[i].vertices[1].x << " " << triangles[i].vertices[1].y << " " << triangles[i].vertices[1].z << std::endl;
-        outputFile << "     vertices[2]: " << triangles[i].vertices[2].x << " " << triangles[i].vertices[2].y << " " << triangles[i].vertices[2].z << std::endl;
     }
 
-    outputFile.close();
 
     AABB_node* rootAABBnode;
     

@@ -202,5 +202,8 @@
     <None Include="..\shaders\basic\basic.vs">
       <Filter>Resource Files\Shaders\basic</Filter>
     </None>
+    <None Include="..\resources\scenes\scene3.json">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
   </ItemGroup>
 </Project>
