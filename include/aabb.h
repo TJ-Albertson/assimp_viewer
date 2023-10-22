@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------------\
-space.h
+aabb.h
 
-spacial partioning
+
 \-------------------------------------------------------------------------------*/
 #ifndef SPACE_H
 #define SPACE_H
@@ -16,17 +16,17 @@ spacial partioning
 
 #include <stack>
 
-// Define a structure for 3D vectors
+//Max size of stack used during AABB tree traversal
+#define MAX_SIZE 300
+
 typedef glm::vec3 Vector;
 typedef glm::vec3 Point;
 
-// Define a structure for an AABB (Axis-Aligned Bounding Box)
 typedef struct {
-    Vector min;  // Minimum corner of the AABB
-    Vector max;  // Maximum corner of the AABB
+    Vector min;
+    Vector max;
 } AABB;
 
-// Define a structure for a triangle (vertices of a triangle)
 struct Triangle {
     Point vertices[3];
 };
@@ -41,22 +41,39 @@ typedef struct AABB_node {
     nodeType type;
     int numObjects;
     Triangle* object;
-    struct AABB_node* left; // Pointer to left child node
-    struct AABB_node* right; // Pointer to right child node
+    struct AABB_node* left;
+    struct AABB_node* right;
 
-    //for map to color when collision
+    // Assigned when loading model. From Vao.
+    // Used to visualize colliding AABB's
     unsigned int id;
 } AABB_node;
 
+// Stack used for AABB tree traversal
+typedef struct StackNode {
+    AABB_node a;
+    AABB_node b;
+    StackNode* next;
+} StackNode;
 
+typedef struct Stack {
+    StackNode items[MAX_SIZE];
+    int top;
+} Stack;
 
 
 std::vector<unsigned int> colliding_aabbs;
 
+// Collision Detection
+void AABB_AABB_Collision(AABB_node a, AABB_node b, glm::mat4* a_matrix, glm::mat4* b_matrix);
+
+// AABB Creation
+void TopDownABBB_Tree(AABB_node** tree, Triangle triangles[], int numObjects);
 
 
-// Function to find the longest axis of an AABB
-int longestAxis(AABB aabb) {
+
+// Returns largest axis of AABB. 0 = X. 1 = Y. 2 = Z.
+int LongestAxis(AABB aabb) {
     Vector diff;
     diff.x = aabb.max.x - aabb.min.x;
     diff.y = aabb.max.y - aabb.min.y;
@@ -71,11 +88,7 @@ int longestAxis(AABB aabb) {
     }
 }
 
-
-
-
-
-
+// Computes AABB based on min/max vertices of an array of triangles
 AABB ComputeBoundingVolume(const Triangle* triangles, int numTriangles)
 {
     // Initialize the AABB with the first triangle's vertices
@@ -100,7 +113,7 @@ AABB ComputeBoundingVolume(const Triangle* triangles, int numTriangles)
     return aabb;
 }
 
-float testMidpoint(Triangle triangle, int axis)
+float TestMidpoint(Triangle triangle, int axis)
 {
     float mid = 0.0f;
     if (axis == 0) {
@@ -119,99 +132,54 @@ int GetNextAxis(int currentAxis)
     return (currentAxis + 1) % 3; // 0, 1, 2, 0, 1, 2, ...
 }
 
-
-
-int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb)
+// Splits triangles based on the given axis and median.
+void SplitTriangles(std::vector<Triangle>& triangles, const int axis, const float median, std::vector<Triangle>& left, std::vector<Triangle>& right)
 {
-    std::vector<Triangle> left;
-    std::vector<Triangle> right;
-
-    float median = (aabb.min[axis] + aabb.max[axis]) / 2.0f;
-
-    printf("newAxis: %d\n", axis);
-    for (int i = 0; i < numTriangles; i++) {
-        Triangle triangle = triangles[i];
-
-        
-        float mid = testMidpoint(triangle, axis);
-        printf("mid tri %d: %f\n", i, mid);
-
+    for (const Triangle& triangle : triangles) {
+        float mid = TestMidpoint(triangle, axis);
         if (mid < median) {
             left.push_back(triangle);
         } else {
             right.push_back(triangle);
         }
-    };
+    }
+}
 
-    int newAxis;
-    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
-        left.clear();
-        right.clear();
+/*  Attempts to evenly divide triangles withing AABB bounds.
+*   If all triangles are on one side of dividing plane, other axis
+*   are tried until triangles are divided. In the case of 2 stuck
+*   triangles they are forcefully split.
+*/
+int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb)
+{
+    std::vector<Triangle> triangleVector(triangles, triangles + numTriangles);
+    std::vector<Triangle> left;
+    std::vector<Triangle> right;
 
-        newAxis = GetNextAxis(axis);
-        printf("newAxis: %d\n", newAxis);
+    while (axis < 3) {
+        float median = (aabb.min[axis] + aabb.max[axis]) / 2.0f;
+        SplitTriangles(triangleVector, axis, median, left, right);
 
-        float median = (aabb.min[newAxis] + aabb.max[newAxis]) / 2.0f;
-
-        for (int i = 0; i < numTriangles; i++) {
-            Triangle triangle = triangles[i];
-
-            float mid = testMidpoint(triangle, newAxis);
-            printf("mid tri %d: %f\n", i, mid);
-
-            if (mid < median) {
-                left.push_back(triangle);
-            } else {
-                right.push_back(triangle);
-            }
-        };
+        if (left.empty() || right.empty()) {
+            left.clear();
+            right.clear();
+            axis = GetNextAxis(axis);
+        } else {
+            break;
+        }
     }
 
-    if (left.size() == 0 && right.size() != 0 || left.size() != 0 && right.size() == 0) {
-        left.clear();
-        right.clear();
-
-        int newAxis2 = GetNextAxis(newAxis);
-        printf("newAxis2: %d\n", newAxis2);
-
-        float median = (aabb.min[newAxis2] + aabb.max[newAxis2]) / 2.0f;
-
-        for (int i = 0; i < numTriangles; i++) {
-            Triangle triangle = triangles[i];
-
-            float mid = testMidpoint(triangle, newAxis2);
-            printf("mid tri %d: %f\n", i, mid);
-
-            if (mid < median) {
-                left.push_back(triangle);
-            } else {
-                right.push_back(triangle);
-            }
-        };
-
-        //printf(" left.size(): %d\n", left.size());
-        //printf(" right.size(): %d\n", right.size());
-    }
-
-     if (right.size() == 2 && left.size() == 0) {
+    if (right.size() == 2 && left.empty()) {
         triangles[0] = right[0];
         triangles[1] = right[1];
-
         return 1;
     }
 
-    if (left.size() == 2 && right.size() == 0) {
+    if (left.size() == 2 && right.empty()) {
         triangles[0] = left[0];
         triangles[1] = left[1];
-
         return 1;
     }
-
-   
-
-
-    printf("        left.size():  %d\n", left.size());
-    printf("        right.size(): %d\n", right.size());
 
     for (int i = 0; i < left.size(); i++) {
         triangles[i] = left[i];
@@ -226,11 +194,11 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb
     return k;
 }
 
-// Construct a top-down tree. Rearranges object[] array during construction
-void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
+// Construct a top-down AABB tree. Rearranges object[] array during construction
+void TopDownABBB_Tree(AABB_node** tree, Triangle triangles[], int numObjects)
 {
+    // Failure. Unbalanced Tree
     assert(numObjects > 0);
-    //printf("numObjects: %d\n", numObjects);
     
     /*
     for (int i = 0; i < numObjects; i++) {
@@ -241,7 +209,6 @@ void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
     }
     */
 
-    //printf("numTriangles: %d\n", numObjects);
     const int MIN_OBJECTS_PER_LEAF = 1;
     AABB_node* pNode = (AABB_node*)malloc(sizeof(AABB_node));
     *tree = pNode;
@@ -255,28 +222,16 @@ void TopDownBVTree(AABB_node** tree, Triangle triangles[], int numObjects)
     } else {
         pNode->type = NODE;
         
-        int axis = longestAxis(pNode->aabb);
-        printf("axis: %d\n", axis);
+        int axis = LongestAxis(pNode->aabb);
         
-            
         // Based on some partitioning strategy, arrange objects into
         // two partitions: object[0..k-1], and object[k..numObjects-1]
         int k = PartitionObjects(&triangles[0], numObjects, axis, pNode->aabb);
 
-        /*
-        if (k == 0) {
-            pNode->type = LEAF;
-            pNode->numObjects = numObjects;
-            pNode->object = &triangles[0];
-
-            return;
-        }
-        */
-
         // Recursively construct left and right subtree from subarrays and
         // point the left and right fields of the current node at the subtrees
-        TopDownBVTree(&(pNode->left), &triangles[0], k);
-        TopDownBVTree(&(pNode->right), &triangles[k], numObjects - k);
+        TopDownABBB_Tree(&(pNode->left), &triangles[0], k);
+        TopDownABBB_Tree(&(pNode->right), &triangles[k], numObjects - k);
     }
 }
 
@@ -291,7 +246,8 @@ bool IsLeaf(AABB_node node) {
     return (node.type == LEAF);
 }
 
-float SizeOfBV(AABB_node node)
+// Returns surface area
+float SizeOfAABB(AABB_node node)
 {
     AABB aabb = node.aabb;
     
@@ -304,118 +260,55 @@ float SizeOfBV(AABB_node node)
     return surface_area;
 }
 
-/*
-// ‘Descend A’ descent rule
+// Descent rule
 bool DescendA(AABB_node a, AABB_node b)
 {
-    return !IsLeaf(&a);
-}
-// ‘Descend B’ descent rule
-bool DescendA(AABB_node a, AABB_node b)
-{
-    return IsLeaf(&b);
-}
-*/
-// ‘Descend larger’ descent rule
-bool DescendA(AABB_node a, AABB_node b)
-{
-    return IsLeaf(b) || (!IsLeaf(a) && (SizeOfBV(a) >= SizeOfBV(b)));
+    // ‘Descend larger’ descent rule
+    return IsLeaf(b) || (!IsLeaf(a) && (SizeOfAABB(a) >= SizeOfAABB(b)));
+
+    // ‘Descend A’ descent rule
     //return !IsLeaf(a);
+
+    // ‘Descend B’ descent rule
     //return IsLeaf(b);
 }
 
-
-
-
-
-typedef struct StackNode {
-    AABB_node a;
-    AABB_node b;
-    StackNode* next;
-} StackNode;
-
-typedef struct Stack {
-    StackNode* top;
-} Stack;
-
-/*
-// Function to check if the stack is empty
-int IsEmpty(StackNode* root)
+int IsEmpty(struct Stack* stack)
 {
-    if (root == NULL) {
-        return 1;
+    return stack->top == -1;
+}
+
+int isFull(struct Stack* stack)
+{
+    return stack->top == MAX_SIZE - 1;
+}
+
+void Push(struct Stack* stack, AABB_node a, AABB_node b)
+{
+    if (isFull(stack)) {
+        printf("Stack is full. Cannot push.\n");
+    } else {
+        StackNode node;
+        node.a = a;
+        node.b = b;
+
+        stack->items[++stack->top] = node;
     }
-
-    return (root->next == NULL);
 }
 
-// Function to push an element onto the stack
-void Push( StackNode** root, AABB_node* a, AABB_node* b)
+void Pop(struct Stack* stack, AABB_node& a, AABB_node& b)
 {
-    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
-    if (newNode == NULL) {
-        printf("Memory allocation error.\n");
-        exit(1);
-    }
-    newNode->a_node = a;
-    newNode->b_node = b;
-
-    newNode->next = *root;
-    *root = newNode;
-    printf("pushed to the stack\n");
-}
-
-// Function to pop an element from the stack
-void Pop(StackNode** root, AABB_node* a, AABB_node* b)
-{
-    if (IsEmpty(*root)) {
-        printf("Stack is empty\n");
-        exit(1);
-    }
-    struct StackNode* temp = *root;
-
-    a = temp->a_node;
-    b = temp->b_node;
-
-    *root = temp->next;
-    free(temp);
-    return;
-}
-*/
-
-
-//std::vector<StackNode> stack;
-
-bool IsEmpty(std::vector<StackNode> stack)
-{
-    return stack.empty();
-}
-
-// Function to push elements onto the stack
-void Push(std::vector<StackNode>& stack, AABB_node a, AABB_node b)
-{
-    StackNode newNode;
-
-    newNode.a = a;
-    newNode.b = b;
-
-    stack.push_back(newNode);
-}
-
-// Function to pop elements from the stack
-void Pop(std::vector<StackNode>& stack, AABB_node& a, AABB_node& b)
-{
-    if (!IsEmpty(stack)) {
-        StackNode pop = stack.back();
+    if (IsEmpty(stack)) {
+        printf("Stack is empty. Cannot pop.\n");
+    } else {
+        StackNode pop = stack->items[stack->top--];
 
         a = pop.a;
         b = pop.b;
-
-        stack.pop_back();
     }
 }
 
-
+// Test AABB pair after positing both in world space
 int TestAABBAABB(AABB_node node_a, AABB_node node_b, glm::mat4* a_matrix, glm::mat4* b_matrix)
 {
     AABB a = node_a.aabb;
@@ -449,22 +342,20 @@ int TestAABBAABB(AABB_node node_a, AABB_node node_b, glm::mat4* a_matrix, glm::m
     return 1;
 }
 
-
-// Stack-use optimized, non-recursive version
-void BVHCollision(/*CollisionResult* r,*/ AABB_node a, AABB_node b, glm::mat4* a_matrix, glm::mat4* b_matrix)
+/*  Test AABB tree pair.
+*   Stack-use optimized, non-recursive version.
+*/
+void AABB_AABB_Collision(/*CollisionResult* r,*/ AABB_node a, AABB_node b, glm::mat4* a_matrix, glm::mat4* b_matrix)
 {
-    std::vector<StackNode> s;
-
-    int stackSize = 0;
+    struct Stack s;
+    s.top = -1;
 
     while (1) {
-
-        printf("stackSize: %d\n", stackSize);
-
         if (TestAABBAABB(a, b, a_matrix, b_matrix)) {
             if (IsLeaf(a) && IsLeaf(b)) {
+
                 //CollidePrimitives(r, a, b);
-                printf("Leaf Collision\n");
+                //printf("Leaf Collision\n");
                 
                 if (std::find(colliding_aabbs.begin(), colliding_aabbs.end(), a.id) == colliding_aabbs.end()) {
                     colliding_aabbs.push_back(a.id);
@@ -475,37 +366,29 @@ void BVHCollision(/*CollisionResult* r,*/ AABB_node a, AABB_node b, glm::mat4* a
                 }
                 
                 break;
-
             } else {
-                // if a is bigger than b descend a
+                // if a is bigger than b, descend a
                 if (DescendA(a, b)) {
-                    Push(s, *a.right, b);
-                    stackSize++;
+                    Push(&s, *a.right, b);
                     a = *a.left;
                     continue;
-                // descend b
+                // else descend b
                 } else {
-                    Push(s, a, *b.right);
-                    stackSize++;
+                    Push(&s, a, *b.right);
                     b = *b.left;
                     continue;
                 }
             }
         }
 
-        if (IsEmpty(s)) {
+        if (IsEmpty(&s)) {
             colliding_aabbs.clear();
-            //printf("exit");
             break;
         }
             
-        Pop(s, a, b);
-        stackSize--;
+        Pop(&s, a, b);
     }
 }
-
-
-
 
 AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
 {
@@ -543,63 +426,7 @@ AABB_node updateAABB(AABB_node* node, const glm::mat4 transformationMatrix)
 }
 
 
-/*
-std::vector<unsigned int> colliding_aabbs;
-
-void BVHCollision(AABB_node* a, AABB_node* b)
-{
-    StackNode* s = (StackNode*)malloc(sizeof(StackNode));
-    s->next = NULL;
-
-    while (1) {
-
-        if (TestAABBAABB(*a, *b)) {
-
-
-            colliding_aabbs.push_back(a->id);
-
-            if (IsLeaf(a) && IsLeaf(b)) {
-
-                CollidePrimitives(a, b);
-
-            } else {
-                if (DescendA(a, b)) {
-                    Push(&s, a->right, b);
-                    a = a->left;
-                    continue;
-                } else {
-                    Push(&s, a, b->right);
-                    b = b->left;
-                    continue;
-                }
-            }
-        }
-
-        if (IsEmpty(s)) {
-            break;
-        }
-
-        Pop(&s, a, b);
-    }
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Print AABB tree min/maxes
 void printAABBMinMax(AABB_node* node)
 {
     if (node == NULL) {

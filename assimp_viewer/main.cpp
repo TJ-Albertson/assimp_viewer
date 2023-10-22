@@ -319,7 +319,7 @@ int main()
         ///AABB_node a = aabb1_node;
         //AABB_node b = aabb2_node;
 
-        BVHCollision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
+        AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
 
 
 

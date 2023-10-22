@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include <space.h>
+#include <aabb.h>
 
 const float EPSILON = 1e-6;
 float scaleFactor = 1;
@@ -306,7 +306,7 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
 
     AABB_node* rootAABBnode;
     
-    TopDownBVTree(&rootAABBnode, triangles, polygons.size());
+    TopDownABBB_Tree(&rootAABBnode, triangles, polygons.size());
 
     printAABBMinMax(rootAABBnode);
 

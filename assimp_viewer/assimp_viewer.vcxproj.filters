@@ -28,6 +28,9 @@
     <Filter Include="Resource Files\Shaders\basic">
       <UniqueIdentifier>{13c5f3b1-7317-4325-b7d7-5bbbd29af053}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\collision">
+      <UniqueIdentifier>{1bcb93de-adfb-4f2b-a27e-8201844bc00b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,9 +104,6 @@
     <ClInclude Include="..\include\shader_m.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\collision.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,8 +119,11 @@
     <ClInclude Include="..\include\shader_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\space.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\include\collision.h">
+      <Filter>Header Files\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\aabb.h">
+      <Filter>Header Files\collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

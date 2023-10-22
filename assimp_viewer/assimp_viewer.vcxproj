@@ -165,7 +165,7 @@
     <ClInclude Include="..\include\shader_t.h" />
     <ClInclude Include="..\include\skeleton.h" />
     <ClInclude Include="..\include\skybox.h" />
-    <ClInclude Include="..\include\space.h" />
+    <ClInclude Include="..\include\aabb.h" />
     <ClInclude Include="..\include\terrain.h" />
     <ClInclude Include="..\include\test.h" />
     <ClInclude Include="..\include\utils.h" />
