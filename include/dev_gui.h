@@ -230,7 +230,6 @@ void SceneWindow()
     ImGui::End();
 }
 
-
 void AABB_Tree(AABB_node* node)
 {
     AABB aabb = node->aabb;
@@ -253,7 +252,6 @@ void AABB_Tree(AABB_node* node)
         ImGui::TreePop();
     }
 }
-
 
 void AABB_Window()
 {
@@ -381,11 +379,13 @@ void MainMenuBar()
             static int e = 0;
 
             ImGui::Text("Camera Type");
-            ImGui::RadioButton("Third", &e, 0);
+            ImGui::RadioButton("Free", &e, 0);
             ImGui::SameLine();
-            ImGui::RadioButton("First", &e, 1);
+            ImGui::RadioButton("Third", &e, 1);
             ImGui::SameLine();
-            ImGui::RadioButton("Free", &e, 2);
+            ImGui::RadioButton("First", &e, 2);
+
+            PlayerCamera->Type = Camera_Type(e);
 
             ImGui::Separator();
 

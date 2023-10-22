@@ -581,8 +581,10 @@ void DrawAABB_Model(Model* model, unsigned int shaderID)
            
         } 
 
-        
-
+        glBindVertexArray(mesh.VAO);
+        glDrawElements(GL_LINES, sizeof(unsigned int[24]) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+ 
         if (collision) {
             glLineWidth(0.5f);
         }

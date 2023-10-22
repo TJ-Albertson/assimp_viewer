@@ -97,7 +97,7 @@ int main()
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     //unsigned int cube = CreateHitbox();
 
-    if (LoadScene(filepath("/resources/scenes/scene2.json"))) {
+    if (LoadScene(filepath("/resources/scenes/scene3.json"))) {
         printf("LoadScene Failed!\n");
     }
 
@@ -281,7 +281,7 @@ int main()
 
 
 
-        AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
+       // AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
         
 
 
@@ -386,7 +386,7 @@ int main()
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
-        //DrawModel(sphere, hitboxShader);    
+        DrawModel(sphere, hitboxShader);    
 
 
 
