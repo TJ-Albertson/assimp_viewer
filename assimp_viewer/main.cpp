@@ -552,7 +552,7 @@ void processInput(GLFWwindow* window, Camera* camera)
 
 	if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
 		isMoving = true;
-	} else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && PlayerCamera->Type == THIRDPERSON && !mousePressed) {
+	} else if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && !mousePressed) {
 		isMoving = true;
     }
     else {
