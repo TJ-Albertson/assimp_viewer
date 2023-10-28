@@ -205,5 +205,11 @@
     <None Include="..\resources\scenes\scene3.json">
       <Filter>Resource Files\Scenes</Filter>
     </None>
+    <None Include="..\shaders\basic\basic_texture.vs">
+      <Filter>Resource Files\Shaders\basic</Filter>
+    </None>
+    <None Include="..\shaders\basic\basic_texture.fs">
+      <Filter>Resource Files\Shaders\basic</Filter>
+    </None>
   </ItemGroup>
 </Project>

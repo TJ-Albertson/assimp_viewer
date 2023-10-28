@@ -3,7 +3,7 @@
         "name": "test_map3",
         "type": "model",
         "filepath": "/resources/models/test/test_map3.obj",
-        "shaderId": 0,
+        "shaderId": 2,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
         "rotation": "0.0, 0.0, 0.0",

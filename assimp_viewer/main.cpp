@@ -70,6 +70,7 @@ int main()
     unsigned int grid_VAO = LoadGrid();
 
     unsigned int basicShader  = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
+    shaderIdArray[2] = basicShader;
     unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
     shaderIdArray[0] = modelShader;
     unsigned int animShader   = createShader(filepath("/shaders/anim_model.vs"),  filepath("/shaders/anim_model.fs"));
@@ -97,7 +98,7 @@ int main()
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     //unsigned int cube = CreateHitbox();
 
-    if (LoadScene(filepath("/resources/scenes/scene3.json"))) {
+    if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
         printf("LoadScene Failed!\n");
     }
 
