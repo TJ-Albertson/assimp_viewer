@@ -275,10 +275,14 @@ int main()
         setShaderMat4(hitboxShader, "view", view);
         //DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        DrawScene(root_node);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+        if (polygonMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        DrawScene(root_node);
+        if (polygonMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
 
 
        // AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);

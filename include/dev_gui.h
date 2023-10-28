@@ -24,6 +24,10 @@ Camera* PlayerCamera;
 
 SceneNode* selectedNode;
 
+bool polygonMode = false;
+
+//bool drawHitboxes = false;
+
 bool showCollisionData = false;
 
 
@@ -438,8 +442,10 @@ void MainMenuBar()
 
         if (ImGui::BeginMenu("Collision")) {
 
-            static bool check = true;
-            ImGui::Checkbox("Show Hitboxes", &check);
+            ImGui::Checkbox("Show Hitboxes", &drawHitboxes);
+            ImGui::Separator();
+
+            ImGui::Checkbox("glPolygonMode", &polygonMode);
             ImGui::Separator();
 
             if (ImGui::MenuItem(" Collision Data Window")) {

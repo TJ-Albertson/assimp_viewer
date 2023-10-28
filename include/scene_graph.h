@@ -46,10 +46,10 @@ struct SceneNode {
 };
 
 SceneNode* root_node;
-
 unsigned int id;
-
 unsigned int shaderIdArray[10];
+
+bool drawHitboxes = false;
 
 SceneNode* CreateNode(SceneNode* parent, std::string const& path);
 void AddChild(SceneNode* parent, SceneNode* child);
@@ -298,14 +298,15 @@ void DrawSceneNode(SceneNode* node, glm::mat4 parentTransform)
         // This will be changed in future. Plan is to use universal shader program.
         // From what I've read that is favorable due to the high cost of switching
         // shader programs.
-        
+
         glUseProgram(shaderIdArray[node->shaderID]);
         setShaderMat4(shaderIdArray[node->shaderID], "model", model);
 
         DrawModel(node->model, shaderIdArray[node->shaderID]);
     }
 
-    if (strcmp(node->type, "hitbox") == 0) {
+    if (strcmp(node->type, "hitbox") == 0 && drawHitboxes)
+{
         
          glUseProgram(shaderIdArray[1]);
         /*

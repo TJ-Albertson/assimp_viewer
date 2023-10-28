@@ -2,7 +2,7 @@
     {
         "name": "test_map2",
         "type": "model",
-        "filepath": "/resources/models/test/test_map1.obj",
+        "filepath": "/resources/models/test/test_map2.obj",
         "shaderId": 0,
         "translation": "0.0, 0.0, 0.0",
         "scale": "1.0, 1.0, 1.0",
@@ -11,7 +11,7 @@
             {
                 "name": "test_map1_hitbox",
                 "type": "hitbox",
-                "filepath": "/resources/models/test/test_map1.obj",
+                "filepath": "/resources/models/test/test_map2.obj",
                 "translation": "0.0, 0.0, 0.0",
                 "scale": "1.0, 1.0, 1.0",
                 "rotation": "0.0, 0.0, 0.0"
