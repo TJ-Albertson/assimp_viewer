@@ -156,9 +156,15 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb
     std::vector<Triangle> left;
     std::vector<Triangle> right;
 
-    while (axis < 3) {
+    int count = 0;
+    while (1) {
+        count++;
+
         float median = (aabb.min[axis] + aabb.max[axis]) / 2.0f;
         SplitTriangles(triangleVector, axis, median, left, right);
+
+        if (count == 3)
+            break;
 
         if (left.empty() || right.empty()) {
             left.clear();
@@ -169,16 +175,13 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb
         }
     }
 
-    if (right.size() == 2 && left.empty()) {
-        triangles[0] = right[0];
-        triangles[1] = right[1];
-        return 1;
-    }
+    // Failed to split on all axi
+    if (left.empty() || right.empty()) {
+        for (int i = 0; i < triangleVector.size(); i++) {
+            triangles[i] = (triangleVector[i]);
+        }
 
-    if (left.size() == 2 && right.empty()) {
-        triangles[0] = left[0];
-        triangles[1] = left[1];
-        return 1;
+        return triangleVector.size() - 1;
     }
 
     for (int i = 0; i < left.size(); i++) {
@@ -188,6 +191,9 @@ int PartitionObjects(Triangle triangles[], int numTriangles, int axis, AABB aabb
     for (int i = 0; i < right.size(); i++) {
         triangles[left.size() + i] = right[i];
     }
+
+    //printf("left.size(): %d\n", left.size());
+    //printf("right.size(): %d\n", right.size());
 
     int k = left.size();
 
