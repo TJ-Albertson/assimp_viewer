@@ -26,11 +26,7 @@ SceneNode* selectedNode;
 
 bool polygonMode = false;
 
-//bool drawHitboxes = false;
-
 bool showCollisionData = false;
-
-
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
