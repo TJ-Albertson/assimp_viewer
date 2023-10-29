@@ -64,6 +64,7 @@ float speed = 1150.0f;
 glm::vec3 directionVector = glm::vec3(1.0f);
 float playerVelocity = 0.0f;
 bool isMoving = false;
+bool noClip = false;
 
 Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
 
@@ -138,18 +139,18 @@ glm::mat4 GetViewMatrix(const Camera camera)
 }
 
 void movePlayer(glm::vec3 vector)
-{  
-    Sphere s;
-    s.center = playerPosition;
-    s.radius = 1.0f;
+{
+        Sphere s;
+        s.center = playerPosition;
+        s.radius = 1.0f;
 
-    Point collision_point;
+        if (!noClip) {
+            Point collision_point;
+            vector += gravityVector;
+            int tri = CollisionDetection(s, vector, collision_point);
+        }
 
-    vector += gravityVector;
-
-    int tri = CollisionDetection(s, vector, collision_point);
-    
-    playerPosition += vector;
+        playerPosition += vector;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

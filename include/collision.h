@@ -248,14 +248,14 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
             if (line[1] == ' ') {
                 float x, y, z;
                 sscanf(line, "v %f %f %f", &x, &y, &z);
-                //vertices.push_back(glm::vec3(matrix * glm::vec4(x, y, z, 1.0f)));
-                vertices.push_back(glm::vec3(x, y, z));
+                vertices.push_back(glm::vec3(matrix * glm::vec4(x, y, z, 1.0f)));
+                //vertices.push_back(glm::vec3(x, y, z));
                 //verticeCount++;
             } else if (line[1] == 'n') {
                 float nx, ny, nz;
                 sscanf(line, "vn %f %f %f", &nx, &ny, &nz);
-                //normals.push_back(glm::normalize(glm::vec3(normalMatrix * glm::vec4(nx, ny, nz, 1.0))));
-                normals.push_back(glm::vec3(nx, ny, nz));
+                normals.push_back(glm::normalize(glm::vec3(normalMatrix * glm::vec4(nx, ny, nz, 1.0))));
+                //normals.push_back(glm::vec3(nx, ny, nz));
                 
                 //normalCount++;
             }

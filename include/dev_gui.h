@@ -454,6 +454,14 @@ void MainMenuBar()
 
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Movement")) {
+
+            ImGui::Checkbox("NoClip", &noClip);
+            ImGui::Separator();
+
+            ImGui::EndMenu();
+        }
         // Add more menus and items here
         ImGui::EndMainMenuBar();
     }
