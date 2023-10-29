@@ -304,7 +304,7 @@ AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix)
     
     TopDownABBB_Tree(&rootAABBnode, triangles, polygons.size());
 
-    printAABBMinMax(rootAABBnode);
+    //printAABBMinMax(rootAABBnode);
 
     root_AABB_nodes.push_back(rootAABBnode);
 

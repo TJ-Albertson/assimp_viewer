@@ -205,7 +205,8 @@ void TopDownABBB_Tree(AABB_node** tree, Triangle triangles[], int numObjects)
 {
     // Failure. Unbalanced Tree
     assert(numObjects > 0);
-    printf("numObjects: %d\n", numObjects);
+
+    //printf("numObjects: %d\n", numObjects);
     /*
     for (int i = 0; i < numObjects; i++) {
         std::cout << "Triangle " << i << ": " << std::endl;
