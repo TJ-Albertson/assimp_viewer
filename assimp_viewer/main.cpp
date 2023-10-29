@@ -98,7 +98,7 @@ int main()
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     //unsigned int cube = CreateHitbox();
 
-    if (LoadScene(filepath("/resources/scenes/scene3.json"))) {
+    if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
         printf("LoadScene Failed!\n");
     }
 

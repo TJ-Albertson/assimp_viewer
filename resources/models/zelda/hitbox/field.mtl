@@ -1,0 +1,72 @@
+# Blender 3.4.1 MTL File: 'field hitbox.blend'
+# www.blender.org
+
+newmtl material-01A8F0F3.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_siro_02_5C000.png
+
+newmtl material-021A6942.002
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_yuka_04_85D00.png
+
+newmtl material-02913A63.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_kabe_01_11300.png
+
+newmtl material-030CCD9D.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_road_02_46580.png
+
+newmtl material-038F46BA.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_kabe_05_1C700.png
+
+newmtl material-0394DE88.006
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/texture_diffuse.png
+
+newmtl material-03E4FA66.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/tjalb/source/repos/TJ-Albertson/assimp_viewer/resources/models/zelda/s00_road_01_41180.png
