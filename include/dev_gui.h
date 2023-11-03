@@ -456,6 +456,9 @@ void MainMenuBar()
             ImGui::Checkbox("NoClip", &noClip);
             ImGui::Separator();
 
+            ImGui::Checkbox("animationPlaying", &animationPlaying);
+            ImGui::Separator();
+
             ImGui::EndMenu();
         }
         // Add more menus and items here

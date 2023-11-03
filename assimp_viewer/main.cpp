@@ -83,7 +83,7 @@ int main()
     unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
 
     Model* billboard = LoadModel(filepath("/resources/models/billboards/hp1.obj"));
-    Model* moon = LoadModel(filepath("/resources/models/billboards/moon.obj"));
+    Model* moon = LoadModel(filepath("/resources/models/billboards/moon.obj")); 
     Model* sun = LoadModel(filepath("/resources/models/billboards/sun.obj"));
 
 
@@ -94,6 +94,8 @@ int main()
     Model* soid_man = LoadModel(filepath("/resources/models/man/soid_man.obj"));
 
     Model* arrow = LoadModel(filepath("/resources/models/direction_arrows/z.obj"));
+
+    Model* vampire = LoadModel(filepath("/resources/models/zelda/character/soldier.dae"));
 
     //Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     //unsigned int cube = CreateHitbox();
@@ -179,7 +181,7 @@ int main()
         model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
         setShaderMat4(animShader, "model", model);
 
-        //DrawModel(vampire, animShader);
+        DrawModel(vampire, animShader);
         
 
         glUseProgram(modelShader);

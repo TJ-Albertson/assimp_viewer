@@ -31,6 +31,9 @@
     <Filter Include="Header Files\collision">
       <UniqueIdentifier>{1bcb93de-adfb-4f2b-a27e-8201844bc00b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\import">
+      <UniqueIdentifier>{4c32c0e9-cb73-4bda-a798-83694a789c28}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -127,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="..\include\controls.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf.h">
+      <Filter>Header Files\import</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

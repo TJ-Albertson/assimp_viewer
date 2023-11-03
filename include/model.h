@@ -432,11 +432,14 @@ void DrawModel(Model* model, unsigned int shaderID)
 
         Mesh mesh = model->m_Meshes[i];
 
+       
+
         for (unsigned int i = 0; i < mesh.numTextures; i++) {
             glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 
             // retrieve texture number (the N in diffuse_textureN)
             std::string number;
+            printf("mesh.numTextures %d\n", mesh.numTextures);
             std::string name = std::string(mesh.textures[i].type);
 
             if (name == "texture_diffuse") {

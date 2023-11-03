@@ -156,6 +156,7 @@
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\collision.h" />
     <ClInclude Include="..\include\controls.h" />
+    <ClInclude Include="..\include\gltf.h" />
     <ClInclude Include="..\include\grid.h" />
     <ClInclude Include="..\include\dev_gui.h" />
     <ClInclude Include="..\include\log_file_functions.h" />
