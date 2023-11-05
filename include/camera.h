@@ -146,10 +146,10 @@ glm::mat4 GetViewMatrix(const Camera camera)
 	return glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 }
 
-void movePlayer(glm::vec3 vector)
+void movePlayer(glm::vec3& vector)
 {
         Sphere s;
-        s.center = playerPosition;
+        s.center = playerState.position;
         s.radius = 1.0f;
 
         if (!noClip) {
@@ -158,7 +158,7 @@ void movePlayer(glm::vec3 vector)
             int tri = CollisionDetection(s, vector, collision_point);
         }
 
-        playerPosition += vector;
+        //playerState.position += vector;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

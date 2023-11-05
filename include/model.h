@@ -439,7 +439,7 @@ void DrawModel(Model* model, unsigned int shaderID)
 
             // retrieve texture number (the N in diffuse_textureN)
             std::string number;
-            printf("mesh.numTextures %d\n", mesh.numTextures);
+            //printf("mesh.numTextures %d\n", mesh.numTextures);
             std::string name = std::string(mesh.textures[i].type);
 
             if (name == "texture_diffuse") {

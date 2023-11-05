@@ -90,6 +90,8 @@ void integrate(PlayerState& state, float& time, float dt) {
 
     state.position = position;
     state.velocity = velocity;
+
+    movePlayer(state.velocity);
 }
 
 
@@ -163,7 +165,7 @@ int main()
     float accumulator = 0.0;
 
     
-    playerState.position = glm::vec3(0.0f);
+    playerState.position = glm::vec3(0.0f, 3.0f, 0.0f);
     playerState.velocity = glm::vec3(0.0f);
     playerState.force = glm::vec3(0.0f);
     playerState.mass = 1.0f;
@@ -243,7 +245,7 @@ int main()
         }
 
         // Send to collision detection and response
-        //movePlayer(vector);
+       // 
 
        
 
