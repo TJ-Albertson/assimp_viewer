@@ -51,7 +51,15 @@ struct Camera {
 	Camera_Type Type;
 };
 
-glm::vec3 playerPosition = glm::vec3(0.0f, 15.0f, 0.0f);
+typedef struct PlayerState {
+        glm::vec3 position;
+        glm::vec3 velocity;
+        glm::vec3 force;
+        float mass;
+} PlayerState;
+
+PlayerState playerState;
+glm::vec3 playerPosition; // = glm::vec3(0.0f, 15.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
 glm::vec3 gravityVector = glm::vec3(0.0f, -0.15f, 0.0f);
@@ -146,7 +154,7 @@ void movePlayer(glm::vec3 vector)
 
         if (!noClip) {
             Point collision_point;
-            vector += gravityVector;
+            //vector += gravityVector;
             int tri = CollisionDetection(s, vector, collision_point);
         }
 

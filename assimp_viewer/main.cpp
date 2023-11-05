@@ -1,5 +1,6 @@
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -61,31 +62,40 @@ bool jumpDebounce = false;
 bool isJumping = false;
 float jumpDuration = 0.7f;
 
-typedef struct PlayerState {
-    glm::vec3 position;
-    glm::vec3 velocity;
-    float force;
-    float mass;
-} PlayerState;
+GLFWwindow* window;
+
+
+
+const glm::vec3 jumpForce(0.0f, 5.0f, 0.0f);
+const glm::vec3 gravity(0.0f, -0.1f, 0.0f);
 
 void integrate(PlayerState& state, float& time, float dt) {
 
     glm::vec3 velocity = state.velocity;
     glm::vec3 position = state.position;
-    float force = state.force;
+    //glm::vec3 force = state.force;
     float mass = state.mass;
 
-    // semi-implicit euler
-    while (time <= 10.0) {
-        velocity = velocity + (force / mass) * dt;
-        position = position + velocity * dt;
-        time += dt;
+    //glm::vec3 acceleration = force / mass;
+
+    glm::vec3 acceleration = gravity;
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        velocity = velocity + jumpForce * dt;
     }
+
+    // semi-implicit euler
+    velocity = velocity + acceleration * dt;
+    position = position + velocity * dt;
+
+    state.position = position;
+    state.velocity = velocity;
 }
+
 
 int main()
 {
-    GLFWwindow* window = InitializeWindow();
+    window = InitializeWindow();
     PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     unsigned int grid_VAO = LoadGrid();
@@ -149,14 +159,27 @@ int main()
     float t = 0.0;
     float dt = 0.01;
 
-    float currentTime = hires_time_in_seconds();
+    float currentTime = glfwGetTime();
     float accumulator = 0.0;
 
+    
+    playerState.position = glm::vec3(0.0f);
+    playerState.velocity = glm::vec3(0.0f);
+    playerState.force = glm::vec3(0.0f);
+    playerState.mass = 1.0f;
+
+
     PlayerState previousState;
-    PlayerState currentState;
+    PlayerState currentState = playerState;
 
 
     while (!glfwWindowShouldClose(window)) {
+
+        playerPosition = playerState.position;
+
+         // input
+        // -----
+        processInput(window, PlayerCamera);
 
         // per-frame time logic
         // --------------------
@@ -180,9 +203,10 @@ int main()
             accumulator -= dt;
         }
 
-        const double float = accumulator / dt;
+        const float alpha = accumulator / dt;
 
-        PlayerState state = currentState * alpha + previousState * (1.0 - alpha);
+        playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+        playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
         glm::vec3 vector;
 
@@ -196,13 +220,6 @@ int main()
             playerVelocity -= friction;
             if (playerVelocity < 0)
                 playerVelocity = 0.0f;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            if (currentTime - lastSpacePressTime >= debounceDelay) {
-                movePlayer(glm::vec3(0.0f, -1.0f, 0.0f));
-                lastSpacePressTime = currentTime;
-            }
         }
 
         // need 2 fix dis           ?switch to adding new velocity to old? idk
@@ -226,11 +243,9 @@ int main()
         }
 
         // Send to collision detection and response
-        movePlayer(vector);
+        //movePlayer(vector);
 
-        // input
-        // -----
-        processInput(window, PlayerCamera);
+       
 
         // imgui
         Main_GUI_Loop(currentTime);
@@ -388,7 +403,7 @@ int main()
         setShaderMat4(modelShader, "model", model);
         // DrawModel(soid_man, modelShader);
 
-        glm::vec3 playerCenter = playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
+        glm::vec3 playerCenter = playerState.position; // playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
         // BACKFACE CULLING |ON|

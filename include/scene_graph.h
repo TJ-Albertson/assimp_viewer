@@ -20,6 +20,8 @@ the root node.
 #include <utils.h>
 #include <my_math.h>
 
+#include "shader_m.h"
+
 struct SceneNode {
     char name[24];
     char type[24];
