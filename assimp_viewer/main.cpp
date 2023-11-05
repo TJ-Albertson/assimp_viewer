@@ -180,7 +180,7 @@ int main()
             accumulator -= dt;
         }
 
-        const double alpha = accumulator / dt;
+        const double float = accumulator / dt;
 
         PlayerState state = currentState * alpha + previousState * (1.0 - alpha);
 
