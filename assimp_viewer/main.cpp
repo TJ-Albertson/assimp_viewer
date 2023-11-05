@@ -84,6 +84,19 @@ void integrate(PlayerState& state, float& time, float dt) {
         velocity = velocity + jumpForce * dt;
     }
 
+    glm::vec3 camForward = PlayerCamera->Position - playerPosition;
+    camForward = normalize(camForward);
+    glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        glm::vec3 moveForward = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * 1.0f;
+        velocity = velocity + moveForward * dt;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        glm::vec3 moveBack = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * 1.0f;
+        velocity = velocity + moveBack * dt;
+    }
+
     // semi-implicit euler
     velocity = velocity + acceleration * dt;
     position = position + velocity * dt;
