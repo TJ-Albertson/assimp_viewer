@@ -23,7 +23,7 @@ float rotationSpeed = 0.10f;
 
 bool noClip = false;
 
-const glm::vec3 jumpForce(0.0f, 5.0f, 0.0f);
+const glm::vec3 jumpForce(0.0f, 3.0f, 0.0f);
 
 typedef enum Movement_Type {
     FORWARD,

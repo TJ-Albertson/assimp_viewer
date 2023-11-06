@@ -138,8 +138,6 @@ SceneNode* CreateTreeNode(cJSON* jsonNode, glm::mat4 matrix)
     const char* rotation_str = cJSON_GetObjectItem(jsonNode, "rotation")->valuestring;
     sscanf(rotation_str, "%f, %f, %f", &rotation.x, &rotation.y, &rotation.z);
 
-    
-
     node->m_pos = translation;
     node->m_eulerRot = rotation;
     node->m_scale = scale;

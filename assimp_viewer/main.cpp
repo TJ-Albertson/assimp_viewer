@@ -66,7 +66,7 @@ GLFWwindow* window;
 
 const glm::vec3 gravity(0.0f, -1.5f, 0.0f);
 
-void integrate(PlayerState& state, float& time, float dt) {
+void IntegrateState(PlayerState& state, float& time, float dt) {
 
     glm::vec3 velocity = state.velocity;
     glm::vec3 position = state.position;
@@ -149,7 +149,7 @@ int main()
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     // unsigned int cube = CreateHitbox();
 
-    if (LoadScene(filepath("/resources/scenes/scene1.json"))) {
+    if (LoadScene(filepath("/resources/scenes/scene3.json"))) {
         printf("LoadScene Failed!\n");
     }
 
@@ -205,7 +205,7 @@ int main()
         while (accumulator >= dt)
         {
             previousState = currentState;
-            integrate(currentState, t, dt);
+            IntegrateState(currentState, t, dt);
             t += dt;
             accumulator -= dt;
         }

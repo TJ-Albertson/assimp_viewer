@@ -93,8 +93,8 @@ void main()
 
     //FragColor = vec4(Convert_sRGB_ToLinear(result.x),Convert_sRGB_ToLinear(result.y),Convert_sRGB_ToLinear(result.z), 1.0);
 
-    //FragColor = vec4(result, 1.0f);
-    FragColor = vec4(result * VertexColor * 1.5f, 1.0);
+    FragColor = vec4(result, 1.0f);
+    //FragColor = vec4(result * VertexColor * 1.5f, 1.0);
 }
 
 float Convert_sRGB_ToLinear (float thesRGBValue) {
