@@ -128,7 +128,7 @@
     <ClInclude Include="..\include\aabb.h">
       <Filter>Header Files\collision</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\controls.h">
+    <ClInclude Include="..\include\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\gltf.h">

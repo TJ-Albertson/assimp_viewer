@@ -5,7 +5,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-#include <camera.h>
+//#include <camera.h>
+#include <input.h>
 #include <nfd/nfd.h>
 #include <scene_graph.h>
 #include <my_math.h>
@@ -390,7 +391,10 @@ void MainMenuBar()
             ImGui::Separator();
 
             ImGui::Text("FOV");
-            ImGui::SliderFloat("##fovslider", &PlayerCamera->Zoom, 50, 150, "%.f");
+            ImGui::SliderFloat("##fovslider", &PlayerCamera->FOV, 50, 150, "%.f");
+
+            ImGui::Text("Zoom");
+            ImGui::SliderFloat("##zoomslider", &PlayerCamera->Zoom, 10, 150, "%.f");
 
             ImGui::EndMenu();
         }

@@ -49,7 +49,7 @@ GLFWwindow* InitializeWindow();
 std::string filepath(std::string path);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window, Camera* camera);
+void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float dt);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -65,9 +65,7 @@ float jumpDuration = 0.7f;
 GLFWwindow* window;
 
 
-
-const glm::vec3 jumpForce(0.0f, 5.0f, 0.0f);
-const glm::vec3 gravity(0.0f, -0.1f, 0.0f);
+const glm::vec3 gravity(0.0f, -0.5f, 0.0f);
 
 void integrate(PlayerState& state, float& time, float dt) {
 
@@ -80,6 +78,7 @@ void integrate(PlayerState& state, float& time, float dt) {
 
     glm::vec3 acceleration = gravity;
 
+    /*
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         velocity = velocity + jumpForce * dt;
     }
@@ -96,7 +95,10 @@ void integrate(PlayerState& state, float& time, float dt) {
         glm::vec3 moveBack = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) * 1.0f;
         velocity = velocity + moveBack * dt;
     }
-
+    */
+    ProcessInput(window, PlayerCamera, velocity, dt);
+    
+    
     // semi-implicit euler
     velocity = velocity + acceleration * dt;
     position = position + velocity * dt;
@@ -190,11 +192,11 @@ int main()
 
     while (!glfwWindowShouldClose(window)) {
 
-        playerPosition = playerState.position;
-
-         // input
+        // input
         // -----
-        processInput(window, PlayerCamera);
+        
+
+        playerPosition = playerState.position;
 
         // per-frame time logic
         // --------------------
@@ -223,45 +225,8 @@ int main()
         playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
         playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
-        glm::vec3 vector;
-
-        if (isMoving) {
-            playerVelocity += acceleration;
-
-            if (playerVelocity > max_speed)
-                playerVelocity = max_speed;
-
-        } else {
-            playerVelocity -= friction;
-            if (playerVelocity < 0)
-                playerVelocity = 0.0f;
-        }
-
-        // need 2 fix dis           ?switch to adding new velocity to old? idk
-        vector = (glm::normalize(directionVector) * playerVelocity) * deltaTime;
-
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            if (currentTime - jumpStartTime >= debounceDelay) {
-                jumpStartTime = currentTime;
-                isJumping = true;
-                vector += glm::vec3(0.0f, 0.5f, 0.0f); // Apply initial y-velocity
-            }
-        }
-        if (isJumping) {
-            // Keep applying y-velocity within the jump duration
-            vector += glm::vec3(0.0f, 0.5f - (currentTime - jumpStartTime), 0.0f);
-
-            if (currentTime - jumpStartTime >= jumpDuration) {
-                isJumping = false; // Stop jumping after jumpDuration
-                // Reset y-velocity when the jump duration is over
-            }
-        }
-
-        // Send to collision detection and response
-       // 
-
+        updateCameraVectors(PlayerCamera);
        
-
         // imgui
         Main_GUI_Loop(currentTime);
 
@@ -271,7 +236,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
+        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*PlayerCamera);
 
         /*
@@ -581,35 +546,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window, Camera* camera)
+void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float dt)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, FORWARD, deltaTime);
+        ProcessKeyboard(camera, FORWARD, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, BACKWARD, deltaTime);
+        ProcessKeyboard(camera, BACKWARD, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, LEFT, deltaTime);
+        ProcessKeyboard(camera, LEFT, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, RIGHT, deltaTime);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, FORWARD_RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, FORWARD_LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, BACKWARD_RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        CameraProcessKeyboard(camera, BACKWARD_LEFT, deltaTime);
-
-    if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && mousePressed) {
-        isMoving = true;
-    } else if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) && PlayerCamera->Type == THIRDPERSON && !mousePressed) {
-        isMoving = true;
-    } else {
-        isMoving = false;
-    }
+        ProcessKeyboard(camera, RIGHT, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        ProcessKeyboard(camera, JUMP, velocity, dt);
 }
 
 // glfw: whenever the mouse moves, this callback is called
@@ -636,7 +586,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         lastX = xpos;
         lastY = ypos;
 
-        CameraProcessMouseMovement(PlayerCamera, xoffset, yoffset);
+        ProcessMouseMovement(PlayerCamera, xoffset, yoffset, true);
 
     } else if (rightMouseButtonState == GLFW_RELEASE) {
         // Enable the cursor when the right mouse button is released
@@ -650,5 +600,5 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    // CameraProcessMouseScroll(PlayerCamera, yoffset);
+    ProcessMouseScroll(PlayerCamera, yoffset);
 }

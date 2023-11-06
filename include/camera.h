@@ -8,29 +8,19 @@
 #include <vector>
 #include <collision.h>
 
-enum Camera_Type {
+typedef enum Camera_Type {
 	FREE,
-	THIRDPERSON
-};
-
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum Camera_Movement {
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT,
-    FORWARD_RIGHT,
-    FORWARD_LEFT,
-    BACKWARD_RIGHT,
-    BACKWARD_LEFT
-};
+	THIRDPERSON,
+    FIRSTPERSON
+} Camera_Type;
 
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 3.0f;
 const float SENSITIVITY = 0.1f;
-const float ZOOM = 90.0f;
+const float ZOOM = 50.0f;
+const float FOV = 90.0f;
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 struct Camera {
@@ -47,6 +37,7 @@ struct Camera {
 	float MovementSpeed;
 	float MouseSensitivity;
 	float Zoom;
+    float FOV;
 
 	Camera_Type Type;
 };
@@ -82,21 +73,10 @@ Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
 glm::mat4 GetViewMatrix(const Camera camera);
 
-// processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float deltaTime);
-
-// processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void CameraProcessMouseMovement(Camera* camera, float xoffset, float yoffset, GLboolean constrainPitch = true);
-
-// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-void CameraProcessMouseScroll(Camera* camera, float yoffset);
-
 // calculates the front vector from the Camera's (updated) Euler Angles
 void updateCameraVectors(Camera* camera);
 
-
-
-// constructor with vectors
+// constructor with vectors: DEFAULT
 Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
         Camera* camera = (Camera*)malloc(sizeof(Camera));
@@ -105,6 +85,7 @@ Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pi
         camera->MovementSpeed = SPEED;
         camera->MouseSensitivity = SENSITIVITY;
         camera->Zoom = ZOOM;
+        camera->FOV = FOV;
 
         camera->Position = position;
         camera->WorldUp = up;
@@ -127,6 +108,7 @@ Camera* CreateCameraScalar(float posX, float posY, float posZ, float upX, float 
         camera->MovementSpeed = SPEED;
         camera->MouseSensitivity = SENSITIVITY;
         camera->Zoom = ZOOM;
+        camera->FOV = FOV;
 
         camera->Position = glm::vec3(posX, posY, posZ);
         camera->WorldUp = glm::vec3(upX, upY, upZ);
@@ -161,126 +143,11 @@ void movePlayer(glm::vec3& vector)
         //playerState.position += vector;
 }
 
-// processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void CameraProcessKeyboard(Camera* camera, Camera_Movement direction, float deltaTime)
-{
-        if (camera->Type == FREE) {
-            float velocity = camera->MovementSpeed * deltaTime;
-            if (direction == FORWARD)
-                camera->Position += camera->Front * velocity;
-            if (direction == BACKWARD)
-                camera->Position -= camera->Front * velocity;
-            if (direction == LEFT)
-                camera->Position -= camera->Right * velocity;
-            if (direction == RIGHT)
-                camera->Position += camera->Right * velocity;
-
-        } else if (camera->Type == THIRDPERSON) {
-
-			glm::vec3 camForward = camera->Position - playerPosition;
-            camForward = normalize(camForward);
-            glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
-
-
-            if (direction == FORWARD) {
-                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            }
-            if (direction == BACKWARD) {
-                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            }
-            if (direction == LEFT) {
-                if (mousePressed) {
-                    directionVector = glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                } else {
-                    camera->Yaw -= 0.5f;
-                }
-            }
-            if (direction == RIGHT) {
-                if (mousePressed) {
-                    directionVector = -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                } else {
-                    camera->Yaw += 0.5f;
-                }
-            }
-
-            if (direction == FORWARD_RIGHT) {
-                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) - glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-            }
-            if (direction == FORWARD_LEFT) {
-                directionVector = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) + glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-            }
-            if (direction == BACKWARD_RIGHT) {
-                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) - glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-            }
-            if (direction == BACKWARD_LEFT) {
-                directionVector = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z)) + glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-            }
-
-            playerRotation = glm::atan(camera->Front.x, camera->Front.z);
-            updateCameraVectors(camera);
-		}
-}
-
-// processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void CameraProcessMouseMovement(Camera* camera, float xoffset, float yoffset, GLboolean constrainPitch)
-{
-	xoffset *= camera->MouseSensitivity;
-	yoffset *= camera->MouseSensitivity;
-
-	camera->Yaw += xoffset;
-	camera->Pitch += yoffset;
-
-	// make sure that when pitch is out of bounds, screen doesn't get flipped
-	if (constrainPitch) {
-		if (camera->Pitch > 89.0f)
-			camera->Pitch = 89.0f;
-		if (camera->Pitch < -89.0f)
-			camera->Pitch = -89.0f;
-	}
-
-	// update Front, Right and Up Vectors using the updated Euler angles
-	updateCameraVectors(camera);
-}
-
-// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-void CameraProcessMouseScroll(Camera* camera, float yoffset)
-{
-	camera->Zoom -= (float)yoffset;
-
-	if (camera->Zoom < 1.0f)
-		camera->Zoom = 1.0f;
-	if (camera->Zoom > 90.0f)
-		camera->Zoom = 90.0f;
-}
-
 // calculates the front vector from the Camera's (updated) Euler Angles
 void updateCameraVectors(Camera* camera)
 {
-        if (camera->Type == THIRDPERSON) {
-                float radius = camera->Zoom;
-   
-                glm::float32 x = radius * cos(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
-                glm::float32 z = radius * sin(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
-
-                glm::float32 y = radius * sin(glm::radians(camera->Pitch));
-
-                camera->Position.x = x + playerPosition.x;
-                camera->Position.z = z + playerPosition.z;
-
-                camera->Position.y = -y + playerPosition.y;
-
-
-                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
-
-                glm::vec3 cameraFront = glm::normalize(playerHead - camera->Position);
-                glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));
-                glm::vec3 cameraUp = glm::cross(cameraFront, cameraRight);
-
-                camera->Front = cameraFront;
-                camera->Right = cameraRight;
-                camera->Up = cameraUp;
-
-        } else {
+        switch (camera->Type) {
+        case FREE: {
                 // calculate the new Front vector
                 glm::vec3 front;
                 front.x = cos(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
@@ -291,33 +158,37 @@ void updateCameraVectors(Camera* camera)
                 camera->Right = glm::normalize(glm::cross(camera->Front, camera->WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
                 camera->Up = glm::normalize(glm::cross(camera->Right, camera->Front));
         }
-}
-	
+        break;
 
-// switch from player to free camera or vice versa
-void switchCamera(Camera* camera)
-{
-        if (camera->Type == FREE) {
-                camera->Type = THIRDPERSON;
+        case THIRDPERSON: {
+                float radius = camera->Zoom;
 
-                camera->Position.x = playerPosition.x;
-                camera->Position.y = playerPosition.y + 50;
-                camera->Position.z = playerPosition.z - 50;
+                glm::float32 x = radius * cos(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
+                glm::float32 z = radius * sin(glm::radians(camera->Yaw)) * cos(glm::radians(camera->Pitch));
 
-                glm::vec3 cameraFront = glm::normalize(playerPosition - camera->Position);
+                glm::float32 y = radius * sin(glm::radians(camera->Pitch));
+
+                camera->Position.x = x + playerPosition.x;
+                camera->Position.z = z + playerPosition.z;
+
+                camera->Position.y = -y + playerPosition.y;
+
+                glm::vec3 playerHead = playerPosition + glm::vec3(0.0f, 2.6f, 0.0f);
+
+                glm::vec3 cameraFront = glm::normalize(playerHead - camera->Position);
                 glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraFront));
                 glm::vec3 cameraUp = glm::cross(cameraFront, cameraRight);
 
                 camera->Front = cameraFront;
                 camera->Right = cameraRight;
                 camera->Up = cameraUp;
+        }
+        break;
 
-                // Makes camera look in the right direction from the right position
-                //glm::vec3 view = glm::lookAt(Position, Orientation, Up);
-
-
-        } else if (camera->Type == THIRDPERSON) {
-                camera->Type = FREE;
+        case FIRSTPERSON:
+                break;
+        default:
+                printf("Invalid Camera type\n");
         }
 }
 
