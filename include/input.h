@@ -3,6 +3,26 @@
 
 #include "camera.h"
 
+typedef struct PlayerState {
+    glm::vec3 position;
+    glm::vec3 velocity;
+    glm::vec3 force;
+    float mass;
+} PlayerState;
+
+PlayerState playerState;
+glm::vec3 playerPosition; // = glm::vec3(0.0f, 15.0f, 0.0f);
+glm::float32_t playerRotation = 90.0f;
+
+glm::vec3 gravityVector = glm::vec3(0.0f, -0.15f, 0.0f);
+
+bool firstMouse = true;
+bool mousePressed = false;
+
+float rotationSpeed = 0.10f;
+
+bool noClip = false;
+
 const glm::vec3 jumpForce(0.0f, 5.0f, 0.0f);
 
 typedef enum Movement_Type {
@@ -12,6 +32,21 @@ typedef enum Movement_Type {
     RIGHT,
     JUMP
 } Movement_Type;
+
+void movePlayer(glm::vec3& vector)
+{
+    Sphere s;
+    s.center = playerState.position;
+    s.radius = 1.0f;
+
+    if (!noClip) {
+        Point collision_point;
+        // vector += gravityVector;
+        int tri = CollisionDetection(s, vector, collision_point);
+    }
+
+    // playerState.position += vector;
+}
 
 void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity, float deltaTime)
 {

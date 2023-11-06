@@ -64,8 +64,7 @@ float jumpDuration = 0.7f;
 
 GLFWwindow* window;
 
-
-const glm::vec3 gravity(0.0f, -0.5f, 0.0f);
+const glm::vec3 gravity(0.0f, -1.5f, 0.0f);
 
 void integrate(PlayerState& state, float& time, float dt) {
 
@@ -171,20 +170,16 @@ int main()
     };
 
     // Physics
-
-
     float t = 0.0;
     float dt = 0.01;
 
     float currentTime = glfwGetTime();
     float accumulator = 0.0;
 
-    
     playerState.position = glm::vec3(0.0f, 3.0f, 0.0f);
     playerState.velocity = glm::vec3(0.0f);
     playerState.force = glm::vec3(0.0f);
     playerState.mass = 1.0f;
-
 
     PlayerState previousState;
     PlayerState currentState = playerState;
@@ -192,18 +187,10 @@ int main()
 
     while (!glfwWindowShouldClose(window)) {
 
-        // input
-        // -----
-        
-
         playerPosition = playerState.position;
 
         // per-frame time logic
         // --------------------
-        //float currentTime = glfwGetTime();
-        deltaTime = currentTime - previousTime;
-        previousTime = currentTime;
-
         float newTime = glfwGetTime();
         float frameTime = newTime - currentTime;
         if (frameTime > 0.25)
@@ -225,7 +212,7 @@ int main()
         playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
         playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
-        updateCameraVectors(PlayerCamera);
+        UpdateCameraVectors(PlayerCamera, playerState.position);
        
         // imgui
         Main_GUI_Loop(currentTime);
@@ -260,7 +247,7 @@ int main()
         setShaderMat4(animShader, "view", view);
 
         if (animationPlaying) {
-            AnimateModel(deltaTime, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
+            AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
         }
 
         for (int i = 0; i < 100; ++i)
