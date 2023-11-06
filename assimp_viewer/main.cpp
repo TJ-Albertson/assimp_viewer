@@ -74,8 +74,11 @@ void integrate(PlayerState& state, float& time, float dt) {
     float mass = state.mass;
 
     //glm::vec3 acceleration = force / mass;
-
     glm::vec3 acceleration = gravity;
+
+    if (noClip) {
+        acceleration = glm::vec3(0.0f);
+    }
 
     /*
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -95,7 +98,7 @@ void integrate(PlayerState& state, float& time, float dt) {
         velocity = velocity + moveBack * dt;
     }
     */
-    ProcessInput(window, PlayerCamera, velocity, dt);
+    ProcessInput(window, playerCamera, velocity, dt);
     
     
     // semi-implicit euler
@@ -105,14 +108,14 @@ void integrate(PlayerState& state, float& time, float dt) {
     state.position = position;
     state.velocity = velocity;
 
-    movePlayer(state.velocity);
+    Collision(state.velocity, state.position);
 }
 
 
 int main()
 {
     window = InitializeWindow();
-    PlayerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
+    playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
     unsigned int grid_VAO = LoadGrid();
 
@@ -212,9 +215,10 @@ int main()
         playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
         playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
-        UpdateCameraVectors(PlayerCamera, playerState.position);
+        UpdateCameraVectors(playerCamera, playerState.position);
        
         // imgui
+        // ------
         Main_GUI_Loop(currentTime);
 
         // render
@@ -223,8 +227,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(PlayerCamera->FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
-        glm::mat4 view = GetViewMatrix(*PlayerCamera);
+        glm::mat4 projection = glm::perspective(glm::radians(playerCamera->FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
+        glm::mat4 view = GetViewMatrix(*playerCamera);
 
         /*
         // Draw Grid, with instance array
@@ -262,7 +266,7 @@ int main()
 
         glUseProgram(modelShader);
 
-        setVec3(modelShader, "viewPos", PlayerCamera->Position);
+        setVec3(modelShader, "viewPos", playerCamera->Position);
         setShaderFloat(modelShader, "material.shininess", 32.0f);
         // setInt(modelShader, "material.diffuse", 0);
         // setInt(modelShader, "material.specular", 1);
@@ -362,7 +366,7 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerPosition);
 
-        if (PlayerCamera->Type == THIRDPERSON) {
+        if (playerCamera->Type == THIRDPERSON) {
             model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
@@ -410,7 +414,7 @@ int main()
         setShaderMat4(hitboxShader, "model", glm::mat4(1.0f));
 
         // Needs to be drawn last; covers up everything after it
-        DrawSkybox(*PlayerCamera, view, projection, currentTime);
+        DrawSkybox(*playerCamera, view, projection, currentTime);
         // update, except for transparent stuff i guess
 
         /*
@@ -573,7 +577,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         lastX = xpos;
         lastY = ypos;
 
-        ProcessMouseMovement(PlayerCamera, xoffset, yoffset, true);
+        ProcessMouseMovement(playerCamera, xoffset, yoffset, true);
 
     } else if (rightMouseButtonState == GLFW_RELEASE) {
         // Enable the cursor when the right mouse button is released
@@ -587,5 +591,5 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    ProcessMouseScroll(PlayerCamera, yoffset);
+    ProcessMouseScroll(playerCamera, yoffset);
 }

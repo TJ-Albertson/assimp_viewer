@@ -21,12 +21,10 @@ int nodeId = 0;
 glm::vec3 sliderColor = glm::vec3(1.0f, 1.0f, 1.0f);
 float dayNightSpeed = 0.02f;
 
-Camera* PlayerCamera;
-
+Camera* playerCamera;
 SceneNode* selectedNode;
 
 bool polygonMode = false;
-
 bool showCollisionData = false;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
@@ -386,15 +384,15 @@ void MainMenuBar()
             ImGui::SameLine();
             ImGui::RadioButton("First", &e, 2);
 
-            PlayerCamera->Type = Camera_Type(e);
+            playerCamera->Type = Camera_Type(e);
 
             ImGui::Separator();
 
             ImGui::Text("FOV");
-            ImGui::SliderFloat("##fovslider", &PlayerCamera->FOV, 50, 150, "%.f");
+            ImGui::SliderFloat("##fovslider", &playerCamera->FOV, 50, 150, "%.f");
 
             ImGui::Text("Zoom");
-            ImGui::SliderFloat("##zoomslider", &PlayerCamera->Zoom, 10, 150, "%.f");
+            ImGui::SliderFloat("##zoomslider", &playerCamera->Zoom, 10, 150, "%.f");
 
             ImGui::EndMenu();
         }

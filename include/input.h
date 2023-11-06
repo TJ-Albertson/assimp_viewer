@@ -33,19 +33,16 @@ typedef enum Movement_Type {
     JUMP
 } Movement_Type;
 
-void movePlayer(glm::vec3& vector)
+void Collision(glm::vec3& vector, glm::vec3& position)
 {
     Sphere s;
-    s.center = playerState.position;
+    s.center = position;
     s.radius = 1.0f;
 
     if (!noClip) {
         Point collision_point;
-        // vector += gravityVector;
         int tri = CollisionDetection(s, vector, collision_point);
     }
-
-    // playerState.position += vector;
 }
 
 void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity, float deltaTime)
