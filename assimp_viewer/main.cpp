@@ -100,15 +100,15 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
     */
     ProcessInput(window, playerCamera, velocity, dt);
     
-    
     // semi-implicit euler
     velocity = velocity + acceleration * dt;
+
+    Collision(velocity, state.position);
+
     position = position + velocity * dt;
 
     state.position = position;
     state.velocity = velocity;
-
-    Collision(state.velocity, state.position);
 }
 
 
@@ -210,10 +210,15 @@ int main()
             accumulator -= dt;
         }
 
+        
+
         const float alpha = accumulator / dt;
+
 
         playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
         playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
+
+        
 
         UpdateCameraVectors(playerCamera, playerState.position);
        

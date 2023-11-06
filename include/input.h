@@ -33,15 +33,15 @@ typedef enum Movement_Type {
     JUMP
 } Movement_Type;
 
-void Collision(glm::vec3& vector, glm::vec3& position)
+void Collision(glm::vec3& vector, glm::vec3 position)
 {
-    Sphere s;
-    s.center = position;
-    s.radius = 1.0f;
+    Sphere sphere;
+    sphere.center = position;
+    sphere.radius = 1.0f;
 
     if (!noClip) {
         Point collision_point;
-        int tri = CollisionDetection(s, vector, collision_point);
+        int tri = CollisionDetection(sphere, vector, collision_point);
     }
 }
 

@@ -12,7 +12,7 @@ collision.h
 
 #include <aabb.h>
 
-const float EPSILON = 1e-6;
+const float EPSILON = 1e-7;
 float scaleFactor = 1;
 
 struct Polygon {
