@@ -148,6 +148,8 @@ int main()
 
     Model* man = LoadModel(filepath("/resources/models/zelda/hitbox/man1.gltf"));
 
+    Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1_run.gltf"));
+
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     // unsigned int cube = CreateHitbox();
 
@@ -258,11 +260,15 @@ int main()
         setShaderMat4(animShader, "view", view);
 
         if (animationPlaying) {
-            AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
+            //AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
+            AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         }
 
         for (int i = 0; i < 100; ++i)
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", player->m_FinalBoneMatrices[i]);
+
+        for (int i = 0; i < 100; ++i)
+            setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", man_run->m_FinalBoneMatrices[i]);
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
@@ -270,6 +276,7 @@ int main()
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
+        DrawModel(man_run, animShader);
 
         glUseProgram(modelShader);
 
