@@ -259,9 +259,22 @@ int main()
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
 
+        glm::vec2 horizontal_velocity_vector = glm::vec2(playerState.velocity.x, playerState.velocity.z);
+        float horizontal_velocity = glm::length(horizontal_velocity_vector);
+
+        float radius_of_stride_wheel = 10.0f;
+        float angular_velocity = horizontal_velocity / radius_of_stride_wheel;
+
+        float stride_x = cos(angular_velocity);
+        float stride_y = sin(angular_velocity);
+
+        float stride_angle = atan2(stride_y, stride_x);
+
+        AnimateModel(stride_angle, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+ 
         if (animationPlaying) {
             //AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
-            AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+            //AnimateModel(stride_angle, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         }
 
         for (int i = 0; i < 100; ++i)
@@ -271,8 +284,17 @@ int main()
             setShaderMat4(animShader, "finalBonesMatrices[" + std::to_string(i) + "]", man_run->m_FinalBoneMatrices[i]);
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
+
+        model = glm::translate(model, playerPosition + glm::vec3(0.0f, 2.3f, 0.0f));
+
+        if (playerCamera->Type == THIRDPERSON) {
+            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+
+
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
@@ -389,7 +411,7 @@ int main()
         model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(man, modelShader);
+        //DrawModel(man, modelShader);
 
         glm::vec3 playerCenter = playerState.position; // playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;

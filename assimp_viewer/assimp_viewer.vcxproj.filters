@@ -34,6 +34,9 @@
     <Filter Include="Header Files\import">
       <UniqueIdentifier>{4c32c0e9-cb73-4bda-a798-83694a789c28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\animation">
+      <UniqueIdentifier>{8e71623a-b761-4864-bc67-7b5bd223ba75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,15 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\skeleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\animation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\bone_animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\model.h">
@@ -133,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="..\include\gltf.h">
       <Filter>Header Files\import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bone_animation.h">
+      <Filter>Header Files\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\animation.h">
+      <Filter>Header Files\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\skeleton.h">
+      <Filter>Header Files\animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

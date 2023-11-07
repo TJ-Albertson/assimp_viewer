@@ -46,6 +46,10 @@ glm::mat4 InterpolatePosition(BoneAnimationChannel* boneAnimationChannel, float 
 glm::mat4 InterpolateRotation(BoneAnimationChannel* boneAnimationChannel, float animationTime);
 glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float animationTime);
 
+int GetPositionIndex(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+int GetRotationIndex(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+int GetScaleIndex(BoneAnimationChannel* boneAnimationChannel, float animationTime);
+
 
 glm::mat4 getBoneAnimationTransformation(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {
@@ -111,7 +115,8 @@ glm::mat4 InterpolatePosition(BoneAnimationChannel* boneAnimationChannel, float 
 
     glm::vec3 finalPosition = glm::mix(boneAnimationChannel->m_Positions[p0Index].position, boneAnimationChannel->m_Positions[p1Index].position, scaleFactor);
 
-    return glm::translate(glm::mat4(1.0f), finalPosition);
+    return glm::translate(glm::mat4(1.0f), boneAnimationChannel->m_Positions[p0Index].position);
+    //return glm::translate(glm::mat4(1.0f), finalPosition);
 }
 
 glm::mat4 InterpolateRotation(BoneAnimationChannel* boneAnimationChannel, float animationTime)
@@ -131,7 +136,8 @@ glm::mat4 InterpolateRotation(BoneAnimationChannel* boneAnimationChannel, float 
 
     finalRotation = glm::normalize(finalRotation);
 
-    return glm::toMat4(finalRotation);
+    return glm::toMat4(glm::normalize(boneAnimationChannel->m_Rotations[p0Index].orientation));
+    //return glm::toMat4(finalRotation);
 }
 
 glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float animationTime)
@@ -149,7 +155,8 @@ glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float a
 
     glm::vec3 finalScale = glm::mix(boneAnimationChannel->m_Scales[p0Index].scale, boneAnimationChannel->m_Scales[p1Index].scale, scaleFactor);
 
-    return glm::scale(glm::mat4(1.0f), finalScale);
+    return glm::scale(glm::mat4(1.0f), boneAnimationChannel->m_Scales[p0Index].scale);
+    //return glm::scale(glm::mat4(1.0f), finalScale);
 }
 
 #endif
