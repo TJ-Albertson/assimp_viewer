@@ -267,7 +267,7 @@ int main()
         model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
         setShaderMat4(animShader, "model", model);
 
-        DrawModel(vampire, animShader);
+        //DrawModel(vampire, animShader);
 
         glUseProgram(modelShader);
 

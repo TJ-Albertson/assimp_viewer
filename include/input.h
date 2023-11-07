@@ -22,8 +22,11 @@ bool mousePressed = false;
 float rotationSpeed = 0.10f;
 
 bool noClip = false;
+bool playerColliding = false;
 
-const glm::vec3 jumpForce(0.0f, 3.0f, 0.0f);
+const glm::vec3 jumpForce(0.0f, 300.0f, 0.0f);
+
+
 
 typedef enum Movement_Type {
     FORWARD,
@@ -41,7 +44,13 @@ void Collision(glm::vec3& vector, glm::vec3 position)
 
     if (!noClip) {
         Point collision_point;
-        int tri = CollisionDetection(sphere, vector, collision_point);
+        int colliding = CollisionDetection(sphere, vector, collision_point);
+
+        if (colliding) {
+            playerColliding = true;
+        } else {
+            playerColliding = false;
+        }
     }
 }
 
@@ -63,6 +72,11 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
     } break;
 
     case THIRDPERSON: {
+
+        printf("playerColliding %d\n", playerColliding);
+
+        if (!playerColliding)
+            break;
 
         if (movement == JUMP) {
             velocity = velocity + jumpForce * deltaTime;

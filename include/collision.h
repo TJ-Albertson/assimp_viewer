@@ -36,7 +36,6 @@ struct Hitbox {
     AABB_node* rootAABB;
 };
 
-
 std::vector<Polygon> potentialColliders;
 std::vector<AABB_node*> root_AABB_nodes;
 std::vector<Hitbox> hitboxes;
@@ -78,6 +77,8 @@ void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 */
 int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 {
+    bool collisionFlag = false;
+
     for (int j = 0; j < potentialColliders.size(); ++j) {
 
         Plane p;
@@ -114,6 +115,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         if (point_in_triangle) {
             // earliest intersection point found
+            collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point);
             continue;
         }
@@ -143,6 +145,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         if (edge_collision) {
             float time;
             Point edge_point;
+            collisionFlag = true;
 
             if (sphere_embedded) {
                 Point destination = sphere.center + velocity; 
@@ -150,6 +153,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
                 collision_point = collisionBallPosition = edge_point;
             }
             CollisionResponse(velocity, sphere, collision_point);
+
             continue;
         }
 
@@ -182,6 +186,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         }
 
         if (vertex_collision) {
+            collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point);
             continue;
         }
@@ -189,6 +194,9 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         // 5. No collision
     }
     //collisionBallPosition = collision_point;
+    if (collisionFlag)
+        return 1;
+
     return 0;
 }
 
@@ -210,6 +218,10 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
 
     Vector newDestinationPoint = sphere.center + velocity - distance * sliding_plane_normal;
     Vector newVelocityVector = newDestinationPoint - collision_point;
+
+    float friction = 0.01f;
+
+    newVelocityVector *= (1.0f - friction);
 
     if (glm::length(newVelocityVector) < EPSILON) {
         velocity = glm::vec3(0);
