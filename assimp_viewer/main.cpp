@@ -146,6 +146,8 @@ int main()
 
     Model* vampire = LoadModel(filepath("/resources/objects/vampire/dancing_vampire.dae"));
 
+    Model* man = LoadModel(filepath("/resources/models/zelda/hitbox/man1.gltf"));
+
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     // unsigned int cube = CreateHitbox();
 
@@ -307,7 +309,8 @@ int main()
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light 1
-        setVec3(modelShader, "pointLights[0].position", playerPosition);
+        //setVec3(modelShader, "pointLights[0].position", playerPosition);
+        setVec3(modelShader, "pointLights[0].position", 0.0f, 100.0f, 0.0f);
         setVec3(modelShader, "pointLights[0].ambient", 1.0f, 1.0f, 1.0f);
         setVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         setVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -367,22 +370,24 @@ int main()
 
         glUseProgram(modelShader);
 
+        
         // Player
         model = glm::mat4(1.0f);
-        model = glm::translate(model, playerPosition);
+        model = glm::translate(model, playerPosition + glm::vec3(0.0f, 3.0f, 0.0f));
 
         if (playerCamera->Type == THIRDPERSON) {
             model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
-        // model = glm::scale(model, glm::vec3(.025f, .025f, .025f));
+        model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         setShaderMat4(modelShader, "model", model);
-        // DrawModel(soid_man, modelShader);
+        DrawModel(man, modelShader);
 
         glm::vec3 playerCenter = playerState.position; // playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
 
-        // BACKFACE CULLING |ON|
+        // BACKFACE CULLING |ON|s
         glEnable(GL_CULL_FACE);
 
         glUseProgram(hitboxShader);

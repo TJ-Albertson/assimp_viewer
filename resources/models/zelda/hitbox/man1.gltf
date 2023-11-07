@@ -1,0 +1,114 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Sphere",
+            "scale" : [
+                0.578016459941864,
+                0.6394810676574707,
+                0.7511236071586609
+            ],
+            "translation" : [
+                0,
+                1.7084200382232666,
+                0
+            ]
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Sphere.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "TEXCOORD_0" : 1,
+                        "NORMAL" : 2
+                    },
+                    "indices" : 3
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 308864,
+            "max" : [
+                2.0799996852874756,
+                5.539897918701172,
+                3.349024772644043
+            ],
+            "min" : [
+                -2.1074366569519043,
+                -19.999900817871094,
+                -3.3725993633270264
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 308864,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 308864,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5125,
+            "count" : 459648,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 3706368,
+            "byteOffset" : 0,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2470912,
+            "byteOffset" : 3706368,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3706368,
+            "byteOffset" : 6177280,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1838592,
+            "byteOffset" : 9883648,
+            "target" : 34963
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 11722240,
+            "uri" : "man1.bin"
+        }
+    ]
+}

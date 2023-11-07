@@ -73,13 +73,13 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
 
     case THIRDPERSON: {
 
-        printf("playerColliding %d\n", playerColliding);
-
         if (!playerColliding)
             break;
 
         if (movement == JUMP) {
             velocity = velocity + jumpForce * deltaTime;
+            //apply jump force for X seconds
+            //startJump();
         }
 
         glm::vec3 camForward = camera->Position - playerPosition;
