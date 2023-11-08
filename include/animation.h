@@ -77,6 +77,9 @@ void AnimateModel(float dt, Animation animation, SkeletonNode* rootNode, glm::ma
     CalculateNodeTransform(animation, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }
 
+void BlendAnimation(float dt, Animation animation1, Animation animation2, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix) {
+
+}
 
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {
 

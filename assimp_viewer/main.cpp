@@ -148,7 +148,24 @@ int main()
 
     Model* man = LoadModel(filepath("/resources/models/zelda/hitbox/man1.gltf"));
 
-    Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1_run.gltf"));
+    Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1.2_run.gltf"));
+
+    for (int i = 0; i < man_run->m_NumAnimations; i++) {
+
+        Animation animation = man_run->m_Animations[i];
+
+        printf("Animation[%d]\n", i);
+
+        BoneAnimationChannel boneChannel = animation.m_BoneAnimations[0];
+        
+        for (int j = 0; j < boneChannel.m_NumPositions; j++) {
+
+            KeyPosition keyPosition = boneChannel.m_Positions[j];
+
+            printf("    keyPosition.timeStamp[%d]: %0.5f\n", j, keyPosition.timeStamp);
+        }
+    }
+
 
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
     // unsigned int cube = CreateHitbox();
@@ -269,8 +286,16 @@ int main()
         float stride_y = sin(angular_velocity);
 
         float stride_angle = atan2(stride_y, stride_x);
+            
+        //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
 
-        AnimateModel(stride_angle, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        if (horizontal_velocity > 0.9) {
+            AnimateModel(stride_angle, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        } else if (horizontal_velocity > 0) {
+            AnimateModel(stride_angle, man_run->m_Animations[1], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        }
+
+        //AnimateModel(stride_angle, man_run->m_Animations[1], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
  
         if (animationPlaying) {
             //AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
@@ -288,12 +313,14 @@ int main()
         model = glm::translate(model, playerPosition + glm::vec3(0.0f, 2.3f, 0.0f));
 
         if (playerCamera->Type == THIRDPERSON) {
-            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            float rotateAngle = glm::atan(horizontal_velocity_vector.x, horizontal_velocity_vector.y);
+            model = glm::rotate(model, rotateAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+            //model = my_rotation(model, glm::vec3());
         }
 
         model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
-
 
         setShaderMat4(animShader, "model", model);
 
