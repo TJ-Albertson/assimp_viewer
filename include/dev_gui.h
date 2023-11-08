@@ -27,6 +27,8 @@ SceneNode* selectedNode;
 bool polygonMode = false;
 bool showCollisionData = false;
 
+float animationSpeed = 0.0f;
+
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
     static int location = 1;
@@ -460,6 +462,9 @@ void MainMenuBar()
 
             ImGui::Checkbox("animationPlaying", &animationPlaying);
             ImGui::Separator();
+
+            ImGui::Text("Color");
+            ImGui::SliderFloat("##animationspeedslider", &animationSpeed, 0.0f, 0.1f, "%.03f");
 
             ImGui::EndMenu();
         }

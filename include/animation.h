@@ -13,6 +13,7 @@ Functions associated with loading animations and animating the skeleton of a mod
 
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include <bone_animation.h>
 #include <skeleton.h>
@@ -77,8 +78,54 @@ void AnimateModel(float dt, Animation animation, SkeletonNode* rootNode, glm::ma
     CalculateNodeTransform(animation, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }
 
-void BlendAnimation(float dt, Animation animation1, Animation animation2, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix) {
+void BlendCalculateNodeTransform(Animation animation1, Animation animation2, float blendFactor, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
+{
+    glm::mat4 nodeTransform1 = node->m_Transformation;
+    glm::mat4 nodeTransform2 = node->m_Transformation;
 
+    bool isBoneNode = (node->id >= 0);
+    if (isBoneNode) {
+        nodeTransform1 = FindBoneAndGetTransform(animation1, node->m_NodeName, m_CurrentTime);
+        nodeTransform2 = FindBoneAndGetTransform(animation2, node->m_NodeName, m_CurrentTime);
+    }
+
+    glm::vec3 translation1, translation2, scale1, scale2;
+    glm::quat rotation1, rotation2;
+
+    glm::vec3 vector3;
+    glm::vec4 vector4;
+
+    // Decompose the transformation matrices
+    glm::decompose(nodeTransform1, scale1, rotation1, translation1, vector3, vector4);
+    glm::decompose(nodeTransform2, scale2, rotation2, translation2, vector3, vector4);
+
+    // Interpolate the translations, rotations, and scales
+    glm::vec3 translation = glm::mix(translation1, translation2, blendFactor);
+    glm::quat rotation = glm::slerp(rotation1, rotation2, blendFactor);
+    glm::vec3 scale = glm::mix(scale1, scale2, blendFactor);
+
+    // Recompose the transformation matrix
+    glm::mat4 nodeTransform = glm::translate(glm::mat4(1.0f), translation) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), scale);
+
+    glm::mat4 globalTransformation = parentTransform * nodeTransform;
+
+    if (isBoneNode) {
+        glm::mat4 finalBoneMatrix = globalTransformation * node->m_Offset;
+        FinalBoneMatrix[node->id] = finalBoneMatrix;
+    }
+
+    for (int i = 0; i < node->m_NumChildren; ++i) {
+        BlendCalculateNodeTransform(animation1, animation2, blendFactor, node->m_Children[i], FinalBoneMatrix, globalTransformation);
+    }
+}
+
+void AnimateModelBlend(float dt, Animation animation1, Animation animation2, float blendFactor, SkeletonNode* rootNode, glm::mat4* FinalBoneMatrix)
+{
+    m_DeltaTime = dt;
+    m_CurrentTime += animation1.m_TicksPerSecond * dt;
+    m_CurrentTime = fmod(m_CurrentTime, animation1.m_Duration);
+
+    BlendCalculateNodeTransform(animation1, animation2, blendFactor, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }
 
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {

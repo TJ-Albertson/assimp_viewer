@@ -111,6 +111,11 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
     state.velocity = velocity;
 }
 
+float normalize(float value, float min, float max)
+{
+    return (value - min) / (max - min);
+}
+
 
 int main()
 {
@@ -150,6 +155,8 @@ int main()
 
     Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1.2_run.gltf"));
 
+
+    /*
     for (int i = 0; i < man_run->m_NumAnimations; i++) {
 
         Animation animation = man_run->m_Animations[i];
@@ -165,6 +172,7 @@ int main()
             printf("    keyPosition.timeStamp[%d]: %0.5f\n", j, keyPosition.timeStamp);
         }
     }
+    */
 
 
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
@@ -279,7 +287,7 @@ int main()
         glm::vec2 horizontal_velocity_vector = glm::vec2(playerState.velocity.x, playerState.velocity.z);
         float horizontal_velocity = glm::length(horizontal_velocity_vector);
 
-        float radius_of_stride_wheel = 10.0f;
+        float radius_of_stride_wheel = 0.5f;
         float angular_velocity = horizontal_velocity / radius_of_stride_wheel;
 
         float stride_x = cos(angular_velocity);
@@ -287,15 +295,17 @@ int main()
 
         float stride_angle = atan2(stride_y, stride_x);
             
-        //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
-
-        if (horizontal_velocity > 0.9) {
-            AnimateModel(stride_angle, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
-        } else if (horizontal_velocity > 0) {
-            AnimateModel(stride_angle, man_run->m_Animations[1], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        float angular_velocity_normal = fmod(angular_velocity, 2.0f * 3.14f);
+        if (angular_velocity < 0) {
+            angular_velocity += 2.0f * 3.14f;
         }
 
-        //AnimateModel(stride_angle, man_run->m_Animations[1], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
+
+        printf("horizontal_velocity_float: %0.5f\n", horizontal_velocity_normal);
+
+        AnimateModelBlend(animationSpeed, man_run->m_Animations[1], man_run->m_Animations[0], animationSpeed, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        //AnimateModel(0.001f, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
  
         if (animationPlaying) {
             //AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
