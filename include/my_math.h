@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define M_PI 3.141592653589f
+
 glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float t)
 {
     return x * (1.0f - t) + y * t;

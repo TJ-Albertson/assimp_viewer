@@ -66,6 +66,13 @@ GLFWwindow* window;
 
 const glm::vec3 gravity(0.0f, -1.5f, 0.0f);
 
+static float totalDistanceTravelled = 0.0f;
+float rotationAngle = 0.0f;
+
+
+float rotationForWheel = 0.0; // Initial rotation in radians
+
+
 void IntegrateState(PlayerState& state, float& time, float dt) {
 
     glm::vec3 velocity = state.velocity;
@@ -219,7 +226,7 @@ int main()
 
     PlayerState previousState;
     PlayerState currentState = playerState;
-
+    double prevTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -228,6 +235,10 @@ int main()
         // per-frame time logic
         // --------------------
         float newTime = glfwGetTime();
+
+        //using in other stuff
+        float deltaTime = newTime - currentTime;
+
         float frameTime = newTime - currentTime;
         if (frameTime > 0.25)
             frameTime = 0.25;
@@ -251,10 +262,12 @@ int main()
         playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
         playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
-        
-
+       
         UpdateCameraVectors(playerCamera, playerState.position);
        
+
+        
+
         // imgui
         // ------
         Main_GUI_Loop(currentTime);
@@ -290,13 +303,48 @@ int main()
 
         glm::vec2 horizontal_velocity_vector = glm::vec2(playerState.velocity.x, playerState.velocity.z);
         float horizontal_velocity = glm::length(horizontal_velocity_vector);
-
-        float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = dayNightSpeed; // You can adjust the speed of rotatiom
-        // Calculate the x, y, and z coordinates of the vector
+        printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
+        float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
 
         float radius_of_stride_wheel = 0.5f;
-        float angular_velocity = horizontal_velocity / radius_of_stride_wheel;
+       
+
+        //float wheelRadius = 5.0f;
+        float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
+        
+        float angular_velocity = horizontal_velocity / wheelRadius;
+
+        if (horizontal_velocity < 100.0f && horizontal_velocity > 0.0001f) {
+            rotationForWheel += angular_velocity * frameTime;
+        }
+
+      
+
+        // Normalize the rotation to keep it within the range [0, 2*pi)
+        while (rotationForWheel >= 2 * 3.14159265358979323846) {
+            rotationForWheel -= 2 * 3.14159265358979323846;
+        }
+        
+        if (horizontal_velocity < 100.0f && horizontal_velocity > 0.0001f) {
+            totalDistanceTravelled += horizontal_velocity;
+            rotationAngle += (horizontal_velocity / (2 * M_PI * wheelRadius)) * 360.0f;
+        }
+
+        rotationAngle = fmod(rotationAngle, 360.0f);
+        if (rotationAngle < 0.0f) {
+            rotationAngle += 360.0f;
+        }
+
+
+        float wheelCircumference = 2 * 3.14 * wheelRadius;
+        float numRotations = totalDistanceTravelled / wheelCircumference;
+        float rotationInDegrees = numRotations * 360;
+
+        rotationInDegrees = fmod(rotationInDegrees, 360.0f);
+        if (rotationInDegrees < 0.0f) {
+            rotationInDegrees += 360.0f;
+        }
+        
 
         float stride_x = cos(angular_velocity);
         float stride_y = sin(angular_velocity);
@@ -308,9 +356,9 @@ int main()
             angular_velocity += 2.0f * 3.1415926535f;
         }
 
-        float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
+        
 
-        printf("stride_angle: %0.5f\n", stride_angle);
+        //printf("stride_angle: %0.5f\n", stride_angle);
 
         AnimateModelBlend(stride_angle * 0.01, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         //AnimateModel(0.001f, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
@@ -353,7 +401,9 @@ int main()
         // setInt(modelShader, "material.specular", 1);
         // setInt(modelShader, "material.emission", 2);
 
-
+                float radius = 1.0f; // You can adjust the radius of the circle
+        float angular_speed = dayNightSpeed; // You can adjust the speed of rotatiom
+        // Calculate the x, y, and z coordinates of the vector
 
         float time = currentTime + 160.0f;
         float x = radius * cos(angular_speed * time);
@@ -445,15 +495,15 @@ int main()
         setShaderMat4(alphaShader, "projection", projection);
         setShaderMat4(alphaShader, "view", view);
         
-        // Player
+        // Stride Wheel
         model = glm::mat4(1.0f);
 
         
-        glm::vec3 stride_circle_center = playerPosition + glm::vec3(0.0f, 1.5f, 0.0f);
+        glm::vec3 stride_circle_center = playerPosition + glm::vec3(0.0f, 1.45f, 0.0f);
 
         
         model = glm::translate(model, stride_circle_center);
-        model = glm::rotate(model, currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, rotationForWheel, glm::vec3(1.0f, 0.0f, 0.0f));
 
 
         if (playerCamera->Type == THIRDPERSON) {
@@ -461,11 +511,11 @@ int main()
             //model = glm::rotate(model, rotateAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         }
        
-
-
-        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+        model = glm::scale(model, glm::vec3(wheelRadius, wheelRadius, wheelRadius));
         setShaderMat4(alphaShader, "model", model);
         DrawModel(stride_circle, alphaShader);
+
+
 
         glm::vec3 playerCenter = playerState.position; // playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;
