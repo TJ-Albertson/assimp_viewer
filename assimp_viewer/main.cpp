@@ -65,6 +65,7 @@ float jumpDuration = 0.7f;
 GLFWwindow* window;
 
 const glm::vec3 gravity(0.0f, -1.5f, 0.0f);
+//const glm::vec3 gravity(0.0f);
 
 static float totalDistanceTravelled = 0.0f;
 float rotationAngle = 0.0f;

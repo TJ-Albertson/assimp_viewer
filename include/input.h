@@ -14,8 +14,6 @@ PlayerState playerState;
 glm::vec3 playerPosition; // = glm::vec3(0.0f, 15.0f, 0.0f);
 glm::float32_t playerRotation = 90.0f;
 
-glm::vec3 gravityVector = glm::vec3(0.0f, -0.15f, 0.0f);
-
 bool firstMouse = true;
 bool mousePressed = false;
 
@@ -73,8 +71,9 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
 
     case THIRDPERSON: {
 
-        if (!playerColliding)
-            break;
+
+        if (!playerColliding) break;
+            
 
         if (movement == JUMP) {
             velocity = velocity + jumpForce * deltaTime;

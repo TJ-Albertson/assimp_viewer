@@ -219,8 +219,8 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
     Vector newDestinationPoint = sphere.center + velocity - distance * sliding_plane_normal;
     Vector newVelocityVector = newDestinationPoint - collision_point;
 
+    //friction
     float friction = 0.01f;
-
     newVelocityVector *= (1.0f - friction);
 
     if (glm::length(newVelocityVector) < EPSILON) {
