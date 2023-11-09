@@ -169,6 +169,8 @@ int main()
 
     Model* stride_circle = LoadModel(filepath("/resources/models/zelda/hitbox/stride circle.obj"));
 
+    Model* wave_ball = LoadModel(filepath("/resources/models/test/wave_ball.obj"));
+
 
     /*
     for (int i = 0; i < man_run->m_NumAnimations; i++) {
@@ -309,11 +311,14 @@ int main()
         //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
         float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
 
+        glm::vec3 horizontal_velocity_vector_normal = glm::normalize(glm::vec3(playerState.velocity.x, 0.0f, playerState.velocity.z));
+        printf("horizontal_velocity_vector_normal: %f %f %f\n", horizontal_velocity_vector_normal.x, horizontal_velocity_vector_normal.y, horizontal_velocity_vector_normal.z);
+
         float radius_of_stride_wheel = 0.5f;
        
 
-        //float wheelRadius = 5.0f;
-        float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
+        float wheelRadius = 3.0f;
+        //float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
         
         float angular_velocity = horizontal_velocity / wheelRadius;
 
@@ -321,7 +326,6 @@ int main()
             rotationForWheel += angular_velocity * frameTime;
         }
 
-      
 
         // Normalize the rotation to keep it within the range [0, 2*pi)
         while (rotationForWheel >= 2 * 3.14159265358979323846) {
@@ -429,7 +433,8 @@ int main()
         }
 
         setVec3(modelShader, "dirLight.direction", glm::vec3(-0.5f, -1.0f, 0.0f));
-        setVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
+        setVec3(modelShader, "dirLight.ambient", color.x, color.y, color.z);
+        // setVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
         setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
@@ -489,9 +494,22 @@ int main()
 
         // AABB_AABB_Collision(*hitboxes[0].rootAABB, *hitboxes[1].rootAABB, hitboxes[0].m_Matrix, hitboxes[1].m_Matrix);
 
-        glUseProgram(animatedShader);
-        setShaderMat4(animatedShader, "projection", projection);
-        setShaderMat4(animatedShader, "view", view);
+        glUseProgram(modelShader);
+        model = glm::mat4(1.0f);
+
+        glm::vec3 ball_center = playerPosition + glm::vec3(0.0f, 2.0f, 0.0f);
+
+        model = glm::translate(model, ball_center);
+        model = glm::rotate(model, rotationForWheel, glm::vec3(horizontal_velocity_vector_normal.z, 0.0f, -horizontal_velocity_vector_normal.x));
+
+        if (playerCamera->Type == THIRDPERSON) {
+            // float rotateAngle = glm::atan(horizontal_velocity_vector.x, horizontal_velocity_vector.y);
+            // model = glm::rotate(model, rotateAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+        setShaderMat4(modelShader, "model", model);
+        DrawModel(wave_ball, modelShader);
 
 
         glUseProgram(alphaShader);
