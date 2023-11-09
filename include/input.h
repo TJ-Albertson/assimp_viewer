@@ -22,9 +22,9 @@ float rotationSpeed = 0.10f;
 bool noClip = false;
 bool playerColliding = false;
 
-const glm::vec3 jumpForce(0.0f, 300.0f, 0.0f);
+const glm::vec3 jumpForce(0.0f, 3.0f, 0.0f);
 
-
+float jumpTime = 0.0f;
 
 typedef enum Movement_Type {
     FORWARD,
@@ -33,6 +33,10 @@ typedef enum Movement_Type {
     RIGHT,
     JUMP
 } Movement_Type;
+
+void startJump() {
+
+}
 
 void Collision(glm::vec3& vector, glm::vec3 position)
 {
@@ -76,7 +80,8 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
             
 
         if (movement == JUMP) {
-            velocity = velocity + jumpForce * deltaTime;
+            jumpTime = 3.0f;
+            //velocity = velocity + jumpForce * deltaTime;
             //apply jump force for X seconds
             //startJump();
         }

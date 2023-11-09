@@ -40,10 +40,6 @@ const float RENDER_DISTANCE = 1000.0f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
-// timing
-float deltaTime = 0.0f;
-float previousTime;
-
 GLFWwindow* InitializeWindow();
 
 std::string filepath(std::string path);
@@ -86,6 +82,12 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
 
     if (noClip) {
         acceleration = glm::vec3(0.0f);
+    }
+
+    if (jumpTime > 0) {
+        velocity = velocity + jumpForce * dt;
+        jumpTime -= dt;
+        printf("jumpTime: %0.5f\n", jumpTime);
     }
 
     /*
@@ -304,7 +306,7 @@ int main()
 
         glm::vec2 horizontal_velocity_vector = glm::vec2(playerState.velocity.x, playerState.velocity.z);
         float horizontal_velocity = glm::length(horizontal_velocity_vector);
-        printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
+        //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
         float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
 
         float radius_of_stride_wheel = 0.5f;
