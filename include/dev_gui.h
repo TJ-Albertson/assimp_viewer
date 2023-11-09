@@ -28,6 +28,7 @@ bool polygonMode = false;
 bool showCollisionData = false;
 
 float animationSpeed = 0.0f;
+float animationBlend = 0.0f;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
@@ -463,8 +464,11 @@ void MainMenuBar()
             ImGui::Checkbox("animationPlaying", &animationPlaying);
             ImGui::Separator();
 
-            ImGui::Text("Color");
+            ImGui::Text("Animation Speed");
             ImGui::SliderFloat("##animationspeedslider", &animationSpeed, 0.0f, 0.1f, "%.03f");
+
+            ImGui::Text("Animation Blend");
+            ImGui::SliderFloat("##animationblendslider", &animationBlend, 0.0f, 1.0f, "%.03f");
 
             ImGui::EndMenu();
         }

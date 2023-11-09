@@ -180,6 +180,8 @@
     <None Include="..\shaders\4.2.texture.vs" />
     <None Include="..\shaders\6.multiple_lights.fs" />
     <None Include="..\shaders\6.multiple_lights.vs" />
+    <None Include="..\shaders\alpha\alpha.fs" />
+    <None Include="..\shaders\alpha\alpha.vs" />
     <None Include="..\shaders\animated_texture.fs" />
     <None Include="..\shaders\animated_texture.vs" />
     <None Include="..\shaders\anim_model.fs" />

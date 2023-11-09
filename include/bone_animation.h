@@ -54,7 +54,7 @@ int GetScaleIndex(BoneAnimationChannel* boneAnimationChannel, float animationTim
 glm::mat4 getBoneAnimationTransformation(BoneAnimationChannel* boneAnimationChannel, float animationTime)
 {
     glm::mat4 translation = InterpolatePosition(boneAnimationChannel, animationTime);
-
+    
     glm::mat4 rotation = InterpolateRotation(boneAnimationChannel, animationTime);
 
     glm::mat4 scale = InterpolateScaling(boneAnimationChannel, animationTime);
@@ -157,80 +157,6 @@ glm::mat4 InterpolateScaling(BoneAnimationChannel* boneAnimationChannel, float a
 
     //return glm::scale(glm::mat4(1.0f), boneAnimationChannel->m_Scales[p0Index].scale);
     return glm::scale(glm::mat4(1.0f), finalScale);
-}
-
-
-glm::mat4 BlendInterpolatePosition(BoneAnimationChannel* boneAnimationChannel_1, BoneAnimationChannel* boneAnimationChannel_2, float animationTime, float blend)
-{
-    int bone1_p0Index = GetPositionIndex(boneAnimationChannel_1, animationTime);
-
-    int bone2_p0Index = GetPositionIndex(boneAnimationChannel_2, animationTime);
-
-    int bone1_p1Index = bone1_p0Index + 1;
-
-    int bone2_p1Index = bone2_p0Index + 1;
-
-    glm::vec3 blendPosition_1 = glm::mix(boneAnimationChannel_1->m_Positions[bone1_p0Index].position, boneAnimationChannel_2->m_Positions[bone2_p0Index].position, blend);
-
-    glm::vec3 blendPosition_2 = glm::mix(boneAnimationChannel_1->m_Positions[bone1_p1Index].position, boneAnimationChannel_2->m_Positions[bone2_p1Index].position, blend);
-
-
-
-    float scaleFactor = GetScaleFactor(boneAnimationChannel_1->m_Positions[bone1_p1Index].timeStamp, boneAnimationChannel_2->m_Positions[bone2_p1Index].timeStamp, animationTime);
-
-    glm::vec3 finalPosition = glm::mix(boneAnimationChannel_1->m_Positions[bone1_p1Index].position, boneAnimationChannel_2->m_Positions[bone2_p1Index].position, scaleFactor);
-
-    return glm::translate(glm::mat4(1.0f), finalPosition);
-}
-
-glm::mat4 BlendInterpolateScaling(BoneAnimationChannel* boneAnimationChannel_1, BoneAnimationChannel* boneAnimationChannel_2, float animationTime)
-{
-    int bone1_p0Index = GetScaleIndex(boneAnimationChannel_1, animationTime);
-
-    int bone2_p0Index = GetScaleIndex(boneAnimationChannel_2, animationTime);
-
-    // maybe schange based on speed?
-    float blendScaleFactor = GetScaleFactor(boneAnimationChannel_1->m_Scales[bone1_p0Index].timeStamp, boneAnimationChannel_2->m_Scales[bone2_p0Index].timeStamp, animationTime);
-
-    glm::vec3 blendScale = glm::mix(boneAnimationChannel_1->m_Scales[bone1_p0Index].scale, boneAnimationChannel_2->m_Scales[bone2_p0Index].scale, blendScaleFactor);
-
-
-
-    int bone1_p1Index = bone1_p0Index + 1;
-
-    int bone2_p1Index = bone2_p0Index + 1;
-
-    float lerpScaleFactor = GetScaleFactor(boneAnimationChannel_1->m_Scales[bone1_p1Index].timeStamp, boneAnimationChannel_2->m_Scales[bone2_p1Index].timeStamp, animationTime);
-
-    glm::vec3 finalScale = glm::mix(boneAnimationChannel_1->m_Scales[bone1_p1Index].scale, boneAnimationChannel_2->m_Scales[bone2_p1Index].scale, lerpScaleFactor);
-
-    return glm::scale(glm::mat4(1.0f), finalScale);
-}
-
-
-
-glm::mat4 BlendInterpolateRotation(BoneAnimationChannel* boneAnimationChannel_1, BoneAnimationChannel* boneAnimationChannel_2, float animationTime)
-{
-    int bone1_p0Index = GetRotationIndex(boneAnimationChannel_1, animationTime);
-
-    int bone2_p0Index = GetRotationIndex(boneAnimationChannel_2, animationTime);
-
-    // maybe schange based on speed?
-    float blendScaleFactor = GetScaleFactor(boneAnimationChannel_1->m_Rotations[bone1_p0Index].timeStamp, boneAnimationChannel_2->m_Rotations[bone2_p0Index].timeStamp, animationTime);
-
-    glm::quat blendRotation = glm::slerp(boneAnimationChannel_1->m_Rotations[bone1_p0Index].orientation, boneAnimationChannel_2->m_Rotations[bone2_p0Index].orientation, blendScaleFactor);
-
-
-
-    int bone1_p1Index = bone1_p0Index + 1;
-
-    int bone2_p1Index = bone2_p0Index + 1;
-
-    float lerpScaleFactor = GetScaleFactor(boneAnimationChannel_1->m_Rotations[bone1_p1Index].timeStamp, boneAnimationChannel_2->m_Rotations[bone2_p1Index].timeStamp, animationTime);
-
-    glm::quat finalRotation = glm::slerp(boneAnimationChannel_1->m_Rotations[bone1_p1Index].orientation, boneAnimationChannel_2->m_Rotations[bone2_p1Index].orientation, lerpScaleFactor);
-
-    return glm::toMat4(finalRotation);
 }
 
 #endif

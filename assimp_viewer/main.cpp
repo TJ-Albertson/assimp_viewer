@@ -135,6 +135,8 @@ int main()
     unsigned int animatedShader = createShader(filepath("/shaders/animated_texture.vs"), filepath("/shaders/animated_texture.fs"));
     // unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
 
+    unsigned int alphaShader = createShader(filepath("/shaders/alpha/alpha.vs"), filepath("/shaders/alpha/alpha.fs"));
+
     unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
 
     Model* billboard = LoadModel(filepath("/resources/models/billboards/hp1.obj"));
@@ -154,6 +156,8 @@ int main()
     Model* man = LoadModel(filepath("/resources/models/zelda/hitbox/man1.gltf"));
 
     Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1.2_run.gltf"));
+
+    Model* stride_circle = LoadModel(filepath("/resources/models/zelda/hitbox/stride circle.obj"));
 
 
     /*
@@ -287,6 +291,10 @@ int main()
         glm::vec2 horizontal_velocity_vector = glm::vec2(playerState.velocity.x, playerState.velocity.z);
         float horizontal_velocity = glm::length(horizontal_velocity_vector);
 
+        float radius = 1.0f; // You can adjust the radius of the circle
+        float angular_speed = dayNightSpeed; // You can adjust the speed of rotatiom
+        // Calculate the x, y, and z coordinates of the vector
+
         float radius_of_stride_wheel = 0.5f;
         float angular_velocity = horizontal_velocity / radius_of_stride_wheel;
 
@@ -295,16 +303,16 @@ int main()
 
         float stride_angle = atan2(stride_y, stride_x);
             
-        float angular_velocity_normal = fmod(angular_velocity, 2.0f * 3.14f);
+        float angular_velocity_normal = fmod(angular_velocity, 2.0f * 3.1415926535f);
         if (angular_velocity < 0) {
-            angular_velocity += 2.0f * 3.14f;
+            angular_velocity += 2.0f * 3.1415926535f;
         }
 
         float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
 
-        printf("horizontal_velocity_float: %0.5f\n", horizontal_velocity_normal);
+        printf("stride_angle: %0.5f\n", stride_angle);
 
-        AnimateModelBlend(animationSpeed, man_run->m_Animations[1], man_run->m_Animations[0], animationSpeed, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        AnimateModelBlend(stride_angle * 0.01, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         //AnimateModel(0.001f, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
  
         if (animationPlaying) {
@@ -345,9 +353,7 @@ int main()
         // setInt(modelShader, "material.specular", 1);
         // setInt(modelShader, "material.emission", 2);
 
-        float radius = 1.0f; // You can adjust the radius of the circle
-        float angular_speed = dayNightSpeed; // You can adjust the speed of rotatiom
-        // Calculate the x, y, and z coordinates of the vector
+
 
         float time = currentTime + 160.0f;
         float x = radius * cos(angular_speed * time);
@@ -434,21 +440,32 @@ int main()
         setShaderMat4(animatedShader, "projection", projection);
         setShaderMat4(animatedShader, "view", view);
 
-        glUseProgram(modelShader);
 
+        glUseProgram(alphaShader);
+        setShaderMat4(alphaShader, "projection", projection);
+        setShaderMat4(alphaShader, "view", view);
         
         // Player
         model = glm::mat4(1.0f);
-        model = glm::translate(model, playerPosition + glm::vec3(0.0f, 3.0f, 0.0f));
+
+        
+        glm::vec3 stride_circle_center = playerPosition + glm::vec3(0.0f, 1.5f, 0.0f);
+
+        
+        model = glm::translate(model, stride_circle_center);
+        model = glm::rotate(model, currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
+
 
         if (playerCamera->Type == THIRDPERSON) {
-            model = glm::rotate(model, playerRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+            //float rotateAngle = glm::atan(horizontal_velocity_vector.x, horizontal_velocity_vector.y);
+            //model = glm::rotate(model, rotateAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         }
+       
 
-        model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        setShaderMat4(modelShader, "model", model);
-        //DrawModel(man, modelShader);
+
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+        setShaderMat4(alphaShader, "model", model);
+        DrawModel(stride_circle, alphaShader);
 
         glm::vec3 playerCenter = playerState.position; // playerPosition; //+glm::vec3(0.0f, 2.6f, 0.0f);
         glm::vec3 sourcePoint = playerCenter;

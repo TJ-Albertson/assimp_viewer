@@ -37,6 +37,9 @@
     <Filter Include="Header Files\animation">
       <UniqueIdentifier>{8e71623a-b761-4864-bc67-7b5bd223ba75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\alpha">
+      <UniqueIdentifier>{5d35e340-515f-4cb7-b3cf-6ed45b170916}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -222,6 +225,12 @@
     </None>
     <None Include="..\shaders\basic\basic_texture.fs">
       <Filter>Resource Files\Shaders\basic</Filter>
+    </None>
+    <None Include="..\shaders\alpha\alpha.fs">
+      <Filter>Resource Files\Shaders\alpha</Filter>
+    </None>
+    <None Include="..\shaders\alpha\alpha.vs">
+      <Filter>Resource Files\Shaders\alpha</Filter>
     </None>
   </ItemGroup>
 </Project>
