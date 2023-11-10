@@ -76,46 +76,48 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
     case THIRDPERSON: {
 
 
-        if (!playerColliding) break;
+        //if (!playerColliding) break;
             
 
         if (movement == JUMP) {
-            jumpTime = 3.0f;
-            //velocity = velocity + jumpForce * deltaTime;
+            //jumpTime = 3.0f;
+            velocity = velocity + jumpForce * deltaTime;
             //apply jump force for X seconds
             //startJump();
         }
+        const glm::vec3 maxVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
 
         glm::vec3 camForward = camera->Position - playerPosition;
         camForward = normalize(camForward);
         glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
-        if (movement == FORWARD) {
-            glm::vec3 moveForward = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            velocity = velocity + moveForward * deltaTime;
+        glm::vec3 moveDirection(0.0f);
+
+       if (movement == FORWARD) {
+            moveDirection += -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
         }
         if (movement == BACKWARD) {
-            glm::vec3 moveBack = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            velocity = velocity + moveBack * deltaTime;
+            moveDirection += glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
         }
         if (movement == LEFT) {
             if (mousePressed) {
-                glm::vec3 moveLeft = glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                velocity = velocity + moveLeft * deltaTime;
+                moveDirection += glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
             } else {
                 camera->Yaw -= 0.1f;
             }
         }
         if (movement == RIGHT) {
             if (mousePressed) {
-                glm::vec3 moveRight = -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                velocity = velocity + moveRight * deltaTime;
+                moveDirection += -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
             } else {
                 camera->Yaw += 0.1f;
             }
         }
 
-        playerRotation = glm::atan(camera->Front.x, camera->Front.z);
+        float faceAngle = glm::atan(velocity.x, velocity.z);
+
+        velocity = velocity + glm::vec3(sin(faceAngle) + moveDirection.x, 0.0f, cos(faceAngle) + moveDirection.z) * deltaTime;
+
     } break;
 
     case FIRSTPERSON:
