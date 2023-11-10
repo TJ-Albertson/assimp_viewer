@@ -30,6 +30,8 @@ bool showCollisionData = false;
 float animationSpeed = 0.0f;
 float animationBlend = 0.0f;
 
+float speedModifier = 1.0f;
+
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
     static int location = 1;
@@ -469,6 +471,9 @@ void MainMenuBar()
 
             ImGui::Text("Animation Blend");
             ImGui::SliderFloat("##animationblendslider", &animationBlend, 0.0f, 1.0f, "%.03f");
+
+            ImGui::Text("Speed Modifier");
+            ImGui::SliderFloat("##speedModifierslider", &speedModifier, 0.9f, 1.1f, "%.03f");
 
             ImGui::EndMenu();
         }

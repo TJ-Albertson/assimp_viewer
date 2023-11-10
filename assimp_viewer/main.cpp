@@ -109,6 +109,9 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
     }
     */
     ProcessInput(window, playerCamera, velocity, dt);
+
+    velocity.x = velocity.x * speedModifier;
+    velocity.z = velocity.z * speedModifier;
     
     // semi-implicit euler
     velocity = velocity + acceleration * dt;
@@ -366,15 +369,15 @@ int main()
             angular_velocity += 2.0f * 3.1415926535f;
         }
 
-        printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
+        //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
         if (horizontal_velocity < 0.0001f) {
-           //AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+           AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         } else {
-          // AnimateModelBlend(angular_velocity * frameTime, man_run->m_Animations[1], man_run->m_Animations[2], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
-          
+           AnimateModelBlend(angular_velocity * frameTime * 0.1, man_run->m_Animations[5], man_run->m_Animations[3], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+           
         }
 
-        AnimateModelBlend(animationSpeed, man_run->m_Animations[1], man_run->m_Animations[2], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+         //AnimateModelBlend(animationSpeed, man_run->m_Animations[3], man_run->m_Animations[5], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
 
         //AnimateModelBlend(angular_velocity * frameTime, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         //AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
