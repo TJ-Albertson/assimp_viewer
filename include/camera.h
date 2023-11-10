@@ -19,7 +19,7 @@ const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 3.0f;
 const float SENSITIVITY = 0.1f;
-const float ZOOM = 50.0f;
+const float ZOOM = 10.0f;
 const float FOV = 90.0f;
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -74,7 +74,7 @@ Camera* CreateCameraVector(glm::vec3 position, glm::vec3 up, float yaw, float pi
         camera->Yaw = yaw;
         camera->Pitch = pitch;
 
-		camera->Type = FREE;
+		camera->Type = THIRDPERSON;
 
         //UpdateCameraVectors(camera);
 

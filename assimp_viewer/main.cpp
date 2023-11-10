@@ -165,14 +165,15 @@ int main()
 
     Model* man = LoadModel(filepath("/resources/models/zelda/hitbox/man1.gltf"));
 
-    Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1.2_run.gltf"));
+    //Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man1.2_run.gltf"));
+    Model* man_run = LoadModel(filepath("/resources/models/zelda/hitbox/man_2.0.gltf"));
 
     Model* stride_circle = LoadModel(filepath("/resources/models/zelda/hitbox/stride circle.obj"));
 
     Model* wave_ball = LoadModel(filepath("/resources/models/test/wave_ball.obj"));
 
 
-    /*
+    
     for (int i = 0; i < man_run->m_NumAnimations; i++) {
 
         Animation animation = man_run->m_Animations[i];
@@ -188,7 +189,7 @@ int main()
             printf("    keyPosition.timeStamp[%d]: %0.5f\n", j, keyPosition.timeStamp);
         }
     }
-    */
+    
 
 
     // Model* cube = LoadModel(filepath("/resources/models/cube/cube_outline.obj"));
@@ -312,12 +313,12 @@ int main()
         float horizontal_velocity_normal = normalize(horizontal_velocity, 0.0f, 1.5f);
 
         glm::vec3 horizontal_velocity_vector_normal = glm::normalize(glm::vec3(playerState.velocity.x, 0.0f, playerState.velocity.z));
-        printf("horizontal_velocity_vector_normal: %f %f %f\n", horizontal_velocity_vector_normal.x, horizontal_velocity_vector_normal.y, horizontal_velocity_vector_normal.z);
+        //printf("horizontal_velocity_vector_normal: %f %f %f\n", horizontal_velocity_vector_normal.x, horizontal_velocity_vector_normal.y, horizontal_velocity_vector_normal.z);
 
         float radius_of_stride_wheel = 0.5f;
        
 
-        float wheelRadius = 3.0f;
+        float wheelRadius = 5.0f;
         //float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
         
         float angular_velocity = horizontal_velocity / wheelRadius;
@@ -331,6 +332,8 @@ int main()
         while (rotationForWheel >= 2 * 3.14159265358979323846) {
             rotationForWheel -= 2 * 3.14159265358979323846;
         }
+
+        
         
         if (horizontal_velocity < 100.0f && horizontal_velocity > 0.0001f) {
             totalDistanceTravelled += horizontal_velocity;
@@ -363,12 +366,18 @@ int main()
             angular_velocity += 2.0f * 3.1415926535f;
         }
 
-        
+        printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
+        if (horizontal_velocity < 0.0001f) {
+           //AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        } else {
+          // AnimateModelBlend(angular_velocity * frameTime, man_run->m_Animations[1], man_run->m_Animations[2], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+          
+        }
 
-        //printf("stride_angle: %0.5f\n", stride_angle);
+        AnimateModelBlend(animationSpeed, man_run->m_Animations[1], man_run->m_Animations[2], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
 
-        AnimateModelBlend(stride_angle * 0.01, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
-        //AnimateModel(0.001f, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        //AnimateModelBlend(angular_velocity * frameTime, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        //AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
  
         if (animationPlaying) {
             //AnimateModel(dt, player->m_Animations[0], player->rootSkeletonNode, player->m_FinalBoneMatrices);
@@ -383,7 +392,7 @@ int main()
 
         glm::mat4 model = glm::mat4(1.0f);
 
-        model = glm::translate(model, playerPosition + glm::vec3(0.0f, 2.3f, 0.0f));
+        model = glm::translate(model, playerPosition + glm::vec3(0.0f, 1.1f, 0.0f));
 
         if (playerCamera->Type == THIRDPERSON) {
 
@@ -392,7 +401,7 @@ int main()
             //model = my_rotation(model, glm::vec3());
         }
 
-        model = my_rotation(model, glm::vec3(0.0f, 90.0f, 0.0f));
+        model = my_rotation(model, glm::vec3(0.0f, 270.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
 
         setShaderMat4(animShader, "model", model);
@@ -509,7 +518,7 @@ int main()
 
         model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(wave_ball, modelShader);
+        //DrawModel(wave_ball, modelShader);
 
 
         glUseProgram(alphaShader);
