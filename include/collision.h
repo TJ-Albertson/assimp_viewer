@@ -42,9 +42,10 @@ std::vector<Hitbox> hitboxes;
 
 glm::vec3 collisionBallPosition;
 glm::vec3 vectorPosition;
+glm::vec3 newDestinationPointBall;
 
 int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point);
-void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point);
+void CollisionResponse(Vector& originalVelocity, Sphere sphere, Point collision_point, Plane collision_plane);
 
 AABB_node* CreateHitbox(std::string const& path, glm::mat4 matrix);
 
@@ -116,7 +117,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         if (point_in_triangle) {
             // earliest intersection point found
             collisionFlag = true;
-            CollisionResponse(velocity, sphere, collision_point);
+            CollisionResponse(velocity, sphere, collision_point, p);
             continue;
         }
 
@@ -152,7 +153,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
                 ClosestPtPointSegment(destination, a, b, time, edge_point);
                 collision_point = collisionBallPosition = edge_point;
             }
-            CollisionResponse(velocity, sphere, collision_point);
+            CollisionResponse(velocity, sphere, collision_point, p);
 
             continue;
         }
@@ -187,7 +188,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         if (vertex_collision) {
             collisionFlag = true;
-            CollisionResponse(velocity, sphere, collision_point);
+            CollisionResponse(velocity, sphere, collision_point, p);
             continue;
         }
 
@@ -201,9 +202,9 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 }
 
 // Find slide plane and project velocity vector onto it. If velocity is too small then don't modify.
-void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
+void CollisionResponse(Vector& originalVelocity, Sphere sphere, Point collision_point, Plane collision_plane)
 {
-    if (glm::length(velocity) < EPSILON) {
+    if (glm::length(originalVelocity) < EPSILON) {
         return;
     }
 
@@ -214,21 +215,35 @@ void CollisionResponse(Vector& velocity, Sphere sphere, Point collision_point)
     sliding_plane.n = sliding_plane_normal;
     sliding_plane.d = glm::dot(sliding_plane_normal, collision_point);
 
-    float distance = DistPointPlane(sphere.center + velocity, sliding_plane);
+    float distance = DistPointPlane(sphere.center + originalVelocity, sliding_plane);
 
-    Vector newDestinationPoint = sphere.center + velocity - distance * sliding_plane_normal;
+    Vector newDestinationPoint = sphere.center + originalVelocity - distance * sliding_plane_normal;
+    newDestinationPointBall = newDestinationPoint;
     Vector newVelocityVector = newDestinationPoint - collision_point;
+
+    //newVelocity = originalVelocity - (orignialVelocity * planeNormal) * planeNormal - (orignialVelocity * planeNormal) * planeNormal;
+    //newVelocity = v - vn - vn
+
+    // bounciness
+    float k = 0.0f;
+
+    glm::vec3 velocityN = (originalVelocity * sliding_plane_normal) * sliding_plane_normal;
+    glm::vec3 velocityP = originalVelocity - velocityN;
+
+    glm::vec3 newVelocity = velocityP - k * velocityN;
 
     //friction
     float friction = 0.01f;
-    newVelocityVector *= (1.0f - friction);
+    newVelocity *= (1.0f - friction);
 
     if (glm::length(newVelocityVector) < EPSILON) {
-        velocity = glm::vec3(0);
+        originalVelocity = glm::vec3(0);
         return;
     }
 
-    vectorPosition = velocity = newVelocityVector;
+    vectorPosition = originalVelocity = newVelocity;
+
+    //vectorPosition = originalVelocity = newVelocityVector;
 }
 
 

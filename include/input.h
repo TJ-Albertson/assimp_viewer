@@ -49,8 +49,10 @@ void Collision(glm::vec3& vector, glm::vec3 position)
         int colliding = CollisionDetection(sphere, vector, collision_point);
 
         if (colliding) {
+            //printf("colliding\n");
             playerColliding = true;
         } else {
+            //printf("notcolliding\n");
             playerColliding = false;
         }
     }
@@ -80,43 +82,40 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
             
 
         if (movement == JUMP) {
-            //jumpTime = 3.0f;
+           // jumpTime = 3.0f;
             velocity = velocity + jumpForce * deltaTime;
             //apply jump force for X seconds
             //startJump();
         }
-        const glm::vec3 maxVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
 
         glm::vec3 camForward = camera->Position - playerPosition;
         camForward = normalize(camForward);
         glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
-        glm::vec3 moveDirection(0.0f);
-
-       if (movement == FORWARD) {
-            moveDirection += -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
+        if (movement == FORWARD) {
+            glm::vec3 moveForward = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
+            velocity = velocity + moveForward * deltaTime;
         }
         if (movement == BACKWARD) {
-            moveDirection += glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
+            glm::vec3 moveBack = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
+            velocity = velocity + moveBack * deltaTime;
         }
         if (movement == LEFT) {
             if (mousePressed) {
-                moveDirection += glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+                glm::vec3 moveLeft = glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+                velocity = velocity + moveLeft * deltaTime;
             } else {
                 camera->Yaw -= 0.1f;
             }
         }
         if (movement == RIGHT) {
             if (mousePressed) {
-                moveDirection += -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+                glm::vec3 moveRight = -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
+                velocity = velocity + moveRight * deltaTime;
             } else {
                 camera->Yaw += 0.1f;
             }
         }
-
-        float faceAngle = glm::atan(velocity.x, velocity.z);
-
-        velocity = velocity + glm::vec3(sin(faceAngle) + moveDirection.x, 0.0f, cos(faceAngle) + moveDirection.z) * deltaTime;
 
     } break;
 

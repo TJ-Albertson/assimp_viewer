@@ -118,7 +118,13 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
 
     Collision(velocity, state.position);
 
+    //printf("velocity.z: %f\n", velocity.z);
+
+
     position = position + velocity * dt;
+
+    //position.x = position.x + (sin(faceAngle) * velocity.x) * dt;
+    //position.z = position.z + (cos(faceAngle) * velocity.z) * dt;
 
     state.position = position;
     state.velocity = velocity;
@@ -263,8 +269,6 @@ int main()
             accumulator -= dt;
         }
 
-        
-
         const float alpha = accumulator / dt;
 
 
@@ -375,7 +379,7 @@ int main()
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
-        DrawModel(man_run, animShader);
+        //DrawModel(man_run, animShader);
 
         glUseProgram(modelShader);
 
@@ -511,7 +515,7 @@ int main()
        
         model = glm::scale(model, glm::vec3(wheelRadius, wheelRadius, wheelRadius));
         setShaderMat4(alphaShader, "model", model);
-        DrawModel(stride_circle, alphaShader);
+        //DrawModel(stride_circle, alphaShader);
 
 
 
@@ -525,13 +529,13 @@ int main()
         setShaderMat4(hitboxShader, "projection", projection);
         setShaderMat4(hitboxShader, "view", view);
 
-        // Collision Point Ball
+        // newDestinationPointBall
         model = glm::mat4(1.0f);
-        model = glm::translate(model, playerCenter + glm::normalize(vectorPosition));
+        model = glm::translate(model, newDestinationPointBall);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
-        // DrawModel(sphere, hitboxShader);
+        DrawModel(sphere, hitboxShader);
 
         // Collision Point Ball
         model = glm::mat4(1.0f);
@@ -546,7 +550,10 @@ int main()
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
+        glLineWidth(2.0f);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         DrawModel(sphere, hitboxShader);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // BACKFACE CULLING |OFF|
         glDisable(GL_CULL_FACE);
