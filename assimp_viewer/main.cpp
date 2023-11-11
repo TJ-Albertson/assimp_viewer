@@ -243,37 +243,67 @@ int main()
     PlayerState currentState = playerState;
     double prevTime = glfwGetTime();
 
+    bool paused = false;
+    int stepsPerSecond = 60; // Adjust this based on your desired step frequency
+    double stepInterval = 1.0 / static_cast<double>(stepsPerSecond);
+    double accumulatedTime = 0.0;
+
+    float frameTime = 0.0f;
+
     while (!glfwWindowShouldClose(window)) {
 
-        playerPosition = playerState.position;
+        if (!paused) {
+            playerPosition = playerState.position;
 
-        // per-frame time logic
-        // --------------------
-        float newTime = glfwGetTime();
+            // per-frame time logic
+            // --------------------
+            float newTime = glfwGetTime();
+            frameTime = newTime - currentTime;
 
-        //using in other stuff
-        float deltaTime = newTime - currentTime;
+            if (frameTime > 0.25)
+                frameTime = 0.25;
 
-        float frameTime = newTime - currentTime;
-        if (frameTime > 0.25)
-            frameTime = 0.25;
-        float currentTime = newTime;
+            currentTime = newTime;
 
-        accumulator += frameTime;
+            accumulator += frameTime;
 
-        while (accumulator >= dt)
-        {
+            while (accumulator >= dt) {
+                previousState = currentState;
+                IntegrateState(currentState, t, dt);
+                t += dt;
+                accumulator -= dt;
+            }
+
+            const float alpha = accumulator / dt;
+
+            playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+            playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
+
+            accumulatedTime += frameTime;
+
+            // Check if the accumulated time is greater than or equal to the step interval
+            if (accumulatedTime >= stepInterval) {
+                // Step through the simulation
+                previousState = currentState;
+                IntegrateState(currentState, t, dt);
+                t += dt;
+                accumulator -= dt;
+                accumulatedTime = 0.0; // Reset the accumulated time
+            }
+        }
+
+        // Handle input to toggle pause state
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            paused = !paused;
+        }
+
+        // Handle input to manually step through simulation when paused
+        if (paused && glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
             previousState = currentState;
             IntegrateState(currentState, t, dt);
             t += dt;
             accumulator -= dt;
         }
-
-        const float alpha = accumulator / dt;
-
-
-        playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
-        playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
        
         UpdateCameraVectors(playerCamera, playerState.position);
