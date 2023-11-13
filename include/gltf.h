@@ -238,19 +238,19 @@ gltfImage gltf_process_image(cJSON* imageNode) {
      if (cJSON_GetObjectItem(imageNode, "name")) {
         strncpy(gltf_image.m_Name, cJSON_GetObjectItem(imageNode, "name")->valuestring, sizeof(gltf_image.m_Name));
     } else {
-        strncpy(gltf_image.m_Name, "\0", sizeof(gltf_image.m_Name));
+        strncpy(gltf_image.m_Name, "null\0", sizeof(gltf_image.m_Name));
     }
 
-    if (cJSON_GetObjectItem(imageNode, "sampler")) {
-        strncpy(gltf_image.m_MimeType, cJSON_GetObjectItem(imageNode, "sampler")->valuestring, sizeof(gltf_image.m_MimeType));
+    if (cJSON_GetObjectItem(imageNode, "mimeType")) {
+        strncpy(gltf_image.m_MimeType, cJSON_GetObjectItem(imageNode, "mimeType")->valuestring, sizeof(gltf_image.m_MimeType));
     } else {
-        strncpy(gltf_image.m_MimeType, "\0", sizeof(gltf_image.m_MimeType));
+        strncpy(gltf_image.m_MimeType, "null\0", sizeof(gltf_image.m_MimeType));
     }
 
     if (cJSON_GetObjectItem(imageNode, "uri")) {
         strncpy(gltf_image.m_URI, cJSON_GetObjectItem(imageNode, "uri")->valuestring, sizeof(gltf_image.m_URI));
     } else {
-        strncpy(gltf_image.m_URI, "\0", sizeof(gltf_image.m_URI));
+        strncpy(gltf_image.m_URI, "null\0", sizeof(gltf_image.m_URI));
     }
 
     return gltf_image;
