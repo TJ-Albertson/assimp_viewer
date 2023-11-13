@@ -150,9 +150,9 @@ typedef struct gltfMaterial {
 
     bool m_DoubleSided;
 
-    gltfMetallicRoughness*  m_MettalicRoughness;
+    gltfMetallicRoughness*  m_MetalicRoughness;
     gltfNormalTexture*      m_NormalTexture;
-    gltfOcclusionTexture*   m_OcclustionTexture;
+    gltfOcclusionTexture*   m_OcclusionTexture;
     gltfEmissiveTexture*    m_EmissiveTexture;
 
     glm::vec3 m_EmissiveFactor;
@@ -617,8 +617,14 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
     }
 
     if (cJSON_GetObjectItem(materialNode, "pbrMetallicRoughness")) {
+        cJSON* pbrNode = cJSON_GetObjectItem(materialNode, "pbrMetallicRoughness");
 
+        gltf_material.m_MetalicRoughness = (gltfMetallicRoughness*)malloc(sizeof(gltfMetallicRoughness));
 
+        gltfMetallicRoughness pbr = gltf_process_metallic_roughness(pbrNode);
+        
+        gltf_material.m_MetalicRoughness = &pbr;
+        
     } else {
         fprintf(stderr, "Error: 'pbrMetallicRoughness' field not found in Material.\n");
     }
@@ -632,7 +638,7 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
     if (cJSON_GetObjectItem(materialNode, "occlusionTexture")) {
 
     } else {
-        gltf_material.m_OcclustionTexture = NULL;
+        gltf_material.m_OcclusionTexture = NULL;
     }
 
     if (cJSON_GetObjectItem(materialNode, "emissiveTexture")) {
@@ -642,9 +648,16 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
     }
 
     if (cJSON_GetObjectItem(materialNode, "emissiveFactor")) {
+        cJSON* emmissiveFactor = cJSON_GetObjectItem(materialNode, "baseColorFactor");
 
+        float x = cJSON_GetArrayItem(emmissiveFactor, 0)->valuedouble;
+        float y = cJSON_GetArrayItem(emmissiveFactor, 1)->valuedouble;
+        float z = cJSON_GetArrayItem(emmissiveFactor, 2)->valuedouble;
+        float w = cJSON_GetArrayItem(emmissiveFactor, 3)->valuedouble;
+
+        gltf_material.m_EmissiveFactor = glm::vec4(x, y, z, w);
     } else {
-
+        gltf_material.m_EmissiveFactor = glm::vec4(0.0f);
     }
 
     return gltf_material;
