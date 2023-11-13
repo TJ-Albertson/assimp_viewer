@@ -95,12 +95,15 @@ typedef struct gltfBufferView {
 typedef struct gltfAccessor {
     int m_BufferViewIndex;
     int m_ByteOffset;
-    char m_Type[256];
     int m_ComponentType;
     int m_Count;
-    glm::vec2 min;
-    glm::vec2 max;
+    char m_Type[256];
 } gltfAccessor;
+
+typedef struct gltfSampler {
+    int m_MagFilter;
+    int m_MinFilter;
+} gltfSampler;
 
 /*
 * GLTF Material data structs
@@ -166,7 +169,7 @@ void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
 void print_gltf_textures(gltfTexture* gltf_texture, int numTextures);
 void print_gltf_images(gltfImage* gltf_images, int numImages);
-
+void print_gltf_accessors(gltfAccessor* gltf_accessors, int numAccessors);
 
 char* loadFile(const char* filename)
 {
@@ -231,11 +234,115 @@ void gltfPreChecks(cJSON* root)
     }
 }
 
+gltfBuffer gltf_process_buffer(cJSON* bufferNode)
+{
+    gltfBuffer gltf_buffer;
+
+    if (cJSON_GetObjectItem(bufferNode, "byteLength")) {
+        gltf_buffer.m_ByteLength = cJSON_GetObjectItem(bufferNode, "byteLength")->valueint;
+    } else {
+        gltf_buffer.m_ByteLength = -1;
+    }
+
+    if (cJSON_GetObjectItem(bufferNode, "uri")) {
+        strncpy(gltf_buffer.m_URI, cJSON_GetObjectItem(bufferNode, "uri")->valuestring, sizeof(gltf_buffer.m_URI));
+    } else {
+        strncpy(gltf_buffer.m_URI, "null\0", sizeof(gltf_buffer.m_URI));
+    }
+
+    return gltf_buffer;
+}
+
+gltfSampler gltf_process_sampler(cJSON* samplerNode)
+{
+    gltfSampler gltf_sampler;
+
+    if (cJSON_GetObjectItem(samplerNode, "magFilter")) {
+        gltf_sampler.m_MagFilter = cJSON_GetObjectItem(samplerNode, "magFilter")->valueint;
+    } else {
+        gltf_sampler.m_MagFilter = -1;
+    }
+
+    if (cJSON_GetObjectItem(samplerNode, "minFilter")) {
+        gltf_sampler.m_MinFilter = cJSON_GetObjectItem(samplerNode, "minFilter")->valueint;
+    } else {
+        gltf_sampler.m_MinFilter = -1;
+    }
+
+    return gltf_sampler;
+}
+
+gltfBufferView gltf_process_bufferView(cJSON* node)
+{
+    gltfBufferView gltf_bufferView;
+
+    if (cJSON_GetObjectItem(node, "buffer")) {
+        gltf_bufferView.m_BufferIndex = cJSON_GetObjectItem(node, "buffer")->valueint;
+    } else {
+        gltf_bufferView.m_BufferIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "byteLength")) {
+        gltf_bufferView.m_ByteLength = cJSON_GetObjectItem(node, "byteLength")->valueint;
+    } else {
+        gltf_bufferView.m_ByteLength = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "byteOffset")) {
+        gltf_bufferView.m_ByteOffset = cJSON_GetObjectItem(node, "byteOffset")->valueint;
+    } else {
+        gltf_bufferView.m_ByteOffset = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "target")) {
+        gltf_bufferView.m_Target = cJSON_GetObjectItem(node, "target")->valueint;
+    } else {
+        gltf_bufferView.m_Target = -1;
+    }
+}
+
+gltfAccessor gltf_process_acccessor(cJSON* node)
+{
+    gltfAccessor gltf_accessor;
+
+    if (cJSON_GetObjectItem(node, "bufferView")) {
+        gltf_accessor.m_BufferViewIndex = cJSON_GetObjectItem(node, "bufferView")->valueint;
+    } else {
+        gltf_accessor.m_BufferViewIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "byteOffset")) {
+        gltf_accessor.m_ByteOffset = cJSON_GetObjectItem(node, "byteOffset")->valueint;
+    } else {
+        gltf_accessor.m_ByteOffset = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "componentType")) {
+        gltf_accessor.m_ComponentType = cJSON_GetObjectItem(node, "componentType")->valueint;
+    } else {
+        gltf_accessor.m_ComponentType = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "count")) {
+        gltf_accessor.m_Count = cJSON_GetObjectItem(node, "count")->valueint;
+    } else {
+        gltf_accessor.m_Count = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "type")) {
+        strncpy(gltf_accessor.m_Type, cJSON_GetObjectItem(node, "type")->valuestring, sizeof(gltf_accessor.m_Type));
+    } else {
+        strncpy(gltf_accessor.m_Type, "null\0", sizeof(gltf_accessor.m_Type));
+    }
+
+    return gltf_accessor;
+}
+
 gltfImage gltf_process_image(cJSON* imageNode) {
 
     gltfImage gltf_image;
 
-     if (cJSON_GetObjectItem(imageNode, "name")) {
+    if (cJSON_GetObjectItem(imageNode, "name")) {
         strncpy(gltf_image.m_Name, cJSON_GetObjectItem(imageNode, "name")->valuestring, sizeof(gltf_image.m_Name));
     } else {
         strncpy(gltf_image.m_Name, "null\0", sizeof(gltf_image.m_Name));
@@ -544,6 +651,34 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_images(gltfImages, numImages);
+
+    // "accessors": []
+    cJSON* accessors = cJSON_GetObjectItem(root, "accessors");
+    int numAccessors = cJSON_GetArraySize(accessors);
+
+    gltfAccessor* gltfAccessors = (gltfAccessor*)malloc(numAccessors * sizeof(gltfAccessor));
+
+    for (int i = 0; i < numAccessors; ++i) {
+        cJSON* accesssor = cJSON_GetArrayItem(accessors, i);
+
+        gltfAccessors[i] = gltf_process_acccessor(accesssor);
+    }
+
+    print_gltf_accessors(gltfAccessors, numAccessors);
+
+    // "bufferViews: []
+    cJSON* bufferViews = cJSON_GetObjectItem(root, "bufferViews");
+    int numbufferViews = cJSON_GetArraySize(accessors);
+
+    gltfBufferView* gltfBufferViews = (gltfBufferView*)malloc(numAccessors * sizeof(gltfBufferView));
+
+    for (int i = 0; i < numAccessors; ++i) {
+        cJSON* bufferView = cJSON_GetArrayItem(bufferViews, i);
+
+        gltfAccessors[i] = gltf_process_bufferView(bufferView);
+    }
+
+    print_gltf_bufferViews(gltfAccessors, numAccessors);
     
     cJSON_Delete(root);
 }
@@ -691,6 +826,37 @@ void print_gltf_images(gltfImage* gltf_images, int numImages)
 
     for (int i = 0; i < numImages; ++i) {
         print_gltf_image(gltf_images[i]);
+    }
+}
+
+void print_gltf_accessor(gltfAccessor gltf_accessor)
+{
+    if (gltf_accessor.m_BufferViewIndex >= 0) {
+        printf("    m_BufferViewIndex: %d\n", gltf_accessor.m_BufferViewIndex);
+    }
+
+    if (gltf_accessor.m_ByteOffset >= 0) {
+        printf("    m_ByteOffset: %d\n", gltf_accessor.m_ByteOffset);
+    }
+
+    if (gltf_accessor.m_ComponentType >= 0) {
+        printf("    m_ComponentType: %d\n", gltf_accessor.m_ComponentType);
+    }
+
+    if (gltf_accessor.m_Count >= 0) {
+        printf("    m_Count: %d\n", gltf_accessor.m_Count);
+    }
+
+    printf("    m_Type: %s\n", gltf_accessor.m_Type);
+}
+
+void print_gltf_accessors(gltfAccessor* gltf_accessors, int numAccessors)
+{
+    printf("Accessors:\n");
+
+    for (int i = 0; i < numAccessors; ++i) {
+        print_gltf_accessor(gltf_accessors[i]);
+        printf("\n");
     }
 }
 
