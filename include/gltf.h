@@ -13,6 +13,7 @@ gltf file importer
 #include <string.h>
 #include <cjson/cJSON.h>
 
+// Can be camera sk
 typedef struct gltfNode {
     char m_Name[256];
 
@@ -43,13 +44,13 @@ typedef struct gltfPrimitive {
 
 } gltfPrimitive;
 
-typedef struct glftMesh {
+typedef struct gltfMesh {
     char m_Name[256];
 
     int m_NumPrimitives;
     gltfPrimitive* m_Primitives;
     
-} glftMesh;
+} gltfMesh;
 
 
 typedef struct gltfBuffer {
@@ -128,10 +129,14 @@ typedef struct gltfMaterial {
     gltfEmissiveTexture m_EmissiveTexture;
 
     glm::vec3 m_EmissiveFactor;
-};
+} gltfMaterial;
 
 
 
+
+
+
+void print_gltf_scene(gltfScene gltf_scene);
 
 
 char* loadFile(const char* filename)
@@ -197,6 +202,14 @@ void gltfPreChecks(cJSON* root)
     }
 }
 
+gltfMesh gltf_process_mesh(cJSON* meshNode)
+{
+    gltfMesh gltf_mesh;
+
+
+    return gltf_mesh;
+}
+
 gltfNode gltf_process_node(cJSON* node)
 {
     gltfNode gltf_node;
@@ -207,7 +220,23 @@ gltfNode gltf_process_node(cJSON* node)
         fprintf(stderr, "Error: 'name' field not found in Node.\n");
     }
 
+    if (cJSON_GetObjectItem(node, "mesh")) {
+        gltf_node.m_MeshIndex = cJSON_GetObjectItem(node, "mesh")->valueint;
+    } else {
+        gltf_node.m_MeshIndex = -1;
+    }
 
+    if (cJSON_GetObjectItem(node, "camera")) {
+        gltf_node.m_CameraIndex = cJSON_GetObjectItem(node, "camera")->valueint;
+    } else {
+        gltf_node.m_CameraIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "skin")) {
+        gltf_node.m_SkinIndex = cJSON_GetObjectItem(node, "skin")->valueint;
+    } else {
+        gltf_node.m_SkinIndex = -1;
+    }
 
     return gltf_node;
 }
@@ -218,21 +247,27 @@ gltfNode traverse_gltf_node(cJSON* node)
     // attached to this node - discussed later
     gltfNode gltf_node = gltf_process_node(node);
 
-
+    // Recursively process all children
     if (cJSON_GetObjectItem(node, "children")) {
         cJSON* children = cJSON_GetObjectItem(node, "children");
         int numChildren = cJSON_GetArraySize(children);
 
         gltf_node.m_NumChildren = numChildren;
-        gltf_node.
+        gltf_node.m_Children = (gltfNode*)malloc(numChildren * sizeof(gltfNode));
+
+        for (int i = 0; i < numChildren; ++i) {
+            cJSON* child = cJSON_GetArrayItem(children, i);
+
+            gltf_node.m_Children[i] = traverse_gltf_node(child);
+        }
+    } else {
+        gltf_node.m_NumChildren = -1;
     }
-    // Recursively process all children
     /*
     for each (child in node.children) {
         traverse(child);
     }
     */
-
     return gltf_node;
 }
 
@@ -283,15 +318,24 @@ void parseGLTF(const char* jsonString)
         gltf_scene.m_Nodes[i] = gltfNode;
     }
 
-    printf("Scene:\n");
-    printf("   Name: %s\n", gltf_scene.m_Name);
-    printf("   RootNodes:\n");
-    for (int i = 0; i < gltf_scene.m_NumNodes; ++i) {
-        printf("        Node %d:\n", i);
-        printf("            Name: %s\n", gltf_scene.m_Nodes[i].m_Name);
-    }
-    
+    print_gltf_scene(gltf_scene);
 
+    // "meshes": []
+    cJSON* meshes = cJSON_GetObjectItem(root, "meshes");
+    int numMeshes = cJSON_GetArraySize(meshes);
+
+    gltfMesh* gltfMeshes = (gltfMesh*)malloc(numMeshes * sizeof(gltfMesh));
+
+    for (int i = 0; i < numMeshes; ++i) {
+        cJSON* mesh = cJSON_GetArrayItem(meshes, i);
+
+        gltfMesh gltfMesh = gltf_process_mesh(mesh);
+
+        gltfMeshes[i] = gltfMesh;
+    }
+
+
+    
     cJSON_Delete(root);
 }
 
@@ -305,6 +349,34 @@ int LoadGLTF(const char* filename)
     }
 
     return 0;
+}
+
+
+
+void print_gltf_node(gltfNode node)
+{
+    printf("            Name: %s\n", node.m_Name);
+
+    if (node.m_MeshIndex >= 0) {
+        printf("            m_MeshIndex: %d\n", node.m_MeshIndex);
+    }
+    if (node.m_CameraIndex >= 0) {
+        printf("            m_CameraIndex: %d\n", node.m_CameraIndex);
+    }
+    if (node.m_SkinIndex >= 0) {
+        printf("            m_SkinIndex: %d\n", node.m_SkinIndex);
+    }
+}
+
+void print_gltf_scene(gltfScene gltf_scene) {
+
+    printf("Scene:\n");
+    printf("   Name: %s\n", gltf_scene.m_Name);
+    printf("   RootNodes:\n");
+    for (int i = 0; i < gltf_scene.m_NumNodes; ++i) {
+        printf("        Node %d:\n", i);
+        print_gltf_node(gltf_scene.m_Nodes[i]);
+    }
 }
 
 
