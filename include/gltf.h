@@ -31,16 +31,29 @@ typedef struct gltfScene {
     gltfNode* m_Nodes;
 } gltfScene;
 
-// Indexes go to Accessors[Index]
-typedef struct gltfPrimitive {
+// Client implementations SHOULD support at least two texture coordinate sets, one vertex color, and one joints/weights set.
+typedef struct gltfPrimitiveAttributes {
     int m_PositionIndex;
     int m_NormalIndex;
+    int m_TangentIndex;
+
+    int m_TexCoord_0_Index;
+    int m_TexCoord_1_Index;
+
+    int m_Color_0_Index;
+
+    int m_Joints_0_Index;
+    int m_Weights_0_Index;
+} gltfPrimitiveAttributes;
+
+// Indexes go to Accessors[Index]
+
+typedef struct gltfPrimitive {
+    gltfPrimitiveAttributes m_Attributes;
 
     int m_IndicesIndex;
     int m_MaterialIndex;
-
-    int m_NumTexCoord;
-    int* m_TexCoordIndex;
+    int m_Mode;
 
 } gltfPrimitive;
 
@@ -137,6 +150,7 @@ typedef struct gltfMaterial {
 
 
 void print_gltf_scene(gltfScene gltf_scene);
+void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
 
 
 char* loadFile(const char* filename)
@@ -202,12 +216,120 @@ void gltfPreChecks(cJSON* root)
     }
 }
 
-gltf
+gltfPrimitiveAttributes gltf_process_primitive_attributes(cJSON* primAttr)
+{
+    gltfPrimitiveAttributes gltf_primitive_attr;
+
+    if (cJSON_GetObjectItem(primAttr, "POSITION")) {
+        gltf_primitive_attr.m_PositionIndex = cJSON_GetObjectItem(primAttr, "POSITION")->valueint;
+    } else {
+        gltf_primitive_attr.m_PositionIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "NORMAL")) {
+        gltf_primitive_attr.m_NormalIndex = cJSON_GetObjectItem(primAttr, "NORMAL")->valueint;
+    } else {
+        gltf_primitive_attr.m_NormalIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "TANGENT")) {
+        gltf_primitive_attr.m_TangentIndex = cJSON_GetObjectItem(primAttr, "TANGENT")->valueint;
+    } else {
+        gltf_primitive_attr.m_TangentIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "TEXCOORD_0")) {
+        gltf_primitive_attr.m_TexCoord_0_Index = cJSON_GetObjectItem(primAttr, "TEXCOORD_0")->valueint;
+    } else {
+        gltf_primitive_attr.m_TexCoord_0_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "TEXCOORD_1")) {
+        gltf_primitive_attr.m_TexCoord_1_Index = cJSON_GetObjectItem(primAttr, "TEXCOORD_1")->valueint;
+    } else {
+        gltf_primitive_attr.m_TexCoord_1_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "COLOR_0")) {
+        gltf_primitive_attr.m_Color_0_Index = cJSON_GetObjectItem(primAttr, "COLOR_0")->valueint;
+    } else {
+        gltf_primitive_attr.m_Color_0_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "JOINTS_0")) {
+        gltf_primitive_attr.m_Joints_0_Index = cJSON_GetObjectItem(primAttr, "JOINTS_0")->valueint;
+    } else {
+        gltf_primitive_attr.m_Joints_0_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(primAttr, "WEIGHTS_0")) {
+        gltf_primitive_attr.m_Weights_0_Index = cJSON_GetObjectItem(primAttr, "WEIGHTS_0")->valueint;
+    } else {
+        gltf_primitive_attr.m_Weights_0_Index = -1;
+    }
+
+    return gltf_primitive_attr;
+}
+
+gltfPrimitive gltf_process_primitive(cJSON* primNode) 
+{
+    gltfPrimitive gltf_primitive;
+
+    if (cJSON_GetObjectItem(primNode, "attributes")) {
+        cJSON* attributes = cJSON_GetObjectItem(primNode, "attributes");
+
+        gltf_primitive.m_Attributes = gltf_process_primitive_attributes(attributes);
+    } else {
+        fprintf(stderr, "Error: 'attributes' field not found in Primitive.\n");
+    }
+
+    if (cJSON_GetObjectItem(primNode, "indices")) {
+        gltf_primitive.m_IndicesIndex = cJSON_GetObjectItem(primNode, "indices")->valueint;
+    } else {
+        gltf_primitive.m_IndicesIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(primNode, "material")) {
+        gltf_primitive.m_MaterialIndex = cJSON_GetObjectItem(primNode, "material")->valueint;
+    } else {
+        gltf_primitive.m_MaterialIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(primNode, "mode")) {
+        gltf_primitive.m_Mode = cJSON_GetObjectItem(primNode, "mode")->valueint;
+    } else {
+        gltf_primitive.m_Mode = -1;
+    }
+
+    return gltf_primitive;
+}
 
 gltfMesh gltf_process_mesh(cJSON* meshNode)
 {
     gltfMesh gltf_mesh;
 
+    if (cJSON_GetObjectItem(meshNode, "name")) {
+        strncpy(gltf_mesh.m_Name, cJSON_GetObjectItem(meshNode, "name")->valuestring, sizeof(gltf_mesh.m_Name));
+    } else {
+        fprintf(stderr, "Error: 'name' field not found in Mesh.\n");
+    }
+
+    if (cJSON_GetObjectItem(meshNode, "primitives")) {
+
+        cJSON* primitives = cJSON_GetObjectItem(meshNode, "primitives");
+        int numPrimitives = cJSON_GetArraySize(primitives);
+
+        gltf_mesh.m_NumPrimitives = numPrimitives;
+        gltf_mesh.m_Primitives = (gltfPrimitive*)malloc(numPrimitives * sizeof(gltfPrimitive));
+        
+        for (int i = 0; i < numPrimitives; ++i) {
+            cJSON* primitive = cJSON_GetArrayItem(primitives, i);
+
+            gltf_mesh.m_Primitives[i] = gltf_process_primitive(primitive);
+        }
+    } else {
+        fprintf(stderr, "Error: 'primitives' field not found in Mesh.\n");
+    }
 
     return gltf_mesh;
 }
@@ -336,7 +458,7 @@ void parseGLTF(const char* jsonString)
         gltfMeshes[i] = gltfMesh;
     }
 
-
+    print_gltf_meshes(gltfMeshes, numMeshes);
     
     cJSON_Delete(root);
 }
@@ -378,6 +500,76 @@ void print_gltf_scene(gltfScene gltf_scene) {
     for (int i = 0; i < gltf_scene.m_NumNodes; ++i) {
         printf("        Node %d:\n", i);
         print_gltf_node(gltf_scene.m_Nodes[i]);
+    }
+}
+
+void print_gltf_primitive_attributes(gltfPrimitiveAttributes gltf_primitive_attributes) {
+    if (gltf_primitive_attributes.m_PositionIndex >= 0) {
+        printf("            m_PositionIndex: %d\n", gltf_primitive_attributes.m_PositionIndex);
+    }
+
+    if (gltf_primitive_attributes.m_NormalIndex >= 0) {
+        printf("            m_NormalIndex: %d\n", gltf_primitive_attributes.m_NormalIndex);
+    }
+
+    if (gltf_primitive_attributes.m_TangentIndex >= 0) {
+        printf("            m_TangentIndex: %d\n", gltf_primitive_attributes.m_TangentIndex);
+    }
+
+    if (gltf_primitive_attributes.m_TexCoord_0_Index >= 0) {
+        printf("            m_TexCoord_0_Index: %d\n", gltf_primitive_attributes.m_TexCoord_0_Index);
+    }
+
+    if (gltf_primitive_attributes.m_TexCoord_1_Index >= 0) {
+        printf("            m_TexCoord_1_Index: %d\n", gltf_primitive_attributes.m_TexCoord_1_Index);
+    }
+
+    if (gltf_primitive_attributes.m_Color_0_Index >= 0) {
+        printf("            m_Color_0_Index: %d\n", gltf_primitive_attributes.m_Color_0_Index);
+    }
+
+    if (gltf_primitive_attributes.m_Joints_0_Index >= 0) {
+        printf("            m_Joints_0_Index: %d\n", gltf_primitive_attributes.m_Joints_0_Index);
+    }
+
+    if (gltf_primitive_attributes.m_Weights_0_Index >= 0) {
+        printf("            m_Weights_0_Index: %d\n", gltf_primitive_attributes.m_Weights_0_Index);
+    }
+}
+
+void print_gltf_primitive(gltfPrimitive gltf_primitive) {
+
+    printf("        Attributes\n");
+    print_gltf_primitive_attributes(gltf_primitive.m_Attributes);
+
+    if (gltf_primitive.m_IndicesIndex >= 0) {
+        printf("        m_IndicesIndex: %d\n", gltf_primitive.m_IndicesIndex);
+    }
+
+    if (gltf_primitive.m_MaterialIndex >= 0) {
+        printf("        m_MaterialIndex: %d\n", gltf_primitive.m_MaterialIndex);
+    }
+
+    if (gltf_primitive.m_Mode >= 0) {
+        printf("        m_Mode: %d\n", gltf_primitive.m_Mode);
+    }
+}
+
+void print_gltf_mesh(gltfMesh gltf_mesh) {
+    printf("    Name: %s\n", gltf_mesh.m_Name);
+
+    printf("    Primitives:\n");
+    for (int i = 0; i < gltf_mesh.m_NumPrimitives; ++i) {
+        print_gltf_primitive(gltf_mesh.m_Primitives[i]);
+    }
+}
+
+void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes)
+{
+    printf("Meshes:\n");
+
+    for (int i = 0; i < numMeshes; ++i) {
+        print_gltf_mesh(gltf_meshes[i]);
     }
 }
 
