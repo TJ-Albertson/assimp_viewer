@@ -161,15 +161,15 @@ typedef struct gltfMaterial {
 } gltfMaterial;
 
 
-
-
-
-
 void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
 void print_gltf_textures(gltfTexture* gltf_texture, int numTextures);
 void print_gltf_images(gltfImage* gltf_images, int numImages);
 void print_gltf_accessors(gltfAccessor* gltf_accessors, int numAccessors);
+void print_gltf_bufferViews(gltfBufferView* gltf_bufferViews, int numBufferViews);
+void print_gltf_samplers(gltfSampler* gltf_samplers, int numSamplers);
+void print_gltf_buffers(gltfBuffer* gltf_buffers, int numBuffers);
+
 
 char* loadFile(const char* filename)
 {
@@ -299,6 +299,8 @@ gltfBufferView gltf_process_bufferView(cJSON* node)
     } else {
         gltf_bufferView.m_Target = -1;
     }
+
+    return gltf_bufferView;
 }
 
 gltfAccessor gltf_process_acccessor(cJSON* node)
@@ -500,6 +502,13 @@ gltfMesh gltf_process_mesh(cJSON* meshNode)
     return gltf_mesh;
 }
 
+gltfMaterial gltf_process_material(cJSON* materialNode)
+{
+    gltfMaterial gltf_material;
+
+    return gltf_material;
+}
+
 gltfNode gltf_process_node(cJSON* node)
 {
     gltfNode gltf_node;
@@ -675,12 +684,42 @@ void parseGLTF(const char* jsonString)
     for (int i = 0; i < numAccessors; ++i) {
         cJSON* bufferView = cJSON_GetArrayItem(bufferViews, i);
 
-        gltfAccessors[i] = gltf_process_bufferView(bufferView);
+        gltfBufferViews[i] = gltf_process_bufferView(bufferView);
     }
 
-    print_gltf_bufferViews(gltfAccessors, numAccessors);
+    print_gltf_bufferViews(gltfBufferViews, numbufferViews);
+
+    // "samplers: []
+    cJSON* samplers = cJSON_GetObjectItem(root, "samplers");
+    int numSamplers = cJSON_GetArraySize(samplers);
+
+    gltfSampler* gltfSamplers = (gltfSampler*)malloc(numAccessors * sizeof(gltfSampler));
+
+    for (int i = 0; i < numSamplers; ++i) {
+        cJSON* sampler = cJSON_GetArrayItem(samplers, i);
+
+        gltfSamplers[i] = gltf_process_sampler(sampler);
+    }
+
+    print_gltf_samplers(gltfSamplers, numSamplers);
+
+    // "samplers: []
+    cJSON* buffers = cJSON_GetObjectItem(root, "buffers");
+    int numBuffers = cJSON_GetArraySize(buffers);
+
+    gltfBuffer* gltfBuffers = (gltfBuffer*)malloc(numBuffers * sizeof(gltfBuffer));
+
+    for (int i = 0; i < numSamplers; ++i) {
+        cJSON* buffer = cJSON_GetArrayItem(buffers, i);
+
+        gltfBuffers[i] = gltf_process_buffer(buffer);
+    }
+
+    print_gltf_buffers(gltfBuffers, numBuffers);
     
     cJSON_Delete(root);
+
+    
 }
 
 int LoadGLTF(const char* filename)
@@ -856,6 +895,75 @@ void print_gltf_accessors(gltfAccessor* gltf_accessors, int numAccessors)
 
     for (int i = 0; i < numAccessors; ++i) {
         print_gltf_accessor(gltf_accessors[i]);
+        printf("\n");
+    }
+}
+
+void print_gltf_bufferView(gltfBufferView gltf_buffer)
+{
+    if (gltf_buffer.m_BufferIndex >= 0) {
+        printf("    m_BufferIndex: %d\n", gltf_buffer.m_BufferIndex);
+    }
+
+    if (gltf_buffer.m_ByteLength >= 0) {
+        printf("    m_ByteLength: %d\n", gltf_buffer.m_ByteLength);
+    }
+
+    if (gltf_buffer.m_ByteOffset >= 0) {
+        printf("    m_ByteOffset: %d\n", gltf_buffer.m_ByteOffset);
+    }
+
+    if (gltf_buffer.m_Target >= 0) {
+        printf("    m_Target: %d\n", gltf_buffer.m_Target);
+    }
+}
+
+void print_gltf_bufferViews(gltfBufferView* gltf_bufferViews, int numBufferViews) 
+{
+    printf("BufferViews:\n");
+
+    for (int i = 0; i < numBufferViews; ++i) {
+        print_gltf_bufferView(gltf_bufferViews[i]);
+        printf("\n");
+    }
+}
+
+void print_gltf_sampler(gltfSampler gltf_sampler)
+{
+    if (gltf_sampler.m_MagFilter >= 0) {
+        printf("    m_MagFilter: %d\n", gltf_sampler.m_MagFilter);
+    }
+
+    if (gltf_sampler.m_MinFilter >= 0) {
+        printf("    m_MinFilter: %d\n", gltf_sampler.m_MinFilter);
+    }
+}
+
+void print_gltf_samplers(gltfSampler* gltf_samplers, int numSamplers)
+{
+    printf("Samplers:\n");
+
+    for (int i = 0; i < numSamplers; ++i) {
+        print_gltf_sampler(gltf_samplers[i]);
+        printf("\n");
+    }
+}
+
+void print_gltf_buffer(gltfBuffer gltf_buffer)
+{
+    if (gltf_buffer.m_ByteLength >= 0) {
+        printf("    m_ByteLength: %d\n", gltf_buffer.m_ByteLength);
+    }
+
+    printf("    m_URI: %s\n", gltf_buffer.m_URI);
+}
+
+void print_gltf_buffers(gltfBuffer* gltf_buffers, int numBuffers)
+{
+    printf("Buffers:\n");
+
+    for (int i = 0; i < numBuffers; ++i) {
+        print_gltf_buffer(gltf_buffers[i]);
         printf("\n");
     }
 }
