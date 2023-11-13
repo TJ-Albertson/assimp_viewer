@@ -66,6 +66,19 @@ typedef struct gltfMesh {
 } gltfMesh;
 
 
+typedef struct gltfTexture {
+    int m_SamplerIndex;
+    
+    //Image;
+    int m_SourceIndex;
+} gltfTexture;
+
+typedef struct gltfImage {
+    char m_Name[256];
+    char m_MimeType[256];
+    char m_URI[256];
+};
+
 typedef struct gltfBuffer {
     int m_ByteLength;
     char m_URI[256];
@@ -151,6 +164,8 @@ typedef struct gltfMaterial {
 
 void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
+void print_gltf_textures(gltfTexture* gltf_texture, int numTextures);
+void print_gltf_images(gltfImage* gltf_images, int numImages);
 
 
 char* loadFile(const char* filename)
@@ -214,6 +229,50 @@ void gltfPreChecks(cJSON* root)
     } else {
         fprintf(stderr, "Error: 'extensionsUsed' field not found.\n");
     }
+}
+
+gltfImage gltf_process_image(cJSON* imageNode) {
+
+    gltfImage gltf_image;
+
+     if (cJSON_GetObjectItem(imageNode, "name")) {
+        strncpy(gltf_image.m_Name, cJSON_GetObjectItem(imageNode, "name")->valuestring, sizeof(gltf_image.m_Name));
+    } else {
+        strncpy(gltf_image.m_Name, "\0", sizeof(gltf_image.m_Name));
+    }
+
+    if (cJSON_GetObjectItem(imageNode, "sampler")) {
+        strncpy(gltf_image.m_MimeType, cJSON_GetObjectItem(imageNode, "sampler")->valuestring, sizeof(gltf_image.m_MimeType));
+    } else {
+        strncpy(gltf_image.m_MimeType, "\0", sizeof(gltf_image.m_MimeType));
+    }
+
+    if (cJSON_GetObjectItem(imageNode, "uri")) {
+        strncpy(gltf_image.m_URI, cJSON_GetObjectItem(imageNode, "uri")->valuestring, sizeof(gltf_image.m_URI));
+    } else {
+        strncpy(gltf_image.m_URI, "\0", sizeof(gltf_image.m_URI));
+    }
+
+    return gltf_image;
+}
+
+gltfTexture gltf_process_texture(cJSON* textureNode)
+{
+    gltfTexture gltf_texture;
+
+    if (cJSON_GetObjectItem(textureNode, "sampler")) {
+        gltf_texture.m_SamplerIndex = cJSON_GetObjectItem(textureNode, "sampler")->valueint;
+    } else {
+        gltf_texture.m_SamplerIndex = -1;
+    }
+
+    if (cJSON_GetObjectItem(textureNode, "source")) {
+        gltf_texture.m_SourceIndex = cJSON_GetObjectItem(textureNode, "source")->valueint;
+    } else {
+        gltf_texture.m_SourceIndex = -1;
+    }
+
+    return gltf_texture;
 }
 
 gltfPrimitiveAttributes gltf_process_primitive_attributes(cJSON* primAttr)
@@ -453,12 +512,38 @@ void parseGLTF(const char* jsonString)
     for (int i = 0; i < numMeshes; ++i) {
         cJSON* mesh = cJSON_GetArrayItem(meshes, i);
 
-        gltfMesh gltfMesh = gltf_process_mesh(mesh);
-
-        gltfMeshes[i] = gltfMesh;
+        gltfMeshes[i] = gltf_process_mesh(mesh);
     }
 
     print_gltf_meshes(gltfMeshes, numMeshes);
+
+    // "textures": []
+    cJSON* textures = cJSON_GetObjectItem(root, "textures");
+    int numTextures = cJSON_GetArraySize(textures);
+
+    gltfTexture* gltfTextures = (gltfTexture*)malloc(numTextures * sizeof(gltfTexture));
+
+    for (int i = 0; i < numTextures; ++i) {
+        cJSON* texture = cJSON_GetArrayItem(textures, i);
+
+        gltfTextures[i] = gltf_process_texture(texture);
+    }
+
+    print_gltf_textures(gltfTextures, numTextures);
+
+    // "images": []
+    cJSON* images = cJSON_GetObjectItem(root, "images");
+    int numImages = cJSON_GetArraySize(images);
+
+    gltfImage* gltfImages = (gltfImage*)malloc(numImages * sizeof(gltfImage));
+        
+    for (int i = 0; i < numImages; ++i) {
+        cJSON* texture = cJSON_GetArrayItem(images, i);
+
+        gltfImages[i] = gltf_process_image(texture);
+    }
+
+    print_gltf_images(gltfImages, numImages);
     
     cJSON_Delete(root);
 }
@@ -573,5 +658,40 @@ void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes)
     }
 }
 
+
+void print_gltf_texture(gltfTexture gltf_texture) {
+    if (gltf_texture.m_SamplerIndex >= 0) {
+        printf("        m_SamplerIndex: %d\n", gltf_texture.m_SamplerIndex);
+    }
+
+    if (gltf_texture.m_SourceIndex >= 0) {
+        printf("        m_SourceIndex: %d\n", gltf_texture.m_SourceIndex);
+    }
+    printf("\n");
+}
+
+void print_gltf_textures(gltfTexture* gltf_texture, int numTextures) {
+
+    printf("Textures:\n");
+
+    for (int i = 0; i < numTextures; ++i) {
+        print_gltf_texture(gltf_texture[i]);
+    }
+}
+
+void print_gltf_image(gltfImage gltf_image) {
+    printf("    m_Name: %s\n", gltf_image.m_Name);
+    printf("    m_MimeType: %s\n", gltf_image.m_MimeType);
+    printf("    m_URI: %s\n", gltf_image.m_URI);
+}
+
+void print_gltf_images(gltfImage* gltf_images, int numImages) 
+{
+    printf("Images:\n");
+
+    for (int i = 0; i < numImages; ++i) {
+        print_gltf_image(gltf_images[i]);
+    }
+}
 
 #endif
