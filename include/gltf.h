@@ -129,13 +129,13 @@ typedef struct gltfMetallicRoughness {
 
 
 typedef struct gltfNormalTexture {
-    int m_Scale;
+    float m_Scale;
     int m_Index;
     int m_TexCoord;
 } gltfNormalTexture;
 
 typedef struct gltfOcclusionTexture {
-    int m_Strength;
+    float m_Strength;
     int m_Index;
     int m_TexCoord;
 } gltfOcclusionTexture;
@@ -200,6 +200,7 @@ void print_gltf_accessors(gltfAccessor* gltf_accessors, int numAccessors);
 void print_gltf_bufferViews(gltfBufferView* gltf_bufferViews, int numBufferViews);
 void print_gltf_samplers(gltfSampler* gltf_samplers, int numSamplers);
 void print_gltf_buffers(gltfBuffer* gltf_buffers, int numBuffers);
+void print_gltf_materials(gltfMaterial* gltf_materials, int numMaterials);
 
 
 char* loadFile(const char* filename)
@@ -533,28 +534,34 @@ gltfMesh gltf_process_mesh(cJSON* meshNode)
     return gltf_mesh;
 }
 
-gltfMetallicRoughness gltf_process_metallic_roughness(cJSON* pbrNode)
+
+/*
+*   Proccess material start
+*/
+gltfMetallicRoughness* gltf_process_metallic_roughness(cJSON* pbrNode)
 {
-    gltfMetallicRoughness gltf_metal_rough;
+    gltfMetallicRoughness* gltf_metal_rough = (gltfMetallicRoughness*)malloc(sizeof(gltfMetallicRoughness));
 
     if (cJSON_GetObjectItem(pbrNode, "baseColorTexture")) {
         cJSON* baseColorTextureNode = cJSON_GetObjectItem(pbrNode, "baseColorTexture");
 
-        gltfBaseColorTexture gltf_base_color_texture;
+        gltfBaseColorTexture* gltf_base_color_texture = (gltfBaseColorTexture*)malloc(sizeof(gltfBaseColorTexture));
 
         if (cJSON_GetObjectItem(baseColorTextureNode, "index")) {
-            gltf_base_color_texture.m_Index = cJSON_GetObjectItem(baseColorTextureNode, "index")->valueint;
+            gltf_base_color_texture->m_Index = cJSON_GetObjectItem(baseColorTextureNode, "index")->valueint;
         } else {
-            gltf_base_color_texture.m_Index = -1;
+            gltf_base_color_texture->m_Index = -1;
         }
 
         if (cJSON_GetObjectItem(baseColorTextureNode, "texCoord")) {
-            gltf_base_color_texture.m_TexCoord = cJSON_GetObjectItem(baseColorTextureNode, "texCoord")->valueint;
+            gltf_base_color_texture->m_TexCoord = cJSON_GetObjectItem(baseColorTextureNode, "texCoord")->valueint;
         } else {
-            gltf_base_color_texture.m_TexCoord = -1;
+            gltf_base_color_texture->m_TexCoord = -1;
         }
+
+        gltf_metal_rough->m_BaseColorTexture = gltf_base_color_texture;
     } else {
-        
+        gltf_metal_rough->m_BaseColorTexture = NULL;
     }
 
     if (cJSON_GetObjectItem(pbrNode, "baseColorFactor")) {
@@ -565,45 +572,117 @@ gltfMetallicRoughness gltf_process_metallic_roughness(cJSON* pbrNode)
         float z = cJSON_GetArrayItem(baseColorFactor, 2)->valuedouble;
         float w = cJSON_GetArrayItem(baseColorFactor, 3)->valuedouble;
 
-        gltf_metal_rough.m_BaseColorFactor = glm::vec4(x, y, z, w);
+        gltf_metal_rough->m_BaseColorFactor = glm::vec4(x, y, z, w);
     } else {
-        fprintf(stderr, "Error: 'baseColorFactor' field not found in pbrMettallicRoughness.\n");
+        gltf_metal_rough->m_BaseColorFactor = glm::vec4(1.0f);
     }
 
     if (cJSON_GetObjectItem(pbrNode, "metallicRoughnessTexture")) {
 
         cJSON* metallicRoughnessTexture = cJSON_GetObjectItem(pbrNode, "metallicRoughnessTexture");
 
-        gltfMetallicRoughnessTexture gltf_metal_rough_texture;;
+        gltfMetallicRoughnessTexture* gltf_metal_rough_texture = (gltfMetallicRoughnessTexture*)malloc(sizeof(gltfMetallicRoughnessTexture));
 
         if (cJSON_GetObjectItem(metallicRoughnessTexture, "index")) {
-            gltf_metal_rough_texture.m_Index = cJSON_GetObjectItem(metallicRoughnessTexture, "index")->valueint;
+            gltf_metal_rough_texture->m_Index = cJSON_GetObjectItem(metallicRoughnessTexture, "index")->valueint;
         } else {
-            gltf_metal_rough_texture.m_Index = -1;
+            gltf_metal_rough_texture->m_Index = -1;
         }
 
         if (cJSON_GetObjectItem(metallicRoughnessTexture, "texCoord")) {
-            gltf_metal_rough_texture.m_TexCoord = cJSON_GetObjectItem(metallicRoughnessTexture, "texCoord")->valueint;
+            gltf_metal_rough_texture->m_TexCoord = cJSON_GetObjectItem(metallicRoughnessTexture, "texCoord")->valueint;
         } else {
-            gltf_metal_rough_texture.m_TexCoord = -1;
+            gltf_metal_rough_texture->m_TexCoord = -1;
         }
 
+        gltf_metal_rough->m_MetallicRoughnessTexture = gltf_metal_rough_texture;
     } else {
+        gltf_metal_rough->m_MetallicRoughnessTexture = NULL;
     }
 
     if (cJSON_GetObjectItem(pbrNode, "metallicFactor")) {
-        gltf_metal_rough.m_MetallicFactor = cJSON_GetObjectItem(pbrNode, "metallicFactor")->valueint;
+        gltf_metal_rough->m_MetallicFactor = cJSON_GetObjectItem(pbrNode, "metallicFactor")->valuedouble;
     } else {
-        gltf_metal_rough.m_MetallicFactor = 0.0f;
+        gltf_metal_rough->m_MetallicFactor = 0.0f;
     }
 
     if (cJSON_GetObjectItem(pbrNode, "roughnessFactor")) {
-        gltf_metal_rough.m_RoughnessFactor = cJSON_GetObjectItem(pbrNode, "roughnessFactor")->valueint;
+        gltf_metal_rough->m_RoughnessFactor = cJSON_GetObjectItem(pbrNode, "roughnessFactor")->valuedouble;
     } else {
-        gltf_metal_rough.m_RoughnessFactor = 0.0f;
+        gltf_metal_rough->m_RoughnessFactor = 0.0f;
     }
 
     return gltf_metal_rough;
+}
+
+gltfNormalTexture* gltf_process_normalTexture(cJSON* node)
+{
+    gltfNormalTexture* gltf_normal_texture = (gltfNormalTexture*)malloc(sizeof(gltfNormalTexture));
+    
+
+    if (cJSON_GetObjectItem(node, "scale")) {
+        gltf_normal_texture->m_Scale = cJSON_GetObjectItem(node, "scale")->valuedouble;
+    } else {
+        gltf_normal_texture->m_Scale = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "index")) {
+        gltf_normal_texture->m_Index = cJSON_GetObjectItem(node, "index")->valueint;
+    } else {
+        gltf_normal_texture->m_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "texCoord")) {
+        gltf_normal_texture->m_TexCoord = cJSON_GetObjectItem(node, "texCoord")->valueint;
+    } else {
+        gltf_normal_texture->m_TexCoord = -1;
+    }
+
+    return gltf_normal_texture;
+}
+
+gltfOcclusionTexture* gltf_process_occlusionTexture(cJSON* node)
+{
+    gltfOcclusionTexture* gltf_occlusion_texture = (gltfOcclusionTexture*)malloc(sizeof(gltfOcclusionTexture));
+
+    if (cJSON_GetObjectItem(node, "scale")) {
+        gltf_occlusion_texture->m_Strength = cJSON_GetObjectItem(node, "scale")->valuedouble;
+    } else {
+        gltf_occlusion_texture->m_Strength = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "index")) {
+        gltf_occlusion_texture->m_Index = cJSON_GetObjectItem(node, "index")->valueint;
+    } else {
+        gltf_occlusion_texture->m_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "texCoord")) {
+        gltf_occlusion_texture->m_TexCoord = cJSON_GetObjectItem(node, "texCoord")->valueint;
+    } else {
+        gltf_occlusion_texture->m_TexCoord = -1;
+    }
+
+    return gltf_occlusion_texture;
+}
+
+gltfEmissiveTexture* gltf_process_emissiveTexture(cJSON* node)
+{
+    gltfEmissiveTexture* gltf_emissive_texture = (gltfEmissiveTexture*)malloc(sizeof(gltfEmissiveTexture));
+
+    if (cJSON_GetObjectItem(node, "index")) {
+        gltf_emissive_texture->m_Index = cJSON_GetObjectItem(node, "index")->valueint;
+    } else {
+        gltf_emissive_texture->m_Index = -1;
+    }
+
+    if (cJSON_GetObjectItem(node, "texCoord")) {
+        gltf_emissive_texture->m_TexCoord = cJSON_GetObjectItem(node, "texCoord")->valueint;
+    } else {
+        gltf_emissive_texture->m_TexCoord = -1;
+    }
+
+    return gltf_emissive_texture;
 }
 
 gltfMaterial gltf_process_material(cJSON* materialNode)
@@ -619,30 +698,32 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
     if (cJSON_GetObjectItem(materialNode, "pbrMetallicRoughness")) {
         cJSON* pbrNode = cJSON_GetObjectItem(materialNode, "pbrMetallicRoughness");
 
-        gltf_material.m_MetalicRoughness = (gltfMetallicRoughness*)malloc(sizeof(gltfMetallicRoughness));
-
-        gltfMetallicRoughness pbr = gltf_process_metallic_roughness(pbrNode);
-        
-        gltf_material.m_MetalicRoughness = &pbr;
+        gltf_material.m_MetalicRoughness = gltf_process_metallic_roughness(pbrNode);
         
     } else {
         fprintf(stderr, "Error: 'pbrMetallicRoughness' field not found in Material.\n");
     }
 
     if (cJSON_GetObjectItem(materialNode, "normalTexture")) {
+        cJSON* normalTexture = cJSON_GetObjectItem(materialNode, "normalTexture");
 
+        gltf_material.m_NormalTexture = gltf_process_normalTexture(normalTexture);
     } else {
         gltf_material.m_NormalTexture = NULL;
     }
 
     if (cJSON_GetObjectItem(materialNode, "occlusionTexture")) {
+        cJSON* occlusionTexture = cJSON_GetObjectItem(materialNode, "occlusionTexture");
 
+        gltf_material.m_OcclusionTexture = gltf_process_occlusionTexture(occlusionTexture);
     } else {
         gltf_material.m_OcclusionTexture = NULL;
     }
 
     if (cJSON_GetObjectItem(materialNode, "emissiveTexture")) {
+        cJSON* emissiveTexture = cJSON_GetObjectItem(materialNode, "emissiveTexture");
 
+        gltf_material.m_EmissiveTexture = gltf_process_emissiveTexture(emissiveTexture);
     } else {
         gltf_material.m_EmissiveTexture = NULL;
     }
@@ -773,6 +854,23 @@ void parseGLTF(const char* jsonString)
 
     print_gltf_scene(gltf_scene);
 
+    // "animations": []
+    
+    
+    // "materials: []
+    cJSON* materials = cJSON_GetObjectItem(root, "materials");
+    int numMaterials = cJSON_GetArraySize(materials);
+
+    gltfMaterial* gltfMaterials = (gltfMaterial*)malloc(numMaterials * sizeof(gltfMaterial));
+
+    for (int i = 0; i < numMaterials; ++i) {
+        cJSON* material = cJSON_GetArrayItem(materials, i);
+
+        gltfMaterials[i] = gltf_process_material(material);
+    }
+
+    print_gltf_materials(gltfMaterials, numMaterials);
+
     // "meshes": []
     cJSON* meshes = cJSON_GetObjectItem(root, "meshes");
     int numMeshes = cJSON_GetArraySize(meshes);
@@ -786,6 +884,9 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_meshes(gltfMeshes, numMeshes);
+
+
+
 
     // "textures": []
     cJSON* textures = cJSON_GetObjectItem(root, "textures");
@@ -873,7 +974,6 @@ void parseGLTF(const char* jsonString)
     
     cJSON_Delete(root);
 
-    
 }
 
 int LoadGLTF(const char* filename)
@@ -916,6 +1016,71 @@ void print_gltf_scene(gltfScene gltf_scene) {
     }
 }
 
+/*
+*  Materials print
+*/
+void print_baseColorTexture(gltfBaseColorTexture* texture) {
+    if (texture->m_Index >= 0) {
+        printf("            m_Index: %d\n", texture->m_Index);
+    }
+
+    if (texture->m_TexCoord >= 0) {
+        printf("            m_TexCoord: %d\n", texture->m_TexCoord);
+    }
+}
+
+void print_metallicRoughnessTexture(gltfMetallicRoughnessTexture* texture)
+{
+    if (texture->m_Index >= 0) {
+        printf("            m_Index: %d\n", texture->m_Index);
+    }
+
+    if (texture->m_TexCoord >= 0) {
+        printf("            m_TexCoord: %d\n", texture->m_TexCoord);
+    }
+}
+
+void print_metallic_roughness(gltfMetallicRoughness* gltfMetallicRoughness) {
+
+    printf("    PbrMetallicRoughness:\n");
+
+    if (gltfMetallicRoughness->m_BaseColorTexture != NULL) {
+        printf("        BaseColorTexture:\n");
+        print_baseColorTexture(gltfMetallicRoughness->m_BaseColorTexture);
+    }
+
+    glm::vec4 baseColorFactor = gltfMetallicRoughness->m_BaseColorFactor;
+
+    printf("        m_BaseColorFactor: %f %f %f %f\n", baseColorFactor.x, baseColorFactor.y, baseColorFactor.z, baseColorFactor.w);
+
+    if (gltfMetallicRoughness->m_MetallicRoughnessTexture != NULL) {
+        printf("        MetallicRoughness:\n");
+        print_metallicRoughnessTexture(gltfMetallicRoughness->m_MetallicRoughnessTexture);
+    }
+   
+    printf("        m_MetallicFactor: %f\n", gltfMetallicRoughness->m_MetallicFactor);
+    printf("        m_RoughnessFactor: %f\n", gltfMetallicRoughness->m_RoughnessFactor);
+}
+
+void print_gltf_material(gltfMaterial gltf_material)
+{
+    printf("   Name: %s\n", gltf_material.m_Name);
+
+    print_metallic_roughness(gltf_material.m_MetalicRoughness);
+}
+
+void print_gltf_materials(gltfMaterial* gltf_materials, int numMaterials)
+{
+    printf("Materials:\n");
+
+    for (int i = 0; i < numMaterials; ++i) {
+        print_gltf_material(gltf_materials[i]);
+    }
+}
+
+/*
+ *  Mesh print
+ */
 void print_gltf_primitive_attributes(gltfPrimitiveAttributes gltf_primitive_attributes) {
     if (gltf_primitive_attributes.m_PositionIndex >= 0) {
         printf("            m_PositionIndex: %d\n", gltf_primitive_attributes.m_PositionIndex);

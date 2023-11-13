@@ -40,6 +40,9 @@
     <Filter Include="Resource Files\Shaders\alpha">
       <UniqueIdentifier>{5d35e340-515f-4cb7-b3cf-6ed45b170916}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\pbr">
+      <UniqueIdentifier>{b4b82f0e-a437-4881-8ac8-943767ea3a3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -73,6 +76,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\resources\shaders\gltf_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -139,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="..\include\skeleton.h">
       <Filter>Header Files\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf_model.h">
+      <Filter>Header Files\import</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +240,12 @@
     </None>
     <None Include="..\shaders\alpha\alpha.vs">
       <Filter>Resource Files\Shaders\alpha</Filter>
+    </None>
+    <None Include="..\shaders\pbr\pbr.fs">
+      <Filter>Resource Files\Shaders\pbr</Filter>
+    </None>
+    <None Include="..\shaders\pbr\pbr.vs">
+      <Filter>Resource Files\Shaders\pbr</Filter>
     </None>
   </ItemGroup>
 </Project>
