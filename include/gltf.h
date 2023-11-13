@@ -13,9 +13,21 @@ gltf file importer
 #include <string.h>
 #include <cjson/cJSON.h>
 
+typedef struct gltfNode {
+    char m_Name[256];
+
+    int m_MeshIndex;
+    int m_CameraIndex;
+    int m_SkinIndex;
+
+    int m_NumChildren;
+    gltfNode* m_Children;
+} gltfNode;
+
 typedef struct gltfScene {
     char m_Name[256];
     int m_NumNodes;
+    gltfNode* m_Nodes;
 } gltfScene;
 
 // Indexes go to Accessors[Index]
@@ -185,18 +197,43 @@ void gltfPreChecks(cJSON* root)
     }
 }
 
-void traverse_gltf_node()
+gltfNode gltf_process_node(cJSON* node)
+{
+    gltfNode gltf_node;
+
+    if (cJSON_GetObjectItem(node, "name")) {
+        strncpy(gltf_node.m_Name, cJSON_GetObjectItem(node, "name")->valuestring, sizeof(gltf_node.m_Name));
+    } else {
+        fprintf(stderr, "Error: 'name' field not found in Node.\n");
+    }
+
+
+
+    return gltf_node;
+}
+
+gltfNode traverse_gltf_node(cJSON* node)
 {
     // Process the meshes, cameras, etc., that are
     // attached to this node - discussed later
-    // processElements(node);
+    gltfNode gltf_node = gltf_process_node(node);
 
+
+    if (cJSON_GetObjectItem(node, "children")) {
+        cJSON* children = cJSON_GetObjectItem(node, "children");
+        int numChildren = cJSON_GetArraySize(children);
+
+        gltf_node.m_NumChildren = numChildren;
+        gltf_node.
+    }
     // Recursively process all children
     /*
     for each (child in node.children) {
         traverse(child);
     }
     */
+
+    return gltf_node;
 }
 
 void parseGLTF(const char* jsonString)
@@ -212,6 +249,48 @@ void parseGLTF(const char* jsonString)
 
     gltfPreChecks(root);
 
+    int defaultSceneIndex = -1; 
+    if (cJSON_GetObjectItem(root, "scene")) {
+        defaultSceneIndex = cJSON_GetObjectItem(root, "scene")->valueint;
+    }
+    
+    // "scenes": []
+    cJSON* scenes = cJSON_GetObjectItem(root, "scenes");
+   
+    cJSON* defaultScene = cJSON_GetArrayItem(scenes, defaultSceneIndex);
+    cJSON* name = cJSON_GetObjectItem(defaultScene, "name");
+    
+    cJSON* rootNodeIndexes = cJSON_GetObjectItem(defaultScene, "nodes");
+
+    int numRootNodes = cJSON_GetArraySize(rootNodeIndexes);
+
+    gltfScene gltf_scene;
+    strncpy(gltf_scene.m_Name, name->valuestring, sizeof(gltf_scene.m_Name));
+    gltf_scene.m_NumNodes = numRootNodes;
+    gltf_scene.m_Nodes = (gltfNode*)malloc(numRootNodes * sizeof(gltfNode));
+
+    // "nodes": []
+    cJSON* nodes = cJSON_GetObjectItem(root, "nodes");
+
+    for (int i = 0; i < numRootNodes; i++) {
+
+        int rootNodeIndex = cJSON_GetArrayItem(rootNodeIndexes, i)->valueint;
+
+        cJSON* rootNode = cJSON_GetArrayItem(nodes, rootNodeIndex);
+
+        gltfNode gltfNode = traverse_gltf_node(rootNode);
+
+        gltf_scene.m_Nodes[i] = gltfNode;
+    }
+
+    printf("Scene:\n");
+    printf("   Name: %s\n", gltf_scene.m_Name);
+    printf("   RootNodes:\n");
+    for (int i = 0; i < gltf_scene.m_NumNodes; ++i) {
+        printf("        Node %d:\n", i);
+        printf("            Name: %s\n", gltf_scene.m_Nodes[i].m_Name);
+    }
+    
 
     cJSON_Delete(root);
 }
