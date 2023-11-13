@@ -48,6 +48,16 @@ glm::mat4 FindBoneAndGetTransform(Animation animation, const char* boneNodeName,
     }
 }
 
+glm::mat4 ProceduralFindBoneAndGetTransform(Animation animation, const char* boneNodeName, int keyFrame)
+{
+    for (int i = 0; i < animation.m_NumBoneAnimations; ++i) {
+
+        if (std::strcmp(animation.m_BoneAnimations[i].m_NodeName, boneNodeName) == 0) {
+            return ProceduralGetBoneAnimationTransformation(&animation.m_BoneAnimations[i], keyFrame);
+        }
+    }
+}
+
 void CalculateNodeTransform(Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
 {
     glm::mat4 nodeTransform = node->m_Transformation;
@@ -127,6 +137,50 @@ void AnimateModelBlend(float dt, Animation animation1, Animation animation2, flo
 
     BlendCalculateNodeTransform(animation1, animation2, blendFactor, rootNode, FinalBoneMatrix, glm::mat4(1.0f));
 }
+
+
+
+
+
+
+void ProceduralCalculateNodeTransform(int keyFrame, Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix, glm::mat4 parentTransform)
+{
+    glm::mat4 nodeTransform = node->m_Transformation;
+
+    bool isBoneNode = (node->id >= 0);
+    if (isBoneNode) {
+        nodeTransform = ProceduralFindBoneAndGetTransform(animation, node->m_NodeName, keyFrame);
+    }
+
+    glm::mat4 globalTransformation = parentTransform * nodeTransform;
+
+    if (isBoneNode) {
+        glm::mat4 finalBoneMatrix = globalTransformation * node->m_Offset;
+        FinalBoneMatrix[node->id] = finalBoneMatrix;
+    }
+
+    for (int i = 0; i < node->m_NumChildren; ++i) {
+        ProceduralCalculateNodeTransform(keyFrame, animation, node->m_Children[i], FinalBoneMatrix, globalTransformation);
+    }
+}
+
+
+void ProceduralAnimateModel(int keyFrame, Animation animation, SkeletonNode* node, glm::mat4* FinalBoneMatrix) {
+
+    BoneAnimationChannel boneChannel = animation.m_BoneAnimations[0];
+
+    int numPositions = boneChannel.m_NumPositions;
+
+    int index = keyFrame % numPositions;
+
+    ProceduralCalculateNodeTransform(index, animation, node, FinalBoneMatrix, glm::mat4(1.0f));
+}
+
+
+
+
+
+
 
 Animation* LoadAnimations(unsigned int mNumAnimations, aiAnimation** mAnimations) {
 

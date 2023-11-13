@@ -26,12 +26,14 @@ const glm::vec3 jumpForce(0.0f, 3.0f, 0.0f);
 
 float jumpTime = 0.0f;
 
+
 typedef enum Movement_Type {
     FORWARD,
     BACKWARD,
     LEFT,
     RIGHT,
-    JUMP
+    JUMP,
+    SPRINT
 } Movement_Type;
 
 void startJump() {
@@ -79,7 +81,7 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
 
 
         //if (!playerColliding) break;
-            
+        float speedMod = 0.2f;   
 
         if (movement == JUMP) {
            // jumpTime = 3.0f;
@@ -92,18 +94,22 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
         camForward = normalize(camForward);
         glm::vec3 camRight = glm::vec3(-camForward.z, 0.0f, camForward.x);
 
+        if (movement == SPRINT) {
+            speedMod = 0.8;
+        }
+
         if (movement == FORWARD) {
             glm::vec3 moveForward = -glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            velocity = velocity + moveForward * deltaTime;
+            velocity = velocity + moveForward * deltaTime * speedMod;
         }
         if (movement == BACKWARD) {
             glm::vec3 moveBack = glm::normalize(glm::vec3(camForward.x, 0.0f, camForward.z));
-            velocity = velocity + moveBack * deltaTime;
+            velocity = velocity + moveBack * deltaTime * speedMod;
         }
         if (movement == LEFT) {
             if (mousePressed) {
                 glm::vec3 moveLeft = glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                velocity = velocity + moveLeft * deltaTime;
+                velocity = velocity + moveLeft * deltaTime * speedMod;
             } else {
                 camera->Yaw -= 0.1f;
             }
@@ -111,7 +117,7 @@ void ProcessKeyboard(Camera* camera, Movement_Type movement, glm::vec3& velocity
         if (movement == RIGHT) {
             if (mousePressed) {
                 glm::vec3 moveRight = -glm::normalize(glm::vec3(camRight.x, 0.0f, camRight.z));
-                velocity = velocity + moveRight * deltaTime;
+                velocity = velocity + moveRight * deltaTime * speedMod;
             } else {
                 camera->Yaw += 0.1f;
             }

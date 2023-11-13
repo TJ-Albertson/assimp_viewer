@@ -27,9 +27,11 @@
 #include <shader_m.h>
 #include <skybox.h>
 #include <terrain.h>
+#include <gltf.h>
 
 #include <log_file_functions.h>
 #include <scene_graph.h>
+
 
 // settings
 unsigned int SCR_WIDTH = 2000;
@@ -68,6 +70,7 @@ float rotationAngle = 0.0f;
 
 
 float rotationForWheel = 0.0; // Initial rotation in radians
+float previousRotation = 0.0f;
 
 
 void IntegrateState(PlayerState& state, float& time, float dt) {
@@ -138,6 +141,13 @@ float normalize(float value, float min, float max)
 
 int main()
 {
+    /*
+     * GLTF Load
+     */
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube.gltf");
+
+    return 1;
+
     window = InitializeWindow();
     playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
@@ -181,6 +191,9 @@ int main()
 
     Model* wave_ball = LoadModel(filepath("/resources/models/test/wave_ball.obj"));
 
+
+
+    
 
     
     for (int i = 0; i < man_run->m_NumAnimations; i++) {
@@ -243,67 +256,39 @@ int main()
     PlayerState currentState = playerState;
     double prevTime = glfwGetTime();
 
-    bool paused = false;
-    int stepsPerSecond = 60; // Adjust this based on your desired step frequency
-    double stepInterval = 1.0 / static_cast<double>(stepsPerSecond);
-    double accumulatedTime = 0.0;
-
-    float frameTime = 0.0f;
+    int keyFrame = 0;
 
     while (!glfwWindowShouldClose(window)) {
 
-        if (!paused) {
-            playerPosition = playerState.position;
+        playerPosition = playerState.position;
 
-            // per-frame time logic
-            // --------------------
-            float newTime = glfwGetTime();
-            frameTime = newTime - currentTime;
+        // per-frame time logic
+        // --------------------
+        float newTime = glfwGetTime();
 
-            if (frameTime > 0.25)
-                frameTime = 0.25;
+        //using in other stuff
+        float deltaTime = newTime - currentTime;
 
-            currentTime = newTime;
+        float frameTime = newTime - currentTime;
+        if (frameTime > 0.25)
+            frameTime = 0.25;
+        float currentTime = newTime;
 
-            accumulator += frameTime;
+        accumulator += frameTime;
 
-            while (accumulator >= dt) {
-                previousState = currentState;
-                IntegrateState(currentState, t, dt);
-                t += dt;
-                accumulator -= dt;
-            }
-
-            const float alpha = accumulator / dt;
-
-            playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
-            playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
-
-            accumulatedTime += frameTime;
-
-            // Check if the accumulated time is greater than or equal to the step interval
-            if (accumulatedTime >= stepInterval) {
-                // Step through the simulation
-                previousState = currentState;
-                IntegrateState(currentState, t, dt);
-                t += dt;
-                accumulator -= dt;
-                accumulatedTime = 0.0; // Reset the accumulated time
-            }
-        }
-
-        // Handle input to toggle pause state
-        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-            paused = !paused;
-        }
-
-        // Handle input to manually step through simulation when paused
-        if (paused && glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        while (accumulator >= dt)
+        {
             previousState = currentState;
             IntegrateState(currentState, t, dt);
             t += dt;
             accumulator -= dt;
         }
+
+        const float alpha = accumulator / dt;
+
+
+        playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+        playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
 
        
         UpdateCameraVectors(playerCamera, playerState.position);
@@ -354,15 +339,26 @@ int main()
 
        
 
-        //float wheelRadius = 5.0f;
-        float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
+        float wheelRadius = 1.5f;
+        //float wheelRadius = glm::mix(1.0f, 5.0f, horizontal_velocity_normal);
         
         float angular_velocity = horizontal_velocity / wheelRadius;
 
-        if (horizontal_velocity < 100.0f && horizontal_velocity > 0.0001f) {
-            rotationForWheel += angular_velocity * frameTime;
+        if (horizontal_velocity < 0.0001f) {
+            rotationForWheel = 0.0f;
         }
 
+        if (horizontal_velocity < 100.0f && horizontal_velocity > 0.0001f) {
+            rotationForWheel += angular_velocity * frameTime;
+
+            previousRotation += angular_velocity * frameTime;
+        }
+
+        while (previousRotation >= 3.14159265358979323846 / 4) {
+            previousRotation -= 3.14159265358979323846 / 4;
+            keyFrame++;
+            printf("keyFrame: %d\n", keyFrame);
+        }
 
         // Normalize the rotation to keep it within the range [0, 2*pi)
         while (rotationForWheel >= 2 * 3.14159265358979323846) {
@@ -371,12 +367,19 @@ int main()
 
         //printf("horizontal_velocity: %0.5f\n", horizontal_velocity);
         if (horizontal_velocity < 0.0001f) {
-           AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+          // AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         } else {
-           AnimateModelBlend(angular_velocity * frameTime * 0.1, man_run->m_Animations[5], man_run->m_Animations[3], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+          // AnimateModelBlend(angular_velocity * frameTime * 0.1, man_run->m_Animations[5], man_run->m_Animations[3], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         }
 
-         //AnimateModelBlend(animationSpeed, man_run->m_Animations[3], man_run->m_Animations[5], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+
+        //printf("rotationForWheel: %0.5f\n", rotationForWheel);
+
+
+        ProceduralAnimateModel(keyFrame, man_run->m_Animations[5], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
+        
+        
+        //AnimateModelBlend(animationSpeed, man_run->m_Animations[3], man_run->m_Animations[5], animationBlend, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
 
         //AnimateModelBlend(angular_velocity * frameTime, man_run->m_Animations[1], man_run->m_Animations[0], horizontal_velocity_normal, man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
         //AnimateModel(dt, man_run->m_Animations[0], man_run->rootSkeletonNode, man_run->m_FinalBoneMatrices);
@@ -409,7 +412,7 @@ int main()
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
-        //DrawModel(man_run, animShader);
+        DrawModel(man_run, animShader);
 
         glUseProgram(modelShader);
 
@@ -521,7 +524,7 @@ int main()
         model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
         setShaderMat4(modelShader, "model", model);
         //DrawModel(wave_ball, modelShader);
-
+       
 
         glUseProgram(alphaShader);
         setShaderMat4(alphaShader, "projection", projection);
@@ -531,7 +534,7 @@ int main()
         model = glm::mat4(1.0f);
 
         
-        glm::vec3 stride_circle_center = playerPosition + glm::vec3(0.0f, wheelRadius - 2.0f, 0.0f);
+        glm::vec3 stride_circle_center = playerPosition + glm::vec3(0.0f, wheelRadius - 1.7f, 0.0f);
 
         
         model = glm::translate(model, stride_circle_center);
@@ -545,7 +548,7 @@ int main()
        
         model = glm::scale(model, glm::vec3(wheelRadius, wheelRadius, wheelRadius));
         setShaderMat4(alphaShader, "model", model);
-        //DrawModel(stride_circle, alphaShader);
+        DrawModel(stride_circle, alphaShader);
 
 
 
@@ -575,14 +578,14 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         // DrawModel(sphere, hitboxShader);
 
-        // Player hitbox
+        // Player Sphere hitbox
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
         setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
         glLineWidth(2.0f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        DrawModel(sphere, hitboxShader);
+        //DrawModel(sphere, hitboxShader);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // BACKFACE CULLING |OFF|
@@ -729,6 +732,8 @@ void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float
         ProcessKeyboard(camera, RIGHT, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         ProcessKeyboard(camera, JUMP, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        ProcessKeyboard(camera, SPRINT, velocity, dt);
 }
 
 // glfw: whenever the mouse moves, this callback is called
