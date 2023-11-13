@@ -202,6 +202,8 @@ void gltfPreChecks(cJSON* root)
     }
 }
 
+gltf
+
 gltfMesh gltf_process_mesh(cJSON* meshNode)
 {
     gltfMesh gltf_mesh;
