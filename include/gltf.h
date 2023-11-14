@@ -12,6 +12,32 @@ gltf file importer
 #include <stdlib.h>
 #include <string.h>
 #include <cjson/cJSON.h>
+#include <direct.h>
+
+char currentDirectory[FILENAME_MAX];
+
+enum ComponentType {
+    signed_byte = 5120,
+    unsigned_byte = 5121,
+    signed_short = 5122,
+    unsigned_short = 5123,
+    unsigned_int = 5125,
+    t_float = 5126
+};
+
+// takes componentType returns number of bytes
+int component_size(int type) {
+    if (type == signed_byte || type == unsigned_byte) {
+        return 1;
+    }
+    if (type == signed_short || type == unsigned_short) {
+        return 2;
+    }
+    if (type == unsigned_int || type == t_float) {
+        return 4;
+    }
+    return -1;
+}
 
 // Can be camera sk
 typedef struct gltfNode {
@@ -971,6 +997,88 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_buffers(gltfBuffers, numBuffers);
+
+    int totalBufferSize = 0;
+
+    for (int i = 0; i < numBuffers; ++i) {
+        gltfBuffer gltf_buffer = gltfBuffers[i];
+
+        totalBufferSize += gltf_buffer.m_ByteLength;
+    }
+
+    char* allocatedBuffers = (char*)malloc(totalBufferSize);
+
+    for (int i = 0; i < numBuffers; ++i) {
+        gltfBuffer gltf_buffer = gltfBuffers[i];
+
+        char* buffer = (char*)malloc(gltf_buffer.m_ByteLength);
+
+        char relativePath[FILENAME_MAX];
+        sprintf(relativePath, "%s/%s", currentDirectory, gltf_buffer.m_URI);
+
+        printf("relativePath: %s\n", relativePath);
+
+        FILE* ptr;
+        ptr = fopen(relativePath, "rb");
+
+        if (ptr == NULL) {
+            fprintf(stderr, "Error: Unable to open file %s\n", relativePath);
+            break;
+        }
+
+        fread(buffer, 1, gltf_buffer.m_ByteLength, ptr);
+
+        allocatedBuffers[i] = *buffer;
+
+        free(buffer);
+        fclose(ptr);
+    }
+
+    for (int i = 0; i < numMeshes; ++i) 
+    {
+        gltfMesh gltf_mesh = gltfMeshes[i];
+
+        for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
+        {
+            gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
+
+            gltfPrimitiveAttributes attributes = gltf_primitive.m_Attributes;
+
+            if (attributes.m_PositionIndex >= 0) {
+                gltfAccessor accessor = gltfAccessors[attributes.m_PositionIndex];
+
+                int count = accessor.m_Count;
+                
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = bufferView.m_ByteOffset + accessor.m_ByteOffset;
+
+                char buffer = allocatedBuffers[bufferIndex + offset];
+
+                glm::vec3* positions = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+
+                positions[0].x = (float)buffer;
+                positions[0].y = (float)buffer + 4;
+                positions[0].z = (float)buffer + 8;
+
+                positions[1].x = (float)buffer + 12;
+                positions[1].y = (float)buffer + 16;
+                positions[1].z = (float)buffer + 24;
+
+
+                printf("\npositions[0]: %0.3f %0.3f %0.3f\n", positions[0].x, positions[0].y, positions[0].z);
+                printf("\npositions[1]: %0.3f %0.3f %0.3f\n", positions[1].x, positions[1].y, positions[1].z);
+                /*
+                for (int k = 0; k < count; ++k) {
+                    positions[k].x = (float)*buffer + k * 4;
+
+                }
+                */
+            }
+        }
+    }
     
     cJSON_Delete(root);
 
@@ -979,6 +1087,17 @@ void parseGLTF(const char* jsonString)
 int LoadGLTF(const char* filename)
 {
     char* jsonString = loadFile(filename);
+
+    const char* lastSlash = strrchr(filename, '/');
+
+    if (lastSlash != NULL) {
+        size_t length = lastSlash - filename;
+
+        strncpy(currentDirectory, filename, length);
+        currentDirectory[length] = '\0';
+    } else {
+        printf("No '/' found in filename.\n");
+    }
 
     if (jsonString) {
         parseGLTF(jsonString);
