@@ -831,6 +831,7 @@ gltfNode traverse_gltf_node(cJSON* node)
     return gltf_node;
 }
 
+
 void parseGLTF(const char* jsonString)
 {
     cJSON* root = cJSON_Parse(jsonString);
@@ -1006,7 +1007,7 @@ void parseGLTF(const char* jsonString)
         totalBufferSize += gltf_buffer.m_ByteLength;
     }
 
-    char* allocatedBuffers = (char*)malloc(totalBufferSize);
+    char** allocatedBuffers = (char**)malloc(totalBufferSize);
 
     for (int i = 0; i < numBuffers; ++i) {
         gltfBuffer gltf_buffer = gltfBuffers[i];
@@ -1028,9 +1029,8 @@ void parseGLTF(const char* jsonString)
 
         fread(buffer, 1, gltf_buffer.m_ByteLength, ptr);
 
-        allocatedBuffers[i] = *buffer;
+        allocatedBuffers[i] = buffer;
 
-        free(buffer);
         fclose(ptr);
     }
 
@@ -1041,6 +1041,48 @@ void parseGLTF(const char* jsonString)
         for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
         {
             gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
+
+            if (gltf_primitive.m_IndicesIndex >= 0) {
+                gltfAccessor accessor = gltfAccessors[gltf_primitive.m_IndicesIndex];
+
+                int count = accessor.m_Count;
+
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = 0;
+
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
+
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+
+                unsigned short* indices = (unsigned short*)malloc(count * sizeof(unsigned short));
+
+                int componentSize = component_size(accessor.m_ComponentType);
+
+                printf("offset: %d\n", offset);
+                printf("count: %d\n", count);
+                printf("componentSize: %d\n", componentSize);
+
+                printf("Indices:\n");
+                for (int k = 0; k < count; ++k) {
+                    float x;
+                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
+
+                    printf("    indice[%d]: %d\n", k, x);
+
+                    indices[k] = x;
+                }
+            }
 
             gltfPrimitiveAttributes attributes = gltf_primitive.m_Attributes;
 
@@ -1053,30 +1095,200 @@ void parseGLTF(const char* jsonString)
 
                 int bufferIndex = bufferView.m_BufferIndex;
 
-                int offset = bufferView.m_ByteOffset + accessor.m_ByteOffset;
+                int offset = 0;
 
-                char buffer = allocatedBuffers[bufferIndex + offset];
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
 
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+               
                 glm::vec3* positions = (glm::vec3*)malloc(count * sizeof(glm::vec3));
 
-                positions[0].x = (float)buffer;
-                positions[0].y = (float)buffer + 4;
-                positions[0].z = (float)buffer + 8;
+                int componentSize = component_size(accessor.m_ComponentType);
 
-                positions[1].x = (float)buffer + 12;
-                positions[1].y = (float)buffer + 16;
-                positions[1].z = (float)buffer + 24;
-
-
-                printf("\npositions[0]: %0.3f %0.3f %0.3f\n", positions[0].x, positions[0].y, positions[0].z);
-                printf("\npositions[1]: %0.3f %0.3f %0.3f\n", positions[1].x, positions[1].y, positions[1].z);
-                /*
+                printf("Positions:\n");
                 for (int k = 0; k < count; ++k) {
-                    positions[k].x = (float)*buffer + k * 4;
+                    float x, y, z;
+                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&y, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&z, buffer + k * componentSize, sizeof(componentSize));
 
+                    printf("    position[%d]: %f %f %f\n", k, x, y, z);
+
+                    positions[k].x = x;
+                    positions[k].y = y;
+                    positions[k].z = z;
                 }
-                */
             }
+
+            if (attributes.m_TexCoord_0_Index >= 0) {
+                gltfAccessor accessor = gltfAccessors[attributes.m_TexCoord_0_Index];
+
+                int count = accessor.m_Count;
+
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = 0;
+
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
+
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+
+                glm::vec3* texCoords = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+
+                printf("TexCoords_0:\n");
+                for (int k = 0; k < count; ++k) {
+                    float x, y;
+                    memcpy(&x, buffer + k * 4, sizeof(float));
+                    memcpy(&y, buffer + k * 4, sizeof(float));
+
+                    printf("    texCoords[%d]: %f %f\n", k, x, y);
+
+                    texCoords[k].x = x;
+                    texCoords[k].y = y;
+                }
+            }
+
+            if (attributes.m_TexCoord_1_Index >= 0) {
+                gltfAccessor accessor = gltfAccessors[attributes.m_TexCoord_1_Index];
+
+                int count = accessor.m_Count;
+
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = 0;
+
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
+
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+
+                glm::vec3* texCoords = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+
+                printf("TexCoords_1:\n");
+                for (int k = 0; k < count; ++k) {
+                    float x, y;
+                    memcpy(&x, buffer + k * 4, sizeof(float));
+                    memcpy(&y, buffer + k * 4, sizeof(float));
+
+                    printf("    texCoords[%d]: %f %f\n", k, x, y);
+
+                    texCoords[k].x = x;
+                    texCoords[k].y = y;
+                }
+            }
+
+            if (attributes.m_NormalIndex >= 0) {
+                gltfAccessor accessor = gltfAccessors[attributes.m_NormalIndex];
+
+                int count = accessor.m_Count;
+
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = 0;
+
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
+
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+
+                glm::vec3* normals = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+
+                printf("Normals:\n");
+                for (int k = 0; k < count; ++k) {
+                    float x, y, z;
+                    memcpy(&x, buffer + k * 4, sizeof(float));
+                    memcpy(&y, buffer + k * 4, sizeof(float));
+                    memcpy(&z, buffer + k * 4, sizeof(float));
+
+                    printf("    normal[%d]: %f %f %f\n", k, x, y, z);
+
+                    normals[k].x = x;
+                    normals[k].y = y;
+                    normals[k].z = z;
+                }
+            }
+
+            if (attributes.m_TangentIndex >= 0) {
+                gltfAccessor accessor = gltfAccessors[attributes.m_TangentIndex];
+
+                int count = accessor.m_Count;
+
+                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+                int bufferIndex = bufferView.m_BufferIndex;
+
+                int offset = 0;
+
+                if (bufferView.m_ByteOffset > 0) {
+                    offset += bufferView.m_ByteOffset;
+                }
+
+                if (accessor.m_ByteOffset > 0) {
+                    offset += accessor.m_ByteOffset;
+                }
+
+                char* buffer = allocatedBuffers[bufferIndex];
+
+                buffer = buffer + offset;
+
+                glm::vec4* tangents = (glm::vec4*)malloc(count * sizeof(glm::vec4));
+
+                int componentSize = component_size(accessor.m_ComponentType);
+
+                printf("Tangents:\n");
+                for (int k = 0; k < count; ++k) {
+                    float x, y, z, w;
+                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&y, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&z, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&w, buffer + k * componentSize, sizeof(componentSize));
+
+                    printf("    tangent[%d]: %f %f %f %f\n", k, x, y, z, w);
+
+                    tangents[k].x = x;
+                    tangents[k].y = y;
+                    tangents[k].z = z;
+                    tangents[k].w = w;
+                }
+            }
+
+            
         }
     }
     

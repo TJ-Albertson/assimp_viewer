@@ -37,7 +37,7 @@ int main()
     /*
      * GLTF Load
      */
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube2.gltf");
 
     return 1;
 }
