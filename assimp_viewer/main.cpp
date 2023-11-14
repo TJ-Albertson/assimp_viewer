@@ -141,13 +141,6 @@ float normalize(float value, float min, float max)
 
 int main()
 {
-    /*
-     * GLTF Load
-     */
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube.gltf");
-
-    return 1;
-
     window = InitializeWindow();
     playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 

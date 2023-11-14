@@ -193,7 +193,7 @@ unsigned int gltf_LoadMeshVertexData(gltfVertex* vertices, unsigned int* indices
 }
 
 
-void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices) 
+void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices, unsigned int shaderID) 
 {
 
 
@@ -202,18 +202,23 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, material.m_NormalTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "normalMap"), 1);
 
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, material.m_MetallicTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "metallicMap"), 2);
 
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, material.m_RoughnessTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "roughnessMap"), 3);
 
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
 
     // draw mesh
     glBindVertexArray(VAO);

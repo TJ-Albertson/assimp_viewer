@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-/*
 #include <animation.h>
 #include <collision.h>
 #include <dev_gui.h>
@@ -25,7 +24,7 @@
 #include <shader_m.h>
 #include <skybox.h>
 #include <terrain.h>
-*/
+
 
 #include <log_file_functions.h>
 #include <scene_graph.h>
@@ -37,6 +36,10 @@ GLFWwindow* window;
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
+const float RENDER_DISTANCE = 1000.0f;
+
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -84,13 +87,13 @@ GLFWwindow* InitializeWindow()
 
     // ImGui initialization
     // -----------------------------
-    /*
+    
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
-    */
+    
 
     return window;
 }
@@ -111,20 +114,70 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    int rightMouseButtonState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
+    if (rightMouseButtonState == GLFW_PRESS) {
+
+        mousePressed = true;
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        if (firstMouse) {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+        lastX = xpos;
+        lastY = ypos;
+
+        ProcessMouseMovement(playerCamera, xoffset, yoffset, true);
+
+    } else if (rightMouseButtonState == GLFW_RELEASE) {
+        // Enable the cursor when the right mouse button is released
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        firstMouse = true;
+        mousePressed = false;
+    }
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-
+    ProcessMouseScroll(playerCamera, yoffset);
 }
 
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float dt)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        ProcessKeyboard(camera, FORWARD, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        ProcessKeyboard(camera, BACKWARD, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        ProcessKeyboard(camera, LEFT, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        ProcessKeyboard(camera, RIGHT, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        ProcessKeyboard(camera, JUMP, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        ProcessKeyboard(camera, SPRINT, velocity, dt);
+}
+
+ 
 
 int main()
 {
+
     window = InitializeWindow();
+    playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
     /*
      * GLTF Load
      */
@@ -134,15 +187,57 @@ int main()
 
     unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
 
+    //unsigned int pbrShader = createShader(filepath("/shaders/pbr/pbr.vs"), filepath("/shaders/pbr/pbr.fs"));
+    unsigned int pbrShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
+
+    unsigned int grid_VAO = LoadGrid();
+
+    float previousTime = glfwGetTime();
+    float currentTime;
+
+    glLineWidth(2.0f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     while (!glfwWindowShouldClose(window))
     {
 
-        draw_gltf_mesh(VAO, mat, testMesh.numIndices);
+        currentTime = glfwGetTime();
+        float deltaTime = previousTime - currentTime;
 
+        UpdateCameraVectors(playerCamera, playerState.position);
+
+        Main_GUI_Loop(currentTime);
+
+        // render
+        // ------
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 projection = glm::perspective(glm::radians(playerCamera->FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
+        glm::mat4 view = GetViewMatrix(*playerCamera);
+
+        glUseProgram(pbrShader);
+        setShaderMat4(pbrShader, "projection", projection);
+        setShaderMat4(pbrShader, "view", view);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        setShaderMat4(pbrShader, "model", model);
+
+        draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
+
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    
+
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 1;

@@ -225,11 +225,14 @@ void SceneWindow()
 {
     ImGui::Begin("Scene");
 
-    SceneNode* child = root_node->firstChild;
-    while (child != NULL) {
-        DrawTree(child);
-        child = child->nextSibling;
+    if (root_node != NULL) {
+        SceneNode* child = root_node->firstChild;
+        while (child != NULL) {
+            DrawTree(child);
+            child = child->nextSibling;
+        }
     }
+   
 
     ImGui::End();
 }
