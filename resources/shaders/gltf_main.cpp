@@ -132,10 +132,12 @@ int main()
 
     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
+    unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
+
     while (!glfwWindowShouldClose(window))
     {
 
-
+        draw_gltf_mesh(VAO, mat, testMesh.numIndices);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

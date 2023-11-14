@@ -148,12 +148,12 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     return material;
 }
 
-void load_gltf_meshes(gltfMesh* gltf_Mesh)
+void load_gltf_MESH(gltfMesh* gltf_Mesh)
 {
 
 }
 
-unsigned int gltf_LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
+unsigned int gltf_LoadMeshVertexData(gltfVertex* vertices, unsigned int* indices, int numVertices, int numIndices)
 {
     unsigned int VAO, VBO, EBO;
 
@@ -170,7 +170,7 @@ unsigned int gltf_LoadMeshVertexData(VertexData* vertices, unsigned int* indices
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
-    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(gltfVertex), &vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
@@ -179,21 +179,21 @@ unsigned int gltf_LoadMeshVertexData(VertexData* vertices, unsigned int* indices
 
     // vertex Positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)0);
     // vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, Normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)offsetof(gltfVertex, m_Normal));
     // vertex texture coords
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, TexCoords));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)offsetof(gltfVertex, m_TexCoord_0));
 
     glBindVertexArray(0);
 
     return VAO;
 }
 
-/*
-void draw_gltf_mesh(Mesh mesh, Material material) 
+
+void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices) 
 {
 
 
@@ -216,16 +216,13 @@ void draw_gltf_mesh(Mesh mesh, Material material)
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
 
     // draw mesh
-    glBindVertexArray(mesh.VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.numIndices), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(numIndices), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
 }
 
-void draw_gltf_scene() {
 
-}
-*/
 #endif
