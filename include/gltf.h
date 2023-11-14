@@ -219,8 +219,8 @@ typedef struct gltfSkin {
 
 typedef struct gltfVertex {
     glm::vec3 m_Position;
-    glm::vec2 m_TexCoord_0;
     glm::vec3 m_Normal;
+    glm::vec2 m_TexCoord_0;
 } gltfVertex;
 
 typedef struct TestMesh {

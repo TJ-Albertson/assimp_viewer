@@ -198,8 +198,10 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
 
 
     //setMaterialShaderMat
-
-
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
+    glUniform1i(glGetUniformLocation(shaderID, "texture1"), 0);
+    /*
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
     glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
@@ -219,6 +221,7 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
     glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
+    */
 
     // draw mesh
     glBindVertexArray(VAO);
@@ -226,7 +229,7 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
-    glActiveTexture(GL_TEXTURE0);
+   //glActiveTexture(GL_TEXTURE0);
 }
 
 
