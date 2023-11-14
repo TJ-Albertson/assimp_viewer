@@ -19,33 +19,6 @@ load gltf model for opengl
 
 #include "gltf.h" 
 
-struct VertexData {
-    glm::vec3 Position;
-    glm::vec3 Normal;
-    glm::vec2 TexCoords;
-    glm::vec3 Tangent;
-    glm::vec3 Bitangent;
-    glm::vec3 Color;
-    int m_BoneIDs[MAX_BONE_INFLUENCE];
-    float m_Weights[MAX_BONE_INFLUENCE];
-};
-
-
-struct Texture {
-    unsigned int m_OpenglId;
-    char m_Type[256];
-};
-
-struct Mesh {
-    unsigned int VAO;
-    // unsigned int numVertices;
-
-    // unsigned int* indices;
-    unsigned int numIndices;
-
-    Texture* m_Textures;
-    unsigned int m_NumTextures;
-};
 
 typedef struct Material {
     unsigned int m_BaseColorTextureId;
@@ -62,32 +35,25 @@ typedef struct Material {
     float m_RoughnessFactor;
 } Material;
 
-struct Model {
-    char* m_Name;
 
-    int m_NumMeshes;
-    Mesh* m_Meshes;
-
-    int m_NumAnimations;
-    //Animation* m_Animations;
-
-    glm::mat4* m_FinalBoneMatrices;
-    //SkeletonNode* rootSkeletonNode;
-};
 
 unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_samplers, gltfImage* gltf_images)
 {
-    gltfSampler
+    gltfImage image = gltf_images[texture.m_SourceIndex];
 
-
-    std::string filename = std::string(path);
-    filename = directory + '/' + filename;
+    char filename[FILENAME_MAX];
+    sprintf(filename, "%s/%s", currentDirectory, image.m_URI);
 
     unsigned int textureID;
     glGenTextures(1, &textureID);
-
+  
     int width, height, nrComponents;
-    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    unsigned char* data = stbi_load(filename, &width, &height, &nrComponents, 0);
+
+  
+    //metallness value in "blue" color channel
+    //roughness value in "green" color channel
+
     if (data) {
         GLenum format;
         if (nrComponents == 1)
@@ -113,7 +79,7 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
 
         stbi_image_free(data);
     } else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
+        printf("Texture failed to load at path: %s\n", filename);
         stbi_image_free(data);
     }
 
@@ -128,24 +94,35 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     {
         gltfMetallicRoughness gltf_metal_rough = *gltf_material.m_MetalicRoughness;
 
-        gltfTexture base_color_texture = textures[gltf_metal_rough.m_BaseColorTexture->m_Index];
-        gltfTexture metal_rough_texture = textures[gltf_metal_rough.m_MetallicRoughnessTexture->m_Index];
+        if (gltf_metal_rough.m_BaseColorTexture != NULL)
+        {
+            gltfTexture base_color_texture = textures[gltf_metal_rough.m_BaseColorTexture->m_Index];
+            material.m_BaseColorTextureId = load_gltf_texture(base_color_texture, 0, gltf_samplers, gltf_images);
+        } else {
+            material.m_BaseColorTextureId = 0;
+        }
 
-        material.m_BaseColorTextureId = load_gltf_texture(base_color_texture, 0, gltf_samplers);
-        material.m_MetallicTextureId = load_gltf_texture(metal_rough_texture, 1, gltf_samplers);
-        material.m_RoughnessTextureId = load_gltf_texture(metal_rough_texture, 2, gltf_samplers);
-
+        if (gltf_metal_rough.m_MetallicRoughnessTexture != NULL)
+        {
+            gltfTexture metal_rough_texture = textures[gltf_metal_rough.m_MetallicRoughnessTexture->m_Index];
+            material.m_MetallicTextureId = load_gltf_texture(metal_rough_texture, 1, gltf_samplers, gltf_images);
+            material.m_RoughnessTextureId = load_gltf_texture(metal_rough_texture, 2, gltf_samplers, gltf_images);
+        } else {
+            material.m_MetallicTextureId = 0;
+            material.m_RoughnessTextureId = 0;
+        }
+        
         material.m_BaseColorFactor = gltf_metal_rough.m_BaseColorFactor;
         material.m_MetallicFactor = gltf_metal_rough.m_MetallicFactor;
         material.m_RoughnessFactor = gltf_metal_rough.m_RoughnessFactor;
     } else {
-        printf("No metal roughness");
+        printf("No metal roughness\n");
     }
 
     if (gltf_material.m_NormalTexture != NULL) 
     {
         gltfTexture normal_texture = textures [gltf_material.m_NormalTexture->m_Index];
-        material.m_NormalTextureId = load_gltf_texture(normal_texture, 0, gltf_samplers);
+        material.m_NormalTextureId = load_gltf_texture(normal_texture, 0, gltf_samplers, gltf_images);
     } else {
         material.m_NormalTextureId = 0; // switch to default
     }
@@ -153,7 +130,7 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     if (gltf_material.m_OcclusionTexture != NULL) 
     {
         gltfTexture occlusion_texture = textures[gltf_material.m_OcclusionTexture->m_Index];
-        material.m_OcclusionTextureId = load_gltf_texture(occlusion_texture, 0, gltf_samplers);
+        material.m_OcclusionTextureId = load_gltf_texture(occlusion_texture, 0, gltf_samplers, gltf_images);
     } else {
         material.m_OcclusionTextureId = 0; // switch to default
     }
@@ -161,12 +138,14 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     if (gltf_material.m_EmissiveTexture != NULL)
     {
         gltfTexture emissive_texture = textures[gltf_material.m_EmissiveTexture->m_Index];
-        material.m_EmissiveTextureId = load_gltf_texture(emissive_texture, 0, gltf_samplers);
+        material.m_EmissiveTextureId = load_gltf_texture(emissive_texture, 0, gltf_samplers, gltf_images);
     } else {
         material.m_EmissiveTextureId = 0; // switch to default
     }
 
     material.m_EmissiveFactor = gltf_material.m_EmissiveFactor;
+
+    return material;
 }
 
 void load_gltf_meshes(gltfMesh* gltf_Mesh)
@@ -174,6 +153,46 @@ void load_gltf_meshes(gltfMesh* gltf_Mesh)
 
 }
 
+unsigned int gltf_LoadMeshVertexData(VertexData* vertices, unsigned int* indices, int numVertices, int numIndices)
+{
+    unsigned int VAO, VBO, EBO;
+
+    // initializes all the buffer objects/arrays
+    // now that we have all the required data, set the vertex buffers and its attribute pointers.
+    // create buffers/arrays
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+    // load data into vertex buffers
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // A great thing about structs is that their memory layout is sequential for all its items.
+    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
+    // again translates to 3/2 floats which translates to a byte array.
+    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    // set the vertex attribute pointers
+
+    // vertex Positions
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, Normal));
+    // vertex texture coords
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, TexCoords));
+
+    glBindVertexArray(0);
+
+    return VAO;
+}
+
+/*
 void draw_gltf_mesh(Mesh mesh, Material material) 
 {
 
@@ -208,5 +227,5 @@ void draw_gltf_mesh(Mesh mesh, Material material)
 void draw_gltf_scene() {
 
 }
-
+*/
 #endif

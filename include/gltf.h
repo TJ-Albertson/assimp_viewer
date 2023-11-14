@@ -217,6 +217,20 @@ typedef struct gltfSkin {
     int* m_Joints;
 } gltfSkin;
 
+typedef struct gltfVertex {
+    glm::vec3 m_Position;
+    glm::vec2 m_TexCoord_0;
+    glm::vec3 m_Normal;
+} gltfVertex;
+
+typedef struct TestMesh {
+    gltfVertex* vertices;
+    int numVertices;
+
+    unsigned int* indices;
+    int numIndices;
+} TestMesh;
+
 
 void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
@@ -228,6 +242,12 @@ void print_gltf_samplers(gltfSampler* gltf_samplers, int numSamplers);
 void print_gltf_buffers(gltfBuffer* gltf_buffers, int numBuffers);
 void print_gltf_materials(gltfMaterial* gltf_materials, int numMaterials);
 
+gltfSampler* globalSamplers;
+gltfImage*   globalImages;
+gltfTexture* globalTextures;
+gltfMaterial* globalMaterials;
+
+TestMesh testMesh;
 
 char* loadFile(const char* filename)
 {
@@ -897,6 +917,7 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_materials(gltfMaterials, numMaterials);
+    globalMaterials = gltfMaterials;
 
     // "meshes": []
     cJSON* meshes = cJSON_GetObjectItem(root, "meshes");
@@ -928,6 +949,7 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_textures(gltfTextures, numTextures);
+    globalTextures = gltfTextures;
 
     // "images": []
     cJSON* images = cJSON_GetObjectItem(root, "images");
@@ -942,6 +964,7 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_images(gltfImages, numImages);
+    globalImages = gltfImages;
 
     // "accessors": []
     cJSON* accessors = cJSON_GetObjectItem(root, "accessors");
@@ -984,8 +1007,9 @@ void parseGLTF(const char* jsonString)
     }
 
     print_gltf_samplers(gltfSamplers, numSamplers);
+    globalSamplers = gltfSamplers;
 
-    // "samplers: []
+    // "buffers: []
     cJSON* buffers = cJSON_GetObjectItem(root, "buffers");
     int numBuffers = cJSON_GetArraySize(buffers);
 
@@ -1038,10 +1062,21 @@ void parseGLTF(const char* jsonString)
     {
         gltfMesh gltf_mesh = gltfMeshes[i];
 
+        glm::vec3* vertexPositions = (glm::vec3*)malloc(50 * sizeof(glm::vec3));
+        glm::vec3* vertexNormals = (glm::vec3*)malloc(50 * sizeof(glm::vec3));
+        glm::vec2* vertexTexCoords = (glm::vec2*)malloc(50 * sizeof(glm::vec2));
+
+        int numVertexPositions;
+        int numVertexNormals;
+        int numVertexTexCoords;
+
+        unsigned int* total_indices = (unsigned int*)malloc(50 * sizeof(unsigned int));
+        int numIndices;
+
         for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
         {
             gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
-
+            
             if (gltf_primitive.m_IndicesIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[gltf_primitive.m_IndicesIndex];
 
@@ -1066,7 +1101,7 @@ void parseGLTF(const char* jsonString)
                 printf("offset: %d\n", offset);
                 buffer = buffer + offset;
 
-                unsigned int* indices = (unsigned int*)malloc(count * sizeof(unsigned int));
+                unsigned short* indices = (unsigned short*)malloc(count * sizeof(unsigned short));
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
@@ -1076,12 +1111,21 @@ void parseGLTF(const char* jsonString)
 
                 printf("Indices:\n");
                 for (int k = 0; k < count; ++k) {
-                    unsigned int x;
+                    unsigned short x;
                     memcpy(&x, buffer + k * componentSize, componentSize);
 
                     printf("    indice[%d]: %u\n", k, x);
 
                     indices[k] = x;
+                }
+
+                numIndices = count;
+                total_indices = (unsigned int*)malloc(count * sizeof(unsigned int));
+
+                for (int k = 0; k < count; ++k) {
+                    total_indices[k] = indices[k];
+
+                    printf("    total_indices[%d]: %u\n", k, total_indices[k]);
                 }
             }
 
@@ -1127,6 +1171,9 @@ void parseGLTF(const char* jsonString)
                     positions[k].y = y;
                     positions[k].z = z;
                 }
+
+                vertexPositions = positions;
+                numVertexPositions = count;
             }
 
             if (attributes.m_TexCoord_0_Index >= 0) {
@@ -1152,7 +1199,7 @@ void parseGLTF(const char* jsonString)
 
                 buffer = buffer + offset;
 
-                glm::vec3* texCoords = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+                glm::vec2* texCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
 
                 printf("TexCoords_0:\n");
                 for (int k = 0; k < count; ++k) {
@@ -1165,6 +1212,9 @@ void parseGLTF(const char* jsonString)
                     texCoords[k].x = x;
                     texCoords[k].y = y;
                 }
+
+                vertexTexCoords = texCoords;
+                numVertexTexCoords = count;
             }
 
             if (attributes.m_TexCoord_1_Index >= 0) {
@@ -1243,6 +1293,9 @@ void parseGLTF(const char* jsonString)
                     normals[k].y = y;
                     normals[k].z = z;
                 }
+
+                vertexNormals = normals;
+                numVertexNormals = count;
             }
 
             if (attributes.m_TangentIndex >= 0) {
@@ -1288,9 +1341,21 @@ void parseGLTF(const char* jsonString)
                     tangents[k].w = w;
                 }
             }
-
-            
         }
+
+        testMesh.numVertices = numVertexPositions;
+        testMesh.numIndices = numIndices;
+
+        testMesh.vertices = (gltfVertex*)malloc(numVertexPositions * sizeof(gltfVertex));
+
+        for (int j = 0; j < numVertexPositions; ++j) {
+            testMesh.vertices[j].m_Position = vertexPositions[j];
+            testMesh.vertices[j].m_Normal = vertexNormals[j];
+            testMesh.vertices[j].m_TexCoord_0 = vertexTexCoords[j];
+        }
+
+        testMesh.indices = total_indices;
+
     }
     
     cJSON_Delete(root);
