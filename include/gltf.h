@@ -1063,22 +1063,23 @@ void parseGLTF(const char* jsonString)
 
                 char* buffer = allocatedBuffers[bufferIndex];
 
+                printf("offset: %d\n", offset);
                 buffer = buffer + offset;
 
-                unsigned short* indices = (unsigned short*)malloc(count * sizeof(unsigned short));
+                unsigned int* indices = (unsigned int*)malloc(count * sizeof(unsigned int));
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
-                printf("offset: %d\n", offset);
+                
                 printf("count: %d\n", count);
                 printf("componentSize: %d\n", componentSize);
 
                 printf("Indices:\n");
                 for (int k = 0; k < count; ++k) {
-                    float x;
-                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
+                    unsigned int x;
+                    memcpy(&x, buffer + k * componentSize, componentSize);
 
-                    printf("    indice[%d]: %d\n", k, x);
+                    printf("    indice[%d]: %u\n", k, x);
 
                     indices[k] = x;
                 }
@@ -1116,9 +1117,9 @@ void parseGLTF(const char* jsonString)
                 printf("Positions:\n");
                 for (int k = 0; k < count; ++k) {
                     float x, y, z;
-                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
-                    memcpy(&y, buffer + k * componentSize, sizeof(componentSize));
-                    memcpy(&z, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&x, buffer + k * componentSize, componentSize);
+                    memcpy(&y, buffer + k * componentSize, componentSize);
+                    memcpy(&z, buffer + k * componentSize, componentSize);
 
                     printf("    position[%d]: %f %f %f\n", k, x, y, z);
 
@@ -1274,10 +1275,10 @@ void parseGLTF(const char* jsonString)
                 printf("Tangents:\n");
                 for (int k = 0; k < count; ++k) {
                     float x, y, z, w;
-                    memcpy(&x, buffer + k * componentSize, sizeof(componentSize));
-                    memcpy(&y, buffer + k * componentSize, sizeof(componentSize));
-                    memcpy(&z, buffer + k * componentSize, sizeof(componentSize));
-                    memcpy(&w, buffer + k * componentSize, sizeof(componentSize));
+                    memcpy(&x, buffer + k * componentSize, componentSize);
+                    memcpy(&y, buffer + k * componentSize, componentSize);
+                    memcpy(&z, buffer + k * componentSize, componentSize);
+                    memcpy(&w, buffer + k * componentSize, componentSize);
 
                     printf("    tangent[%d]: %f %f %f %f\n", k, x, y, z, w);
 
