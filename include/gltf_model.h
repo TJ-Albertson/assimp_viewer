@@ -47,8 +47,8 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
     unsigned int textureID;
     glGenTextures(1, &textureID);
   
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(filename, &width, &height, &nrComponents, 0);
+    int width, height, numChannels;
+    unsigned char* data = stbi_load(filename, &width, &height, &numChannels, 0);
 
   
     //metallness value in "blue" color channel
@@ -56,26 +56,41 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
 
     if (data) {
         GLenum format;
-        if (nrComponents == 1)
+        if (numChannels == 1)
             format = GL_RED;
-        else if (nrComponents == 3)
+        else if (numChannels == 3)
             format = GL_RGB;
-        else if (nrComponents == 4)
+        else if (numChannels == 4)
             format = GL_RGBA;
 
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         
         if (type == 1) {
-            // Load only the blue channel for type 1
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_BLUE, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            for (int i = 0; i < width * height * numChannels; i += numChannels) {
+                data[i] = data[i + 2];
+                data[i + 1] = data[i + 2];
+            }
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         } else if (type == 2) {
             // Load only the green channel for type 2
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_GREEN, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            for (int i = 0; i < width * height * numChannels; i += numChannels) {
+                data[i] = data[i + 1];
+                data[i + 2] = data[i + 1];
+            }
+
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        } else if (type == 3) {
+            for (int i = 0; i < width * height * numChannels; i += numChannels) {
+                data[i + 1] = data[i];
+                data[i + 2] = data[i];
+            }
+
+             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         } else {
             // Load the entire texture for other types (type = 0)
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
         }
        
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -143,7 +158,7 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     if (gltf_material.m_OcclusionTexture != NULL) 
     {
         gltfTexture occlusion_texture = textures[gltf_material.m_OcclusionTexture->m_Index];
-        material.m_OcclusionTextureId = load_gltf_texture(occlusion_texture, 0, gltf_samplers, gltf_images);
+        material.m_OcclusionTextureId = load_gltf_texture(occlusion_texture, 3, gltf_samplers, gltf_images);
     } else {
         material.m_OcclusionTextureId = 0; // switch to default
     }

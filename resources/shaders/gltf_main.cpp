@@ -223,6 +223,15 @@ int main()
 
         UpdateCameraVectors(playerCamera, playerState.position);
 
+        float radius = 5;
+        float timeScale = 0.5;
+
+        float x = sin(glfwGetTime() * timeScale) * radius;
+        float y = sin(glfwGetTime() * timeScale) * 2;
+        float z = cos(glfwGetTime() * timeScale) * radius;
+
+        lightPositions[0] = glm::vec3(x, y, z);
+
         Main_GUI_Loop(currentTime);
 
         // render
