@@ -141,12 +141,12 @@ void DrawTerrain(glm::mat4 view, glm::mat4 projection, glm::vec3 sunDirection, g
     SetShaderT_Mat4(tessHeightMapShader, "model", model);
 
     //lighting
-    setVec3(tessHeightMapShader, "dirLight.direction", sunDirection);
-    setVec3(tessHeightMapShader, "dirLight.ambient", color.x, color.y, color.z);
-    setVec3(tessHeightMapShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-    setVec3(tessHeightMapShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
+    SetShaderT_Vec3(tessHeightMapShader, "dirLight.direction", sunDirection);
+    SetShaderT_Vec3(tessHeightMapShader, "dirLight.ambient", color.x, color.y, color.z);
+    SetShaderT_Vec3(tessHeightMapShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+    SetShaderT_Vec3(tessHeightMapShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
-    setVec3(tessHeightMapShader, "viewPos", viewPos);
+    SetShaderT_Vec3(tessHeightMapShader, "viewPos", viewPos);
 
 
     glActiveTexture(GL_TEXTURE0);

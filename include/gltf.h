@@ -781,16 +781,15 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
     }
 
     if (cJSON_GetObjectItem(materialNode, "emissiveFactor")) {
-        cJSON* emmissiveFactor = cJSON_GetObjectItem(materialNode, "baseColorFactor");
+        cJSON* emmissiveFactor = cJSON_GetObjectItem(materialNode, "emissiveFactor");
 
         float x = cJSON_GetArrayItem(emmissiveFactor, 0)->valuedouble;
         float y = cJSON_GetArrayItem(emmissiveFactor, 1)->valuedouble;
         float z = cJSON_GetArrayItem(emmissiveFactor, 2)->valuedouble;
-        float w = cJSON_GetArrayItem(emmissiveFactor, 3)->valuedouble;
 
-        gltf_material.m_EmissiveFactor = glm::vec4(x, y, z, w);
+        gltf_material.m_EmissiveFactor = glm::vec3(x, y, z);
     } else {
-        gltf_material.m_EmissiveFactor = glm::vec4(0.0f);
+        gltf_material.m_EmissiveFactor = glm::vec3(0.0f);
     }
 
     return gltf_material;

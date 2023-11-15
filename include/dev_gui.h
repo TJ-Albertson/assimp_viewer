@@ -11,6 +11,8 @@
 #include <scene_graph.h>
 #include <my_math.h>
 
+#include "gltf_model.h"
+
 bool animationPlaying = false;
 double previousTimeFPS;
 int frameCount = 0;
@@ -31,6 +33,9 @@ float animationSpeed = 0.0f;
 float animationBlend = 0.0f;
 
 float speedModifier = 1.0f;
+
+Material selectedMaterial;
+bool showTextureWindow = true;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
@@ -109,6 +114,52 @@ void CollisionData()
         ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
     }
     ImGui::EndChild();
+
+    ImGui::End();
+}
+
+void TextureWindow()
+{
+    ImGui::Begin("Textures");
+
+    if (ImGui::BeginTabBar("TextureTypes", 0)) {
+        if (ImGui::BeginTabItem("BaseColor Texture")) {
+            //ImGui::Image((ImTextureID)selectedMaterial.m_BaseColorTextureId, ImVec2(512, 512));
+
+            float my_tex_w = 512;
+            float my_tex_h = 512;
+
+            static bool use_text_color_for_tint = false;
+            ImGui::Checkbox("Use Text Color for Tint", &use_text_color_for_tint);
+            ImGui::Text("%.0fx%.0f", my_tex_w, my_tex_h);
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImVec2 uv_min = ImVec2(0.0f, 0.0f); // Top-left
+            ImVec2 uv_max = ImVec2(1.0f, 1.0f); // Lower-right
+            ImVec4 tint_col = use_text_color_for_tint ? ImGui::GetStyleColorVec4(ImGuiCol_Text) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // No tint
+            ImVec4 border_col = ImGui::GetStyleColorVec4(ImGuiCol_Border);
+            ImGui::Image((ImTextureID)selectedMaterial.m_BaseColorTextureId, ImVec2(my_tex_w, my_tex_h), uv_min, uv_max, tint_col, border_col);
+
+
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Normal Texture")) {
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_NormalTextureId, ImVec2(512, 512));
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Metallic Texture")) {
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_MetallicTextureId, ImVec2(512, 512));
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Roughness Texture")) {
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_RoughnessTextureId, ImVec2(512, 512));
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Occlusion Texture")) {
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_OcclusionTextureId, ImVec2(512, 512));
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
 
     ImGui::End();
 }
@@ -480,6 +531,15 @@ void MainMenuBar()
 
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Texture")) {
+
+            if (ImGui::MenuItem("Texture Window")) {
+                showTextureWindow = !showTextureWindow;
+            }
+
+            ImGui::EndMenu();
+        }
         // Add more menus and items here
         ImGui::EndMainMenuBar();
     }
@@ -512,6 +572,10 @@ void Main_GUI_Loop(double time)
 
     if (showCollisionData) {
         CollisionData();
+    }
+
+    if (showTextureWindow) {
+        TextureWindow();
     }
 
     MainMenuBar();
