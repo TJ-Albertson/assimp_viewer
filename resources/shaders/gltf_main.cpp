@@ -175,10 +175,13 @@ int main()
     /*
      * GLTF Load
      */
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
+    //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/cube.gltf");
 
     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
+
+    
     selectedMaterial = mat;
 
     printf(" material.m_BaseColorTextureId: %u\n", mat.m_BaseColorTextureId);
