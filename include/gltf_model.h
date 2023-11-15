@@ -68,17 +68,16 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
         
         if (type == 1) {
             // Load only the blue channel for type 1
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_BLUE, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         } else if (type == 2) {
             // Load only the green channel for type 2
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, format, GL_UNSIGNED_BYTE, data + 1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_GREEN, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         } else {
             // Load the entire texture for other types (type = 0)
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
         }
        
-        
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -212,12 +211,12 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
 
 
     //setMaterialShaderMat
-    
+    /*
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
     glUniform1i(glGetUniformLocation(shaderID, "texture1"), 0);
+    */
     
-    /*
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
     glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
@@ -237,7 +236,7 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
     glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
-    */
+    
 
     // draw mesh
     glBindVertexArray(VAO);

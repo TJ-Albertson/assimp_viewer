@@ -175,7 +175,7 @@ int main()
     /*
      * GLTF Load
      */
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
 
     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
@@ -189,8 +189,8 @@ int main()
 
     unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
 
-    // unsigned int pbrShader = createShader(filepath("/shaders/pbr/pbr.vs"), filepath("/shaders/pbr/pbr.fs"));
-    unsigned int pbrShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
+    unsigned int pbrShader = createShader(filepath("/shaders/pbr/pbr.vs"), filepath("/shaders/pbr/pbr.fs"));
+    //unsigned int pbrShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
 
     unsigned int grid_VAO = LoadGrid();
 
