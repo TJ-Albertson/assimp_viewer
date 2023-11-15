@@ -231,6 +231,11 @@ typedef struct TestMesh {
     int numIndices;
 } TestMesh;
 
+typedef struct gltfDraw {
+    unsigned int VAO;
+    int numIndices;
+} gltfDraw;
+
 
 void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
@@ -248,6 +253,7 @@ gltfTexture* globalTextures;
 gltfMaterial* globalMaterials;
 
 TestMesh testMesh;
+gltfDraw drawMesh;
 
 char* loadFile(const char* filename)
 {
@@ -325,7 +331,7 @@ gltfBuffer gltf_process_buffer(cJSON* bufferNode)
     if (cJSON_GetObjectItem(bufferNode, "uri")) {
         strncpy(gltf_buffer.m_URI, cJSON_GetObjectItem(bufferNode, "uri")->valuestring, sizeof(gltf_buffer.m_URI));
     } else {
-        strncpy(gltf_buffer.m_URI, "null\0", sizeof(gltf_buffer.m_URI));
+        strncpy(gltf_buffer.m_URI, "null", sizeof(gltf_buffer.m_URI));
     }
 
     return gltf_buffer;
@@ -1015,7 +1021,7 @@ void parseGLTF(const char* jsonString)
 
     gltfBuffer* gltfBuffers = (gltfBuffer*)malloc(numBuffers * sizeof(gltfBuffer));
 
-    for (int i = 0; i < numSamplers; ++i) {
+    for (int i = 0; i < numBuffers; ++i) {
         cJSON* buffer = cJSON_GetArrayItem(buffers, i);
 
         gltfBuffers[i] = gltf_process_buffer(buffer);
@@ -1055,6 +1061,8 @@ void parseGLTF(const char* jsonString)
 
         allocatedBuffers[i] = buffer;
 
+
+
         fclose(ptr);
     }
 
@@ -1073,10 +1081,29 @@ void parseGLTF(const char* jsonString)
         unsigned int* total_indices = (unsigned int*)malloc(50 * sizeof(unsigned int));
         int numIndices;
 
+        unsigned int VAO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, gltfBuffers[0].m_ByteLength, allocatedBuffers[0], GL_STATIC_DRAW);
+
+
+        
+        
+
+
         for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
         {
             gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
-            
+
+
+            /*
+             *   Indices
+             */
             if (gltf_primitive.m_IndicesIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[gltf_primitive.m_IndicesIndex];
 
@@ -1105,6 +1132,16 @@ void parseGLTF(const char* jsonString)
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
+
+
+
+                unsigned int EBO;
+                glGenBuffers(1, &EBO);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, buffer, GL_STATIC_DRAW);
+
+
+
                 
                 printf("count: %d\n", count);
                 printf("componentSize: %d\n", componentSize);
@@ -1131,6 +1168,10 @@ void parseGLTF(const char* jsonString)
 
             gltfPrimitiveAttributes attributes = gltf_primitive.m_Attributes;
 
+           
+            /*
+             *   Position Attribute
+             */
             if (attributes.m_PositionIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[attributes.m_PositionIndex];
 
@@ -1158,12 +1199,49 @@ void parseGLTF(const char* jsonString)
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
-                printf("Positions:\n");
+
+
+
+
+                printf("\n\n!!!!TESTPRINT!!!!!!\n");
+                
+
                 for (int k = 0; k < count; ++k) {
+
+                    char* offsetBuffer = allocatedBuffers[0] + offset;
+
                     float x, y, z;
-                    memcpy(&x, buffer + k * componentSize, componentSize);
-                    memcpy(&y, buffer + k * componentSize, componentSize);
-                    memcpy(&z, buffer + k * componentSize, componentSize);
+                    memcpy(&x, offsetBuffer + k * componentSize, componentSize);
+                    memcpy(&y, offsetBuffer + k * componentSize, componentSize);
+                    memcpy(&z, offsetBuffer + k * componentSize, componentSize);
+
+                    printf("    offsetBuffer[%d]: %f %f %f\n", k, x, y, z);
+                }
+
+                printf("\n!!!!TESTPRINT!!!!!!\n");
+
+
+
+
+
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)offset);
+
+
+
+
+
+
+                printf("Positions:\n");
+                printf("offset: %d\n", offset);
+                printf("componentSize: %d\n", componentSize);
+                for (int k = 0; k < count; ++k) {
+                    int stride = 12;
+
+                    float x, y, z;
+                    memcpy(&x, buffer + (k * stride), 4);
+                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
+                    memcpy(&z, buffer + (k * stride) + 2 * sizeof(float), 4);
 
                     printf("    position[%d]: %f %f %f\n", k, x, y, z);
 
@@ -1176,6 +1254,9 @@ void parseGLTF(const char* jsonString)
                 numVertexPositions = count;
             }
 
+            /*
+             *   TexCoord_0
+             */
             if (attributes.m_TexCoord_0_Index >= 0) {
                 gltfAccessor accessor = gltfAccessors[attributes.m_TexCoord_0_Index];
 
@@ -1203,9 +1284,11 @@ void parseGLTF(const char* jsonString)
 
                 printf("TexCoords_0:\n");
                 for (int k = 0; k < count; ++k) {
+                    int stride = 8;
+
                     float x, y;
-                    memcpy(&x, buffer + k * 4, sizeof(float));
-                    memcpy(&y, buffer + k * 4, sizeof(float));
+                    memcpy(&x, buffer + (k * stride), 4);
+                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
 
                     printf("    texCoords[%d]: %f %f\n", k, x, y);
 
@@ -1255,6 +1338,9 @@ void parseGLTF(const char* jsonString)
                 }
             }
 
+            /*
+            *   Normal Attribute
+            */
             if (attributes.m_NormalIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[attributes.m_NormalIndex];
 
@@ -1280,12 +1366,22 @@ void parseGLTF(const char* jsonString)
 
                 glm::vec3* normals = (glm::vec3*)malloc(count * sizeof(glm::vec3));
 
+
+
+  
+                glEnableVertexAttribArray(1);
+                glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)offset);
+
+
+
                 printf("Normals:\n");
                 for (int k = 0; k < count; ++k) {
+                    int stride = 12;
+
                     float x, y, z;
-                    memcpy(&x, buffer + k * 4, sizeof(float));
-                    memcpy(&y, buffer + k * 4, sizeof(float));
-                    memcpy(&z, buffer + k * 4, sizeof(float));
+                    memcpy(&x, buffer + (k * stride), 4);
+                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
+                    memcpy(&z, buffer + (k * stride) + 2 * sizeof(float), 4);
 
                     printf("    normal[%d]: %f %f %f\n", k, x, y, z);
 
@@ -1342,6 +1438,13 @@ void parseGLTF(const char* jsonString)
                 }
             }
         }
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0); 
+
+        drawMesh.VAO = VAO;
+        drawMesh.numIndices = numIndices;
+
 
         testMesh.numVertices = numVertexPositions;
         testMesh.numIndices = numIndices;

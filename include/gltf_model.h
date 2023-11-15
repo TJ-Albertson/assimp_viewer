@@ -182,10 +182,10 @@ unsigned int gltf_LoadMeshVertexData(gltfVertex* vertices, unsigned int* indices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)0);
     // vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)offsetof(gltfVertex, m_Normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)12);
     // vertex texture coords
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)offsetof(gltfVertex, m_TexCoord_0));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)24);
 
     glBindVertexArray(0);
 

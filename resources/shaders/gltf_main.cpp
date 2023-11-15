@@ -181,9 +181,9 @@ int main()
     /*
      * GLTF Load
      */
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/untitled.gltf");
 
-    Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
+     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
     for (int k = 0; k < testMesh.numIndices; ++k) {
 
@@ -213,104 +213,11 @@ int main()
     float previousTime = glfwGetTime();
     float currentTime;
 
+
     glLineWidth(2.0f);
-   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-
-    float vertices[] = {
-        // Front face
-        -0.5f, -0.5f, 0.5f, // bottom left
-        0.5f, -0.5f, 0.5f, // bottom right
-        0.5f, 0.5f, 0.5f, // top right
-        -0.5f, 0.5f, 0.5f, // top left
-
-        // Back face
-        -0.5f, -0.5f, -0.5f, // bottom left
-        0.5f, -0.5f, -0.5f, // bottom right
-        0.5f, 0.5f, -0.5f, // top right
-        -0.5f, 0.5f, -0.5f, // top left
-    };
-
-    unsigned int indices[] = {
-        // Front face
-        0, 1, 2,
-        2, 3, 0,
-
-        // Right face
-        1, 5, 6,
-        6, 2, 1,
-
-        // Back face
-        7, 6, 5,
-        5, 4, 7,
-
-        // Left face
-        4, 0, 3,
-        3, 7, 4,
-
-        // Top face
-        3, 2, 6,
-        6, 7, 3,
-
-        // Bottom face
-        4, 5, 1,
-        1, 0, 4
-    };
-    unsigned int VBO, VAO2, EBO;
-    glGenVertexArrays(1, &VAO2);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
-
-
-
-
-     unsigned int VBO3, VAO3, EBO3;
-    glGenVertexArrays(1, &VAO3);
-     glGenBuffers(1, &VBO3);
-    glGenBuffers(1, &EBO3);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO3);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO3);
-    glBufferData(GL_ARRAY_BUFFER, testMesh.numVertices * sizeof(gltfVertex), testMesh.vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO3);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, testMesh.numIndices * sizeof(unsigned int), testMesh.indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
-
+    printf("drawMesh.numIndices: %d\n", drawMesh.numIndices);
     while (!glfwWindowShouldClose(window))
     {
 
@@ -338,17 +245,9 @@ int main()
         model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         setShaderMat4(pbrShader, "model", model);
 
+
+        // draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
         draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
-
-        glUseProgram(pbrShader);
-        //glBindVertexArray(VAO2); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-       //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        
-
-         glBindVertexArray(VAO3); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(testMesh.numIndices), GL_UNSIGNED_INT, 0);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
