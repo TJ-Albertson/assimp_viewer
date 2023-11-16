@@ -28,8 +28,6 @@
 #include <log_file_functions.h>
 #include <scene_graph.h>
 
-// #include "gltf_model.h"
-
 GLFWwindow* window;
 
 unsigned int SCR_WIDTH = 2000;
@@ -178,7 +176,7 @@ int main()
     //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
 
     g_Model gltf_model;
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf", gltf_model);
+    gltf_load_model("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf", gltf_model);
 
     //Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 

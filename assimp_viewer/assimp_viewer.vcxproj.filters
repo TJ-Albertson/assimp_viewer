@@ -146,13 +146,19 @@
     <ClInclude Include="..\include\skeleton.h">
       <Filter>Header Files\animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\gltf_model.h">
-      <Filter>Header Files\import</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\gltf\gltf_structures.h">
       <Filter>Header Files\import</Filter>
     </ClInclude>
     <ClInclude Include="..\include\gltf\gltf_print.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_gl.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_process.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_memory.h">
       <Filter>Header Files\import</Filter>
     </ClInclude>
   </ItemGroup>
