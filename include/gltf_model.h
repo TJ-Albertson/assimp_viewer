@@ -98,9 +98,9 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        // THESE IMPORTANT TO INCREASE TEXTURE QUALITY
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2.0f);
-       // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 2.0f);
+        // THESE IMPORTANT TO INCREASE TEXTURE QUALITY (from distance)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2.0f);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 2.0f);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -233,24 +233,29 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
     */
     
     glActiveTexture(GL_TEXTURE0);
+    //glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
+    
 
     glActiveTexture(GL_TEXTURE1);
+    //glUniform1i(glGetUniformLocation(shaderID, "normalMap"), 1);
     glBindTexture(GL_TEXTURE_2D, material.m_NormalTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "normalMap"), 1);
+    
 
     glActiveTexture(GL_TEXTURE2);
+    //glUniform1i(glGetUniformLocation(shaderID, "metallicMap"), 2);
     glBindTexture(GL_TEXTURE_2D, material.m_MetallicTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "metallicMap"), 2);
+   
 
     glActiveTexture(GL_TEXTURE3);
+    //glUniform1i(glGetUniformLocation(shaderID, "roughnessMap"), 3);
     glBindTexture(GL_TEXTURE_2D, material.m_RoughnessTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "roughnessMap"), 3);
+    
 
     glActiveTexture(GL_TEXTURE4);
+    //glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
+    
     
 
     // draw mesh
@@ -259,7 +264,7 @@ void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
-   //glActiveTexture(GL_TEXTURE0);
+   glActiveTexture(GL_TEXTURE0);
 }
 
 

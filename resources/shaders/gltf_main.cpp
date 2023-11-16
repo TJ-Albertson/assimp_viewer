@@ -176,7 +176,7 @@ int main()
      * GLTF Load
      */
     //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf");
 
     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
@@ -218,6 +218,7 @@ int main()
     setShaderInt(pbrShader, "metallicMap", 2);
     setShaderInt(pbrShader, "roughnessMap", 3);
     setShaderInt(pbrShader, "aoMap", 4);
+    
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -226,7 +227,7 @@ int main()
 
         UpdateCameraVectors(playerCamera, playerState.position);
 
-        float radius = 5;
+        float radius = 10;
         float timeScale = 0.5;
 
         float x = sin(glfwGetTime() * timeScale) * radius;
