@@ -1361,7 +1361,7 @@ void parseGLTF(const char* jsonString)
                     memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
                     memcpy(&z, buffer + (k * stride) + 2 * sizeof(float), 4);
 
-                    //printf("    normal[%d]: %f %f %f\n", k, x, y, z);
+                    printf("    normal[%d]: %f %f %f\n", k, x, y, z);
 
                     normals[k].x = x;
                     normals[k].y = y;

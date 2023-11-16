@@ -122,25 +122,31 @@ void TextureWindow()
 {
     ImGui::Begin("Textures");
 
+    ImVec2 windowSize = ImGui::GetWindowSize();
+
+    // Assuming you want the image to be square, you can use the smaller dimension as both width and height
+    float imageSize = std::min(windowSize.x, windowSize.y);
+    imageSize -= 50;
+
     if (ImGui::BeginTabBar("TextureTypes", 0)) {
         if (ImGui::BeginTabItem("BaseColor Texture")) {
-            ImGui::Image((ImTextureID)selectedMaterial.m_BaseColorTextureId, ImVec2(512, 512));
+            ImGui::Image((ImTextureID)selectedMaterial.m_BaseColorTextureId, ImVec2(imageSize, imageSize));
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Normal Texture")) {
-            ImGui::Image((void*)(intptr_t)selectedMaterial.m_NormalTextureId, ImVec2(512, 512));
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_NormalTextureId, ImVec2(imageSize, imageSize));
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Metallic Texture")) {
-            ImGui::Image((void*)(intptr_t)selectedMaterial.m_MetallicTextureId, ImVec2(512, 512));
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_MetallicTextureId, ImVec2(imageSize, imageSize));
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Roughness Texture")) {
-            ImGui::Image((void*)(intptr_t)selectedMaterial.m_RoughnessTextureId, ImVec2(512, 512));
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_RoughnessTextureId, ImVec2(imageSize, imageSize));
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Occlusion Texture")) {
-            ImGui::Image((void*)(intptr_t)selectedMaterial.m_OcclusionTextureId, ImVec2(512, 512));
+            ImGui::Image((void*)(intptr_t)selectedMaterial.m_OcclusionTextureId, ImVec2(imageSize, imageSize));
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

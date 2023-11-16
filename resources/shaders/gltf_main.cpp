@@ -176,7 +176,7 @@ int main()
      * GLTF Load
      */
     //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/cube.gltf");
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere.gltf");
 
     Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
