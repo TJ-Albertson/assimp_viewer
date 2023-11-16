@@ -149,6 +149,12 @@
     <ClInclude Include="..\include\gltf_model.h">
       <Filter>Header Files\import</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_structures.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_print.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\grid.vs">

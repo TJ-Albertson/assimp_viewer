@@ -158,6 +158,8 @@
     <ClInclude Include="..\include\bone_animation.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\collision.h" />
+    <ClInclude Include="..\include\gltf\gltf_print.h" />
+    <ClInclude Include="..\include\gltf\gltf_structures.h" />
     <ClInclude Include="..\include\gltf_model.h" />
     <ClInclude Include="..\include\input.h" />
     <ClInclude Include="..\include\gltf.h" />
