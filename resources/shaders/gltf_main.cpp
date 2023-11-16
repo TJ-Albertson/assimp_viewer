@@ -176,19 +176,16 @@ int main()
      * GLTF Load
      */
     //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
-    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf");
 
-    Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
+    g_Model gltf_model;
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf", gltf_model);
+
+    //Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
 
 
     
-    selectedMaterial = mat;
+    selectedMaterial = gltf_model.m_Materials[0];
 
-    printf(" material.m_BaseColorTextureId: %u\n", mat.m_BaseColorTextureId);
-    printf(" material.m_NormalTextureId: %u\n", mat.m_NormalTextureId);
-    printf(" material.m_MetallicTextureId: %u\n", mat.m_MetallicTextureId);
-    printf(" material.m_RoughnessTextureId: %u\n", mat.m_RoughnessTextureId);
-    printf(" material.m_OcclusionTextureId: %u\n", mat.m_OcclusionTextureId);
 
     //unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
 
@@ -256,7 +253,7 @@ int main()
         setShaderMat3(pbrShader, "normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
         setShaderMat4(pbrShader, "model", model);
 
-        draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
+        draw_gltf_mesh(gltf_model.m_Meshes[0].m_VAO, gltf_model.m_Materials[0], gltf_model.m_Meshes[0].m_NumIndices, pbrShader);
         // draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
 
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
@@ -270,7 +267,7 @@ int main()
             model = glm::scale(model, glm::vec3(0.5f));
             setShaderMat4(pbrShader, "model", model);
             setShaderMat3(pbrShader, "normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-            draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
+            draw_gltf_mesh(gltf_model.m_Meshes[0].m_VAO, gltf_model.m_Materials[0], gltf_model.m_Meshes[0].m_NumIndices, pbrShader);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
