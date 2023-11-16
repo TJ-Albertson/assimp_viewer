@@ -19,7 +19,6 @@ load gltf model for opengl
 
 #include "gltf.h" 
 
-
 typedef struct Material {
     unsigned int m_BaseColorTextureId;
     unsigned int m_MetallicTextureId;
@@ -35,8 +34,6 @@ typedef struct Material {
     float m_RoughnessFactor;
 } Material;
 
-
-
 unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_samplers, gltfImage* gltf_images)
 {
     gltfImage image = gltf_images[texture.m_SourceIndex];
@@ -49,10 +46,6 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
   
     int width, height, numChannels;
     unsigned char* data = stbi_load(filename, &width, &height, &numChannels, 0);
-
-  
-    //metallness value in "blue" color channel
-    //roughness value in "green" color channel
 
     if (data) {
         GLenum format;
@@ -67,13 +60,14 @@ unsigned int load_gltf_texture(gltfTexture texture, int type, gltfSampler* gltf_
         glBindTexture(GL_TEXTURE_2D, textureID);
         
         if (type == 1) {
+            // metallness value in "blue" color channel
             for (int i = 0; i < width * height * numChannels; i += numChannels) {
                 data[i] = data[i + 2];
                 data[i + 1] = data[i + 2];
             }
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         } else if (type == 2) {
-            // Load only the green channel for type 2
+            // roughness value in "green" color channel
             for (int i = 0; i < width * height * numChannels; i += numChannels) {
                 data[i] = data[i + 1];
                 data[i + 2] = data[i + 1];
@@ -176,96 +170,31 @@ Material load_gltf_material(gltfMaterial gltf_material, gltfImage* gltf_images, 
     return material;
 }
 
-void load_gltf_MESH(gltfMesh* gltf_Mesh)
-{
-
-}
-
-unsigned int gltf_LoadMeshVertexData(gltfVertex* vertices, unsigned int* indices, int numVertices, int numIndices)
-{
-    unsigned int VAO, VBO, EBO;
-
-    // initializes all the buffer objects/arrays
-    // now that we have all the required data, set the vertex buffers and its attribute pointers.
-    // create buffers/arrays
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-    // load data into vertex buffers
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // A great thing about structs is that their memory layout is sequential for all its items.
-    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
-    // again translates to 3/2 floats which translates to a byte array.
-    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(gltfVertex), &vertices[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-    // set the vertex attribute pointers
-
-    // vertex Positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)0);
-    // vertex normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)12);
-    // vertex texture coords
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(gltfVertex), (void*)24);
-
-    glBindVertexArray(0);
-
-    return VAO;
-}
-
-
 void draw_gltf_mesh(unsigned int VAO, Material material, unsigned int numIndices, unsigned int shaderID) 
 {
-
-
-    //setMaterialShaderMat
-    /*
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
-    glUniform1i(glGetUniformLocation(shaderID, "texture1"), 0);
-    */
     
-    glActiveTexture(GL_TEXTURE0);
-    //glUniform1i(glGetUniformLocation(shaderID, "albedoMap"), 0);
-    glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
-    
-
     glActiveTexture(GL_TEXTURE1);
-    //glUniform1i(glGetUniformLocation(shaderID, "normalMap"), 1);
     glBindTexture(GL_TEXTURE_2D, material.m_NormalTextureId);
     
-
     glActiveTexture(GL_TEXTURE2);
-    //glUniform1i(glGetUniformLocation(shaderID, "metallicMap"), 2);
     glBindTexture(GL_TEXTURE_2D, material.m_MetallicTextureId);
-   
 
     glActiveTexture(GL_TEXTURE3);
-    //glUniform1i(glGetUniformLocation(shaderID, "roughnessMap"), 3);
     glBindTexture(GL_TEXTURE_2D, material.m_RoughnessTextureId);
     
-
     glActiveTexture(GL_TEXTURE4);
-    //glUniform1i(glGetUniformLocation(shaderID, "aoMap"), 4);
     glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
     
-    
-
-    // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(numIndices), GL_UNSIGNED_INT, 0);
+    
     glBindVertexArray(0);
-
-    // always good practice to set everything back to defaults once configured.
-   glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 }
+
+
 
 
 #endif

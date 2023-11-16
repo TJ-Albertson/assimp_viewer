@@ -16,6 +16,12 @@ gltf file importer
 
 char currentDirectory[FILENAME_MAX];
 
+enum PrimitiveAttribute {
+    POSITION,
+    NORMAL,
+    TEXCOORD
+};
+
 enum ComponentType {
     signed_byte = 5120,
     unsigned_byte = 5121,
@@ -39,6 +45,7 @@ int component_size(int type) {
     return -1;
 }
 
+
 // Can be camera sk
 typedef struct gltfNode {
     char m_Name[256];
@@ -57,6 +64,9 @@ typedef struct gltfScene {
     gltfNode* m_Nodes;
 } gltfScene;
 
+/*
+*   Mesh
+*/
 // Client implementations SHOULD support at least two texture coordinate sets, one vertex color, and one joints/weights set.
 typedef struct gltfPrimitiveAttributes {
     int m_PositionIndex;
@@ -73,7 +83,6 @@ typedef struct gltfPrimitiveAttributes {
 } gltfPrimitiveAttributes;
 
 // Indexes go to Accessors[Index]
-
 typedef struct gltfPrimitive {
     gltfPrimitiveAttributes m_Attributes;
 
@@ -91,7 +100,9 @@ typedef struct gltfMesh {
     
 } gltfMesh;
 
-
+/*
+*   Textures
+*/
 typedef struct gltfTexture {
     int m_SamplerIndex;
     
@@ -105,6 +116,15 @@ typedef struct gltfImage {
     char m_URI[256];
 };
 
+typedef struct gltfSampler {
+    int m_MagFilter;
+    int m_MinFilter;
+} gltfSampler;
+
+
+/*
+*   Buffers
+*/
 typedef struct gltfBuffer {
     int m_ByteLength;
     char m_URI[256];
@@ -126,13 +146,10 @@ typedef struct gltfAccessor {
     char m_Type[256];
 } gltfAccessor;
 
-typedef struct gltfSampler {
-    int m_MagFilter;
-    int m_MinFilter;
-} gltfSampler;
+
 
 /*
-* GLTF Material data structs
+*   Material
 */
 typedef struct gltfBaseColorTexture {
     int m_Index;
@@ -152,7 +169,6 @@ typedef struct gltfMetallicRoughness {
     float m_MetallicFactor;
     float m_RoughnessFactor;
 } gltfMetallicRoughness;
-
 
 typedef struct gltfNormalTexture {
     float m_Scale;
@@ -184,6 +200,9 @@ typedef struct gltfMaterial {
     glm::vec3 m_EmissiveFactor;
 } gltfMaterial;
 
+/*
+*   Animation
+*/
 typedef struct gltfAnimationTarget {
     int m_Node;
     char m_Path[256];
@@ -199,7 +218,6 @@ typedef struct gltfAnimationSampler {
     int m_Output;
     char m_Interpolation[256];
 };
-
 typedef struct gltfAnimation {
 
     char m_Name[256];
@@ -216,6 +234,9 @@ typedef struct gltfSkin {
     int m_NumJoints;
     int* m_Joints;
 } gltfSkin;
+
+
+
 
 typedef struct gltfVertex {
     glm::vec3 m_Position;
@@ -236,6 +257,15 @@ typedef struct gltfDraw {
     int numIndices;
 } gltfDraw;
 
+
+
+typedef struct gltfFile {
+    gltfScene* scenes;
+    gltfSampler* samplers;
+    gltfImage* images;
+    gltfTexture* textures;
+    gltfMaterial* materials;
+} gltfFile;
 
 void print_gltf_scene(gltfScene gltf_scene);
 void print_gltf_meshes(gltfMesh* gltf_meshes, int numMeshes);
@@ -282,7 +312,7 @@ char* loadFile(const char* filename)
 }
 
 // Checks gltf version number and extensions
-void gltfPreChecks(cJSON* root)
+void gltf_pre_check(cJSON* root)
 {
     cJSON* asset = cJSON_GetObjectItem(root, "asset");
     if (asset != NULL) {
@@ -826,13 +856,10 @@ gltfNode gltf_process_node(cJSON* node)
     return gltf_node;
 }
 
-gltfNode traverse_gltf_node(cJSON* node)
+gltfNode gltf_traverse_node(cJSON* node)
 {
-    // Process the meshes, cameras, etc., that are
-    // attached to this node - discussed later
     gltfNode gltf_node = gltf_process_node(node);
 
-    // Recursively process all children
     if (cJSON_GetObjectItem(node, "children")) {
         cJSON* children = cJSON_GetObjectItem(node, "children");
         int numChildren = cJSON_GetArraySize(children);
@@ -843,18 +870,75 @@ gltfNode traverse_gltf_node(cJSON* node)
         for (int i = 0; i < numChildren; ++i) {
             cJSON* child = cJSON_GetArrayItem(children, i);
 
-            gltf_node.m_Children[i] = traverse_gltf_node(child);
+            gltf_node.m_Children[i] = gltf_traverse_node(child);
         }
     } else {
         gltf_node.m_NumChildren = -1;
     }
-    /*
-    for each (child in node.children) {
-        traverse(child);
-    }
-    */
+
     return gltf_node;
 }
+
+
+
+
+// returns size of attribute based on accessor.type
+int gltf_get_size(const char* type)
+{
+    if (strcmp("SCALAR", type) == 0) {
+        return 1;
+    }
+    if (strcmp("VEC2", type) == 0) {
+        return 2;
+    }
+    if (strcmp("VEC3", type) == 0) {
+        return 3;
+    }
+    if (strcmp("VEC4", type) == 0) {
+        return 4;
+    }
+    if (strcmp("MAT2", type) == 0) {
+        return 4;
+    }
+    if (strcmp("MAT3", type) == 0) {
+        return 9;
+    }
+    if (strcmp("MAT4", type) == 0) {
+        return 16;
+    }
+}
+
+void gltf_bind_attribute(PrimitiveAttribute attribute, gltfAccessor accessor, gltfBufferView* gltfBufferViews, char** allocatedBuffers)
+{
+    gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
+
+    int bufferIndex = bufferView.m_BufferIndex;
+
+    int offset = 0;
+
+    if (bufferView.m_ByteOffset > 0) {
+        offset += bufferView.m_ByteOffset;
+    }
+
+    if (accessor.m_ByteOffset > 0) {
+        offset += accessor.m_ByteOffset;
+    }
+
+    char* offsetBuffer = allocatedBuffers[bufferIndex] + offset;
+
+    int size = gltf_get_size(accessor.m_Type);
+
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, bufferView.m_ByteLength, &offsetBuffer[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(attribute, size, accessor.m_ComponentType, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(attribute);
+}
+
+
 
 
 void parseGLTF(const char* jsonString)
@@ -868,7 +952,7 @@ void parseGLTF(const char* jsonString)
         return;
     }
 
-    gltfPreChecks(root);
+    gltf_pre_check(root);
 
     int defaultSceneIndex = -1; 
     if (cJSON_GetObjectItem(root, "scene")) {
@@ -899,7 +983,7 @@ void parseGLTF(const char* jsonString)
 
         cJSON* rootNode = cJSON_GetArrayItem(nodes, rootNodeIndex);
 
-        gltfNode gltfNode = traverse_gltf_node(rootNode);
+        gltfNode gltfNode = gltf_traverse_node(rootNode);
 
         gltf_scene.m_Nodes[i] = gltfNode;
     }
@@ -1067,14 +1151,12 @@ void parseGLTF(const char* jsonString)
     {
         gltfMesh gltf_mesh = gltfMeshes[i];
 
-        unsigned int* total_indices = (unsigned int*)malloc(50 * sizeof(unsigned int));
         int numIndices;
 
         unsigned int VAO;
         glGenVertexArrays(1, &VAO);
 
         glBindVertexArray(VAO);
-
 
         for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
         {
@@ -1102,9 +1184,7 @@ void parseGLTF(const char* jsonString)
                     offset += accessor.m_ByteOffset;
                 }
 
-                char* buffer = allocatedBuffers[bufferIndex];
-
-                buffer = buffer + offset;
+                char* offsetBuffer = allocatedBuffers[bufferIndex] + offset;
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
@@ -1113,7 +1193,7 @@ void parseGLTF(const char* jsonString)
 
                 for (int k = 0; k < count; ++k) {
                     unsigned short x;
-                    memcpy(&x, buffer + k * componentSize, componentSize);
+                    memcpy(&x, offsetBuffer + k * componentSize, componentSize);
 
                     indices[k] = x;
                 }
@@ -1134,6 +1214,9 @@ void parseGLTF(const char* jsonString)
             if (attributes.m_PositionIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[attributes.m_PositionIndex];
 
+                gltf_bind_attribute(POSITION, accessor, gltfBufferViews, allocatedBuffers);
+
+                /*
                 int count = accessor.m_Count;
                 
                 gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
@@ -1162,6 +1245,7 @@ void parseGLTF(const char* jsonString)
                 
                 glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, 0);
                 glEnableVertexAttribArray(0);
+                */
             }
 
             /*
@@ -1243,6 +1327,9 @@ void parseGLTF(const char* jsonString)
             if (attributes.m_NormalIndex >= 0) {
                 gltfAccessor accessor = gltfAccessors[attributes.m_NormalIndex];
 
+                gltf_bind_attribute(NORMAL, accessor, gltfBufferViews, allocatedBuffers);
+
+                /*
                 int count = accessor.m_Count;
 
                 gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
@@ -1271,6 +1358,7 @@ void parseGLTF(const char* jsonString)
 
                 glEnableVertexAttribArray(1);
                 glVertexAttribPointer(1, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)0);
+                */
             }
 
             if (attributes.m_TangentIndex >= 0) {
