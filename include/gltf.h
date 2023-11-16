@@ -1067,36 +1067,18 @@ void parseGLTF(const char* jsonString)
     {
         gltfMesh gltf_mesh = gltfMeshes[i];
 
-        glm::vec3* vertexPositions = (glm::vec3*)malloc(50 * sizeof(glm::vec3));
-        glm::vec3* vertexNormals = (glm::vec3*)malloc(50 * sizeof(glm::vec3));
-        glm::vec2* vertexTexCoords = (glm::vec2*)malloc(50 * sizeof(glm::vec2));
-
-        int numVertexPositions;
-        int numVertexNormals;
-        int numVertexTexCoords;
-
         unsigned int* total_indices = (unsigned int*)malloc(50 * sizeof(unsigned int));
         int numIndices;
 
         unsigned int VAO;
         glGenVertexArrays(1, &VAO);
+
         glBindVertexArray(VAO);
-
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, gltfBuffers[0].m_ByteLength, allocatedBuffers[0], GL_STATIC_DRAW);
-
-
-        
-        
 
 
         for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
         {
             gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
-
 
             /*
              *   Indices
@@ -1122,48 +1104,25 @@ void parseGLTF(const char* jsonString)
 
                 char* buffer = allocatedBuffers[bufferIndex];
 
-                printf("offset: %d\n", offset);
                 buffer = buffer + offset;
-
-                unsigned short* indices = (unsigned short*)malloc(count * sizeof(unsigned short));
 
                 int componentSize = component_size(accessor.m_ComponentType);
 
+                numIndices = count;
+                unsigned int* indices = (unsigned int*)malloc(count * sizeof(unsigned int));
 
-
-
-                unsigned int EBO;
-                glGenBuffers(1, &EBO);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, buffer, GL_STATIC_DRAW);
-
-
-
-                
-                printf("count: %d\n", count);
-                printf("componentSize: %d\n", componentSize);
-
-                printf("Indices:\n");
                 for (int k = 0; k < count; ++k) {
                     unsigned short x;
                     memcpy(&x, buffer + k * componentSize, componentSize);
 
-                   // printf("    indice[%d]: %u\n", k, x);
-
                     indices[k] = x;
                 }
                 
-
-                numIndices = count;
-                total_indices = (unsigned int*)malloc(count * sizeof(unsigned int));
-
-                
-                for (int k = 0; k < count; ++k) {
-                    total_indices[k] = indices[k];
-
-                    //printf("    total_indices[%d]: %u\n", k, total_indices[k]);
-                }
-                
+                unsigned int EBO;
+                glGenBuffers(1, &EBO);
+                   
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
             }
 
             gltfPrimitiveAttributes attributes = gltf_primitive.m_Attributes;
@@ -1194,42 +1153,15 @@ void parseGLTF(const char* jsonString)
                 char* buffer = allocatedBuffers[bufferIndex];
 
                 buffer = buffer + offset;
-               
-                glm::vec3* positions = (glm::vec3*)malloc(count * sizeof(glm::vec3));
 
-                int componentSize = component_size(accessor.m_ComponentType);
+                unsigned int positionVBO;
+                glGenBuffers(1, &positionVBO);
 
-
-
-
+                glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+                glBufferData(GL_ARRAY_BUFFER, bufferView.m_ByteLength, &buffer[0], GL_STATIC_DRAW);
+                
+                glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, 0);
                 glEnableVertexAttribArray(0);
-                glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)offset);
-
-
-
-
-
-    
-                printf("Positions:\n");
-                printf("offset: %d\n", offset);
-                printf("componentSize: %d\n", componentSize);
-                for (int k = 0; k < count; ++k) {
-                    int stride = 12;
-
-                    float x, y, z;
-                    memcpy(&x, buffer + (k * stride), 4);
-                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
-                    memcpy(&z, buffer + (k * stride) + 2 * sizeof(float), 4);
-
-                    //printf("    position[%d]: %f %f %f\n", k, x, y, z);
-
-                    positions[k].x = x;
-                    positions[k].y = y;
-                    positions[k].z = z;
-                }
-
-                vertexPositions = positions;
-                numVertexPositions = count;
             }
 
             /*
@@ -1258,24 +1190,13 @@ void parseGLTF(const char* jsonString)
 
                 buffer = buffer + offset;
 
-                glm::vec2* texCoords = (glm::vec2*)malloc(count * sizeof(glm::vec2));
+                unsigned int texCoord_0_VBO;
+                glGenBuffers(1, &texCoord_0_VBO);
 
-                printf("TexCoords_0:\n");
-                for (int k = 0; k < count; ++k) {
-                    int stride = 8;
-
-                    float x, y;
-                    memcpy(&x, buffer + (k * stride), 4);
-                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
-
-                   // printf("    texCoords[%d]: %f %f\n", k, x, y);
-
-                    texCoords[k].x = x;
-                    texCoords[k].y = y;
-                }
-
-                vertexTexCoords = texCoords;
-                numVertexTexCoords = count;
+                glBindBuffer(GL_ARRAY_BUFFER, texCoord_0_VBO);
+                glBufferData(GL_ARRAY_BUFFER, bufferView.m_ByteLength, &buffer[0], GL_STATIC_DRAW);
+                glEnableVertexAttribArray(2);
+                glVertexAttribPointer(2, 2, accessor.m_ComponentType, GL_FALSE, 0, 0);
             }
 
             if (attributes.m_TexCoord_1_Index >= 0) {
@@ -1342,34 +1263,14 @@ void parseGLTF(const char* jsonString)
 
                 buffer = buffer + offset;
 
-                glm::vec3* normals = (glm::vec3*)malloc(count * sizeof(glm::vec3));
+                unsigned int VBO;
+                glGenBuffers(1, &VBO);
 
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, bufferView.m_ByteLength, &buffer[0], GL_STATIC_DRAW);
 
-
-  
                 glEnableVertexAttribArray(1);
-                glVertexAttribPointer(0, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)offset);
-
-
-
-                printf("Normals:\n");
-                for (int k = 0; k < count; ++k) {
-                    int stride = 12;
-
-                    float x, y, z;
-                    memcpy(&x, buffer + (k * stride), 4);
-                    memcpy(&y, buffer + (k * stride) + sizeof(float), 4);
-                    memcpy(&z, buffer + (k * stride) + 2 * sizeof(float), 4);
-
-                    //printf("    normal[%d]: %f %f %f\n", k, x, y, z);
-
-                    normals[k].x = x;
-                    normals[k].y = y;
-                    normals[k].z = z;
-                }
-
-                vertexNormals = normals;
-                numVertexNormals = count;
+                glVertexAttribPointer(1, 3, accessor.m_ComponentType, GL_FALSE, 0, (void*)0);
             }
 
             if (attributes.m_TangentIndex >= 0) {
@@ -1417,32 +1318,11 @@ void parseGLTF(const char* jsonString)
             }
         }
 
-       
-
-        
-
+        glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0); 
 
         drawMesh.VAO = VAO;
         drawMesh.numIndices = numIndices;
-
-
-        testMesh.numVertices = numVertexPositions;
-        testMesh.numIndices = numIndices;
-
-        testMesh.vertices = (gltfVertex*)malloc(numVertexPositions * sizeof(gltfVertex));
-
-        for (int j = 0; j < numVertexPositions; ++j) {
-            testMesh.vertices[j].m_Position = vertexPositions[j];
-            testMesh.vertices[j].m_Normal = vertexNormals[j];
-            testMesh.vertices[j].m_TexCoord_0 = vertexTexCoords[j];
-        }
-
-        testMesh.indices = total_indices;
-
-      
-
     }
 
 

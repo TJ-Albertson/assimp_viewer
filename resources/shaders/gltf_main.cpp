@@ -190,7 +190,7 @@ int main()
     printf(" material.m_RoughnessTextureId: %u\n", mat.m_RoughnessTextureId);
     printf(" material.m_OcclusionTextureId: %u\n", mat.m_OcclusionTextureId);
 
-    unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
+    //unsigned int VAO = gltf_LoadMeshVertexData(testMesh.vertices, testMesh.indices, testMesh.numVertices, testMesh.numIndices);
 
     unsigned int pbrShader = createShader(filepath("/shaders/pbr/pbr.vs"), filepath("/shaders/pbr/pbr.fs"));
     //unsigned int pbrShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
@@ -201,7 +201,7 @@ int main()
     float currentTime;
 
     glLineWidth(2.0f);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // lights
     // ------
@@ -256,8 +256,8 @@ int main()
         setShaderMat3(pbrShader, "normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
         setShaderMat4(pbrShader, "model", model);
 
-        // draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
-        draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
+        draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
+        // draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
 
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
             glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
@@ -270,7 +270,7 @@ int main()
             model = glm::scale(model, glm::vec3(0.5f));
             setShaderMat4(pbrShader, "model", model);
             setShaderMat3(pbrShader, "normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-            draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
+            draw_gltf_mesh(drawMesh.VAO, mat, drawMesh.numIndices, pbrShader);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

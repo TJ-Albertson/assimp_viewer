@@ -32,8 +32,9 @@ vec3 getNormalFromMap()
     vec2 st1 = dFdx(TexCoords);
     vec2 st2 = dFdy(TexCoords);
 
-    vec3 N   = -normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 N  = -normalize(Normal);
+
+    vec3 T  = normalize(Q1 * st2.t - Q2 * st1.t);
     vec3 B  = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
@@ -82,7 +83,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 // ----------------------------------------------------------------------------
 void main()
 {		
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+    vec3  albedo    = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
     float metallic  = texture(metallicMap, TexCoords).r;
     float roughness = texture(roughnessMap, TexCoords).r;
     float ao        = texture(aoMap, TexCoords).r;
