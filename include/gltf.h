@@ -82,7 +82,6 @@ void gltf_pre_check(cJSON* root)
     }
 }
 
-
 int gltf_parse(const char* jsonString, g_Model& model)
 {
     cJSON* root = cJSON_Parse(jsonString);
@@ -410,7 +409,6 @@ int gltf_parse(const char* jsonString, g_Model& model)
         model.m_Meshes[i].m_VAO = VAO;
         model.m_Meshes[i].m_NumIndices = numIndices;
     }
-
 
     free(allocatedBuffers[0]);
     free(allocatedBuffers);

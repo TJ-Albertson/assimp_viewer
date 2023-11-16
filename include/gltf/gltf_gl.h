@@ -226,6 +226,15 @@ void gltf_draw_mesh(unsigned int VAO, Material material, unsigned int numIndices
     glActiveTexture(GL_TEXTURE0);
 }
 
+//TODO
+g_Mesh gltf_load_mesh() {
+    g_Mesh mesh;
+    mesh.m_NumIndices = 0;
+    mesh.m_VAO = 0;
+
+    return mesh;
+}
+
 
 
 #endif
