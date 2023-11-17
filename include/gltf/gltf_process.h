@@ -225,6 +225,7 @@ gltfPrimitive gltf_process_primitive(cJSON* primNode)
         cJSON* attributes = cJSON_GetObjectItem(primNode, "attributes");
 
         gltf_primitive.m_Attributes = gltf_process_primitive_attributes(attributes);
+
     } else {
         fprintf(stderr, "Error: 'attributes' field not found in Primitive.\n");
     }
@@ -273,6 +274,7 @@ gltfMesh gltf_process_mesh(cJSON* meshNode)
 
             gltf_mesh.m_Primitives[i] = gltf_process_primitive(primitive);
         }
+
     } else {
         fprintf(stderr, "Error: 'primitives' field not found in Mesh.\n");
     }
@@ -305,6 +307,7 @@ gltfMetallicRoughness* gltf_process_metallic_roughness(cJSON* pbrNode)
         }
 
         gltf_metal_rough->m_BaseColorTexture = gltf_base_color_texture;
+
     } else {
         gltf_metal_rough->m_BaseColorTexture = NULL;
     }
@@ -318,6 +321,7 @@ gltfMetallicRoughness* gltf_process_metallic_roughness(cJSON* pbrNode)
         float w = cJSON_GetArrayItem(baseColorFactor, 3)->valuedouble;
 
         gltf_metal_rough->m_BaseColorFactor = glm::vec4(x, y, z, w);
+
     } else {
         gltf_metal_rough->m_BaseColorFactor = glm::vec4(1.0f);
     }
@@ -341,6 +345,7 @@ gltfMetallicRoughness* gltf_process_metallic_roughness(cJSON* pbrNode)
         }
 
         gltf_metal_rough->m_MetallicRoughnessTexture = gltf_metal_rough_texture;
+
     } else {
         gltf_metal_rough->m_MetallicRoughnessTexture = NULL;
     }
@@ -452,6 +457,7 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
         cJSON* normalTexture = cJSON_GetObjectItem(materialNode, "normalTexture");
 
         gltf_material.m_NormalTexture = gltf_process_normalTexture(normalTexture);
+
     } else {
         gltf_material.m_NormalTexture = NULL;
     }
@@ -460,6 +466,7 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
         cJSON* occlusionTexture = cJSON_GetObjectItem(materialNode, "occlusionTexture");
 
         gltf_material.m_OcclusionTexture = gltf_process_occlusionTexture(occlusionTexture);
+
     } else {
         gltf_material.m_OcclusionTexture = NULL;
     }
@@ -468,6 +475,7 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
         cJSON* emissiveTexture = cJSON_GetObjectItem(materialNode, "emissiveTexture");
 
         gltf_material.m_EmissiveTexture = gltf_process_emissiveTexture(emissiveTexture);
+
     } else {
         gltf_material.m_EmissiveTexture = NULL;
     }
@@ -480,6 +488,7 @@ gltfMaterial gltf_process_material(cJSON* materialNode)
         float z = cJSON_GetArrayItem(emmissiveFactor, 2)->valuedouble;
 
         gltf_material.m_EmissiveFactor = glm::vec3(x, y, z);
+
     } else {
         gltf_material.m_EmissiveFactor = glm::vec3(0.0f);
     }
@@ -534,11 +543,13 @@ gltfNode gltf_traverse_node(cJSON* node)
 
             gltf_node.m_Children[i] = gltf_traverse_node(child);
         }
+
     } else {
         gltf_node.m_NumChildren = -1;
     }
 
     return gltf_node;
 }
+
 
 #endif

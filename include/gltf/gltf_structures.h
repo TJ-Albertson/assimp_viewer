@@ -242,6 +242,10 @@ typedef struct gltfSkin {
     int* m_Joints;
 } gltfSkin;
 
+
+
+
+
 typedef struct gltfVertex {
     glm::vec3 m_Position;
     glm::vec3 m_Normal;

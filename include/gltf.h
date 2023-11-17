@@ -18,6 +18,7 @@ gltf file importer
 #include "gltf/gltf_print.h"
 #include "gltf/gltf_gl.h"
 #include "gltf/gltf_process.h"
+#include "gltf/gltf_memory.h"
 
 char* gltf_load_file(const char* filename)
 {
@@ -95,7 +96,7 @@ int gltf_parse(const char* jsonString, g_Model& model)
 
     gltf_pre_check(root);
 
-    int defaultSceneIndex = -1; 
+    int defaultSceneIndex = -1;
     if (cJSON_GetObjectItem(root, "scene")) {
         defaultSceneIndex = cJSON_GetObjectItem(root, "scene")->valueint;
     }
@@ -271,6 +272,7 @@ int gltf_parse(const char* jsonString, g_Model& model)
 
     model.m_Meshes = (g_Mesh*)malloc(numMeshes * sizeof(g_Mesh));
     model.m_Materials = (Material*)malloc(numMaterials * sizeof(g_Mesh));
+    model.m_Scene = gltf_scene;
 
     for (int i = 0; i < numMaterials; ++i) 
     {
@@ -409,11 +411,24 @@ int gltf_parse(const char* jsonString, g_Model& model)
         model.m_Meshes[i].m_VAO = VAO;
         model.m_Meshes[i].m_NumIndices = numIndices;
     }
+    
 
-    free(allocatedBuffers[0]);
+    gltf_free_materials(gltfMaterials, numMaterials);
+    gltf_free_meshes(gltfMeshes, numMeshes);
+    
+    free(gltfTextures);
+    free(gltfImages);
+    free(gltfAccessors);
+    free(gltfBufferViews);
+    free(gltfSamplers);
+
+    for (int i = 0; i < numBuffers; ++i)
+    {
+        free(allocatedBuffers[i]);
+    }
     free(allocatedBuffers);
 
-    cJSON_Delete(root);
+   cJSON_Delete(root);
 
     return 1;
 }
