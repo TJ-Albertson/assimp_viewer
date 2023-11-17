@@ -117,7 +117,7 @@ void setShaderVec3(unsigned int shaderID, const std::string& name, const glm::ve
 {
     glUniform3fv(glGetUniformLocation(shaderID, name.c_str()), 1, &value[0]);
 }
-void setVec3(unsigned int shaderID, const std::string& name, float x, float y, float z)
+void setShaderVec3(unsigned int shaderID, const std::string& name, float x, float y, float z)
 {
     glUniform3f(glGetUniformLocation(shaderID, name.c_str()), x, y, z);
 }

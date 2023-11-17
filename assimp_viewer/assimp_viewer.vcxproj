@@ -141,12 +141,12 @@
     <ClCompile Include="..\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\resources\shaders\gltf_main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -158,6 +158,7 @@
     <ClInclude Include="..\include\bone_animation.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\collision.h" />
+    <ClInclude Include="..\include\gltf\gltf_full.h" />
     <ClInclude Include="..\include\gltf\gltf_gl.h" />
     <ClInclude Include="..\include\gltf\gltf_memory.h" />
     <ClInclude Include="..\include\gltf\gltf_print.h" />

@@ -6,10 +6,10 @@ data structures
 #ifndef GLTF_STRUCTURES_H
 #define GLTF_STRUCTURES_H
 
-char currentDirectory[FILENAME_MAX];
-
 #include <glm/gtc/matrix_transform.hpp>
 #include "gltf/gltf_structures.h"
+
+char currentDirectory[FILENAME_MAX];
 
 typedef struct Material {
     unsigned int m_BaseColorTextureId;

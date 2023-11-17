@@ -165,6 +165,39 @@ void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float
         ProcessKeyboard(camera, SPRINT, velocity, dt);
 }
 
+
+
+
+
+
+
+
+
+
+void gltf_draw_mesh(unsigned int VAO, Material material, unsigned int numIndices, unsigned int shaderID)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material.m_BaseColorTextureId);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, material.m_NormalTextureId);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, material.m_MetallicTextureId);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, material.m_RoughnessTextureId);
+
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, material.m_OcclusionTextureId);
+
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(numIndices), GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+}
+
 int main()
 {
 
@@ -176,12 +209,8 @@ int main()
     //LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/cube3.gltf");
 
     g_Model gltf_model;
-    gltf_load_model("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere2.gltf", gltf_model);
+    LoadGLTF("C:/Users/tjalb/OneDrive/Documents/assets/gltf/sphere/sphere.gltf", gltf_model);
 
-    //Material mat = load_gltf_material(globalMaterials[0], globalImages, globalSamplers, globalTextures);
-
-
-    
     selectedMaterial = gltf_model.m_Materials[0];
 
 
@@ -252,7 +281,6 @@ int main()
         setShaderMat4(pbrShader, "model", model);
 
         gltf_draw_mesh(gltf_model.m_Meshes[0].m_VAO, gltf_model.m_Materials[0], gltf_model.m_Meshes[0].m_NumIndices, pbrShader);
-        // draw_gltf_mesh(VAO, mat, testMesh.numIndices, pbrShader);
 
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
             glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
@@ -265,7 +293,7 @@ int main()
             model = glm::scale(model, glm::vec3(0.5f));
             setShaderMat4(pbrShader, "model", model);
             setShaderMat3(pbrShader, "normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-            gltf_draw_mesh(gltf_model.m_Meshes[0].m_VAO, gltf_model.m_Materials[0], gltf_model.m_Meshes[0].m_NumIndices, pbrShader);
+            //gltf_draw_mesh(gltf_model.m_Meshes[0].m_VAO, gltf_model.m_Materials[0], gltf_model.m_Meshes[0].m_NumIndices, pbrShader);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

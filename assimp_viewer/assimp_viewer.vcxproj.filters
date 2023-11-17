@@ -161,6 +161,9 @@
     <ClInclude Include="..\include\gltf\gltf_memory.h">
       <Filter>Header Files\import</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\gltf\gltf_full.h">
+      <Filter>Header Files\import</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\grid.vs">

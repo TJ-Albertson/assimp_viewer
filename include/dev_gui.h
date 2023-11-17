@@ -11,7 +11,8 @@
 #include <scene_graph.h>
 #include <my_math.h>
 
-#include "gltf.h"
+//#include "gltf.h"
+//#include "gltf/gltf_full.h"
 
 bool animationPlaying = false;
 double previousTimeFPS;
@@ -34,7 +35,7 @@ float animationBlend = 0.0f;
 
 float speedModifier = 1.0f;
 
-Material selectedMaterial;
+//Material selectedMaterial;
 bool showTextureWindow = true;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
@@ -118,6 +119,7 @@ void CollisionData()
     ImGui::End();
 }
 
+/*
 void TextureWindow()
 {
     ImGui::Begin("Textures");
@@ -153,7 +155,7 @@ void TextureWindow()
     }
 
     ImGui::End();
-}
+}*/
 
 void move_children(SceneNode* node, glm::vec3 translation)
 {
@@ -566,7 +568,7 @@ void Main_GUI_Loop(double time)
     }
 
     if (showTextureWindow) {
-        TextureWindow();
+       // TextureWindow();
     }
 
     MainMenuBar();

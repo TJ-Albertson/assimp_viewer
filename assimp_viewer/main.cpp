@@ -27,7 +27,7 @@
 #include <shader_m.h>
 #include <skybox.h>
 #include <terrain.h>
-#include <gltf.h>
+//#include <gltf.h>
 
 #include <log_file_functions.h>
 #include <scene_graph.h>
@@ -409,7 +409,7 @@ int main()
 
         glUseProgram(modelShader);
 
-        setVec3(modelShader, "viewPos", playerCamera->Position);
+        setShaderVec3(modelShader, "viewPos", playerCamera->Position);
         setShaderFloat(modelShader, "material.shininess", 32.0f);
         // setInt(modelShader, "material.diffuse", 0);
         // setInt(modelShader, "material.specular", 1);
@@ -439,45 +439,45 @@ int main()
             color = lerp(orange, purple, glm::abs(sun_t));
         }
 
-        setVec3(modelShader, "dirLight.direction", glm::vec3(-0.5f, -1.0f, 0.0f));
-        setVec3(modelShader, "dirLight.ambient", color.x, color.y, color.z);
-        // setVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
-        setVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        setVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
+        setShaderVec3(modelShader, "dirLight.direction", glm::vec3(-0.5f, -1.0f, 0.0f));
+        setShaderVec3(modelShader, "dirLight.ambient", color.x, color.y, color.z);
+        // setShaderVec3(modelShader, "dirLight.ambient", sliderColor.x, sliderColor.y, sliderColor.z);
+        setShaderVec3(modelShader, "dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        setShaderVec3(modelShader, "dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light 1
-        //setVec3(modelShader, "pointLights[0].position", playerPosition);
-        setVec3(modelShader, "pointLights[0].position", 0.0f, 100.0f, 0.0f);
-        setVec3(modelShader, "pointLights[0].ambient", 1.0f, 1.0f, 1.0f);
-        setVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        setVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        //setShaderVec3(modelShader, "pointLights[0].position", playerPosition);
+        setShaderVec3(modelShader, "pointLights[0].position", 0.0f, 100.0f, 0.0f);
+        setShaderVec3(modelShader, "pointLights[0].ambient", 1.0f, 1.0f, 1.0f);
+        setShaderVec3(modelShader, "pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+        setShaderVec3(modelShader, "pointLights[0].specular", 1.0f, 1.0f, 1.0f);
         setShaderFloat(modelShader, "pointLights[0].constant", 1.0f);
         setShaderFloat(modelShader, "pointLights[0].linear", 0.09f);
         setShaderFloat(modelShader, "pointLights[0].quadratic", 0.06f);
 
         // point light 2
-        setVec3(modelShader, "pointLights[1].position", pointLightPositions[1]);
-        setVec3(modelShader, "pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-        setVec3(modelShader, "pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-        setVec3(modelShader, "pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+        setShaderVec3(modelShader, "pointLights[1].position", pointLightPositions[1]);
+        setShaderVec3(modelShader, "pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+        setShaderVec3(modelShader, "pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+        setShaderVec3(modelShader, "pointLights[1].specular", 1.0f, 1.0f, 1.0f);
         setShaderFloat(modelShader, "pointLights[1].constant", 1.0f);
         setShaderFloat(modelShader, "pointLights[1].linear", 0.09f);
         setShaderFloat(modelShader, "pointLights[1].quadratic", 0.09f);
 
         // point light 3
-        setVec3(modelShader, "pointLights[2].position", pointLightPositions[2]);
-        setVec3(modelShader, "pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-        setVec3(modelShader, "pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-        setVec3(modelShader, "pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+        setShaderVec3(modelShader, "pointLights[2].position", pointLightPositions[2]);
+        setShaderVec3(modelShader, "pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+        setShaderVec3(modelShader, "pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+        setShaderVec3(modelShader, "pointLights[2].specular", 1.0f, 1.0f, 1.0f);
         setShaderFloat(modelShader, "pointLights[2].constant", 1.0f);
         setShaderFloat(modelShader, "pointLights[2].linear", 0.09f);
         setShaderFloat(modelShader, "pointLights[2].quadratic", 0.032f);
 
         // point light 4
-        setVec3(modelShader, "pointLights[3].position", pointLightPositions[3]);
-        setVec3(modelShader, "pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-        setVec3(modelShader, "pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-        setVec3(modelShader, "pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+        setShaderVec3(modelShader, "pointLights[3].position", pointLightPositions[3]);
+        setShaderVec3(modelShader, "pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+        setShaderVec3(modelShader, "pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+        setShaderVec3(modelShader, "pointLights[3].specular", 1.0f, 1.0f, 1.0f);
         setShaderFloat(modelShader, "pointLights[3].constant", 1.0f);
         setShaderFloat(modelShader, "pointLights[3].linear", 0.09f);
         setShaderFloat(modelShader, "pointLights[3].quadratic", 0.032f);
