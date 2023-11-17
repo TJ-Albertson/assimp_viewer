@@ -218,6 +218,7 @@ int gltf_parse(const char* jsonString, g_Model& model)
         gltfBuffers[i] = gltf_process_buffer(buffer);
     }
 
+    cJSON_Delete(root);
 
     //print_gltf_scene(gltf_scene);
     //print_gltf_materials(gltfMaterials, numMaterials);
@@ -281,138 +282,9 @@ int gltf_parse(const char* jsonString, g_Model& model)
 
     for (int i = 0; i < numMeshes; ++i) 
     {
-        gltfMesh gltf_mesh = gltfMeshes[i];
-
-        int numIndices;
-
-        unsigned int VAO;
-        glGenVertexArrays(1, &VAO);
-
-        glBindVertexArray(VAO);
-
-        for (int j = 0; j < gltf_mesh.m_NumPrimitives; ++j) 
-        {
-            gltfPrimitive gltf_primitive = gltf_mesh.m_Primitives[j];
-
-            /*
-             *   Indices
-             */
-            if (gltf_primitive.m_IndicesIndex >= 0) {
-                gltfAccessor accessor = gltfAccessors[gltf_primitive.m_IndicesIndex];
-
-                int count = accessor.m_Count;
-
-                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
-
-                int bufferIndex = bufferView.m_BufferIndex;
-
-                int offset = 0;
-
-                if (bufferView.m_ByteOffset > 0) {
-                    offset += bufferView.m_ByteOffset;
-                }
-
-                if (accessor.m_ByteOffset > 0) {
-                    offset += accessor.m_ByteOffset;
-                }
-
-                char* offsetBuffer = allocatedBuffers[bufferIndex] + offset;
-
-                int componentSize = component_size(accessor.m_ComponentType);
-
-                numIndices = count;
-                unsigned int* indices = (unsigned int*)malloc(count * sizeof(unsigned int));
-
-                for (int k = 0; k < count; ++k) {
-                    unsigned short x;
-                    memcpy(&x, offsetBuffer + k * componentSize, componentSize);
-
-                    indices[k] = x;
-                }
-                
-                unsigned int EBO;
-                glGenBuffers(1, &EBO);
-                   
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-            }
-
-            /*
-             *   Attributes
-             */
-            gltfPrimitiveAttributes attributes = gltf_primitive.m_Attributes;
-
-            if (attributes.m_PositionIndex >= 0) {
-                gltfAccessor accessor = gltfAccessors[attributes.m_PositionIndex];
-
-                gltf_bind_attribute(POSITION, accessor, gltfBufferViews, allocatedBuffers);
-            }
-
-            if (attributes.m_NormalIndex >= 0) {
-                gltfAccessor accessor = gltfAccessors[attributes.m_NormalIndex];
-
-                gltf_bind_attribute(NORMAL, accessor, gltfBufferViews, allocatedBuffers);
-            }
-
-            if (attributes.m_TexCoord_0_Index >= 0) {
-                gltfAccessor accessor = gltfAccessors[attributes.m_TexCoord_0_Index];
-
-                gltf_bind_attribute(TEXCOORD, accessor, gltfBufferViews, allocatedBuffers);
-            }
-
-            if (attributes.m_TangentIndex >= 0) {
-                gltfAccessor accessor = gltfAccessors[attributes.m_TangentIndex];
-
-                int count = accessor.m_Count;
-
-                gltfBufferView bufferView = gltfBufferViews[accessor.m_BufferViewIndex];
-
-                int bufferIndex = bufferView.m_BufferIndex;
-
-                int offset = 0;
-
-                if (bufferView.m_ByteOffset > 0) {
-                    offset += bufferView.m_ByteOffset;
-                }
-
-                if (accessor.m_ByteOffset > 0) {
-                    offset += accessor.m_ByteOffset;
-                }
-
-                char* buffer = allocatedBuffers[bufferIndex];
-
-                buffer = buffer + offset;
-
-                glm::vec4* tangents = (glm::vec4*)malloc(count * sizeof(glm::vec4));
-
-                int componentSize = component_size(accessor.m_ComponentType);
-
-                printf("Tangents:\n");
-                for (int k = 0; k < count; ++k) {
-                    float x, y, z, w;
-                    memcpy(&x, buffer + k * componentSize, componentSize);
-                    memcpy(&y, buffer + k * componentSize, componentSize);
-                    memcpy(&z, buffer + k * componentSize, componentSize);
-                    memcpy(&w, buffer + k * componentSize, componentSize);
-
-                    printf("    tangent[%d]: %f %f %f %f\n", k, x, y, z, w);
-
-                    tangents[k].x = x;
-                    tangents[k].y = y;
-                    tangents[k].z = z;
-                    tangents[k].w = w;
-                }
-            }
-        }
-
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        model.m_Meshes[i].m_VAO = VAO;
-        model.m_Meshes[i].m_NumIndices = numIndices;
+        model.m_Meshes[i] = gltf_load_mesh(gltfMeshes[i], gltfAccessors, gltfBufferViews, allocatedBuffers);
     }
     
-
     gltf_free_materials(gltfMaterials, numMaterials);
     gltf_free_meshes(gltfMeshes, numMeshes);
     
@@ -428,7 +300,7 @@ int gltf_parse(const char* jsonString, g_Model& model)
     }
     free(allocatedBuffers);
 
-   cJSON_Delete(root);
+    
 
     return 1;
 }

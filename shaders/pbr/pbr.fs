@@ -32,7 +32,7 @@ vec3 getNormalFromMap()
     vec2 st1 = dFdx(TexCoords);
     vec2 st2 = dFdy(TexCoords);
 
-    vec3 N  = -normalize(Normal);
+    vec3 N  = normalize(Normal);
 
     vec3 T  = normalize(Q1 * st2.t - Q2 * st1.t);
     vec3 B  = -normalize(cross(N, T));
