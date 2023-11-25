@@ -273,7 +273,7 @@ int main()
 
             while (accumulator >= dt) {
                 previousState = currentState;
-                IntegrateState(currentState, t, dt);
+                IntegrateState(currentState, t, dt * devTimeMultiplier);
                 t += dt;
                 accumulator -= dt;
             }

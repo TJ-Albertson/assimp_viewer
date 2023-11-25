@@ -34,11 +34,13 @@ float animationSpeed = 0.0f;
 float animationBlend = 0.0f;
 
 float speedModifier = 1.0f;
-float devDeltaTime = 0.01f;
+
 
 //Material selectedMaterial;
 bool showTextureWindow = true;
+
 bool simulationPaused = false;
+float devTimeMultiplier = 1.0f;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
@@ -429,7 +431,7 @@ void MainMenuBar()
 
         if (ImGui::BeginMenu("Camera")) {
 
-            static int e = 0;
+            static int e = 1;
 
             ImGui::Text("Camera Type");
             ImGui::RadioButton("Free", &e, 0);
@@ -505,7 +507,7 @@ void MainMenuBar()
             }
 
             ImGui::SeparatorText("Simulation");
-            ImGui::DragFloat("dt", &devDeltaTime, 0.001f);
+            ImGui::DragFloat("dt", &devTimeMultiplier, 0.001f);
             ImGui::Checkbox("Pause", &simulationPaused);
 
 
