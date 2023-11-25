@@ -126,6 +126,8 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
 
     position = position + velocity * dt;
 
+    
+
     //position.x = position.x + (sin(faceAngle) * velocity.x) * dt;
     //position.z = position.z + (cos(faceAngle) * velocity.z) * dt;
 
@@ -184,6 +186,7 @@ int main()
 
     Model* wave_ball = LoadModel(filepath("/resources/models/test/wave_ball.obj"));
 
+    Model* test_arrow = LoadModel(filepath("/resources/models/test/arrow.obj"));
 
 
     
@@ -409,7 +412,7 @@ int main()
         setShaderMat4(animShader, "model", model);
 
         //DrawModel(vampire, animShader);
-        DrawModel(man_run, animShader);
+        //DrawModel(man_run, animShader);
 
         glUseProgram(modelShader);
 
@@ -545,7 +548,7 @@ int main()
        
         model = glm::scale(model, glm::vec3(wheelRadius, wheelRadius, wheelRadius));
         setShaderMat4(alphaShader, "model", model);
-        DrawModel(stride_circle, alphaShader);
+        // DrawModel(stride_circle, alphaShader);
 
 
 
@@ -575,14 +578,24 @@ int main()
         setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         // DrawModel(sphere, hitboxShader);
 
+        // Player Velocity Arrow
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, playerCenter);
+        model = glm::scale(model, glm::vec3(2.0f, -playerState.velocity.y, 2.0f));
+        setShaderMat4(hitboxShader, "model", model);
+        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        glDepthFunc(GL_ALWAYS);
+        DrawModel(test_arrow, hitboxShader);
+        glDepthFunc(GL_LESS);
+
         // Player Sphere hitbox
         model = glm::mat4(1.0f);
         model = glm::translate(model, playerCenter);
         setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", glm::vec4(1.0f, 0.0f, 0.0f, 0.3f));
+        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 1.0f, 0.0f, 0.3f));
         glLineWidth(2.0f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //DrawModel(sphere, hitboxShader);
+        DrawModel(sphere, hitboxShader);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // BACKFACE CULLING |OFF|
@@ -731,6 +744,15 @@ void ProcessInput(GLFWwindow* window, Camera* camera, glm::vec3& velocity, float
         ProcessKeyboard(camera, JUMP, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         ProcessKeyboard(camera, SPRINT, velocity, dt);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        ProcessKeyboard(camera, CAMERA_LEFT, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        ProcessKeyboard(camera, CAMERA_RIGHT, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        ProcessKeyboard(camera, CAMERA_UP, velocity, dt);
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        ProcessKeyboard(camera, CAMERA_DOWN, velocity, dt);
 }
 
 // glfw: whenever the mouse moves, this callback is called

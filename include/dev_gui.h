@@ -507,8 +507,28 @@ void MainMenuBar()
             }
 
             ImGui::SeparatorText("Simulation");
+            
             ImGui::DragFloat("dt", &devTimeMultiplier, 0.001f);
+            
             ImGui::Checkbox("Pause", &simulationPaused);
+
+
+            ImGui::SameLine();
+            ImGui::Text("Step");
+            ImGui::SameLine();
+            static int counter = 0;
+            float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+            ImGui::PushButtonRepeat(true);
+            if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+                counter--;
+            }
+            ImGui::SameLine(0.0f, spacing);
+            if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+                counter++;
+            }
+            ImGui::PopButtonRepeat();
+            ImGui::SameLine();
+            ImGui::Text("%d", counter);
 
 
             ImGui::EndMenu();
