@@ -34,9 +34,11 @@ float animationSpeed = 0.0f;
 float animationBlend = 0.0f;
 
 float speedModifier = 1.0f;
+float devDeltaTime = 0.01f;
 
 //Material selectedMaterial;
 bool showTextureWindow = true;
+bool simulationPaused = false;
 
 static void ShowExampleAppSimpleOverlay(bool* p_open, int fps)
 {
@@ -115,6 +117,8 @@ void CollisionData()
         ImGui::Text("\n    Normal: %.2f %.2f %.2f\n", potentialColliders[i].normal.x, potentialColliders[i].normal.y, potentialColliders[i].normal.z);
     }
     ImGui::EndChild();
+
+   
 
     ImGui::End();
 }
@@ -202,9 +206,7 @@ void TransformModel()
 
         ImGui::Separator();
         ImGui::SeparatorText("Translation");
-        ImGui::DragFloat("Translation X", &translation.x, 0.005f);
-        ImGui::DragFloat("Translation Y", &translation.y, 0.005f);
-        ImGui::DragFloat("Translation Z", &translation.z, 0.005f);
+       
 
         ImGui::SeparatorText("Rotation");
         ImGui::DragFloat("Rotation X", &rotation.x, 0.005f);
@@ -502,6 +504,11 @@ void MainMenuBar()
                 showCollisionData = !showCollisionData;
             }
 
+            ImGui::SeparatorText("Simulation");
+            ImGui::DragFloat("dt", &devDeltaTime, 0.001f);
+            ImGui::Checkbox("Pause", &simulationPaused);
+
+
             ImGui::EndMenu();
         }
 
@@ -568,7 +575,7 @@ void Main_GUI_Loop(double time)
     }
 
     if (showTextureWindow) {
-       // TextureWindow();
+        //TextureWindow();
     }
 
     MainMenuBar();

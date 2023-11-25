@@ -236,7 +236,7 @@ int main()
     // Physics
     float t = 0.0;
     float dt = 0.01;
-
+    
     float currentTime = glfwGetTime();
     float accumulator = 0.0;
 
@@ -259,7 +259,7 @@ int main()
         // --------------------
         float newTime = glfwGetTime();
 
-        //using in other stuff
+        // using in other stuff
         float deltaTime = newTime - currentTime;
 
         float frameTime = newTime - currentTime;
@@ -267,21 +267,25 @@ int main()
             frameTime = 0.25;
         float currentTime = newTime;
 
-        accumulator += frameTime;
+        if (!simulationPaused) {
+           
+            accumulator += frameTime;
 
-        while (accumulator >= dt)
-        {
-            previousState = currentState;
-            IntegrateState(currentState, t, dt);
-            t += dt;
-            accumulator -= dt;
+            while (accumulator >= dt) {
+                previousState = currentState;
+                IntegrateState(currentState, t, dt);
+                t += dt;
+                accumulator -= dt;
+            }
+
+            const float alpha = accumulator / dt;
+
+            // interpolating between pevious and current state
+            playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+            playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
         }
 
-        const float alpha = accumulator / dt;
-
-
-        playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
-        playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
+        
 
        
         UpdateCameraVectors(playerCamera, playerState.position);

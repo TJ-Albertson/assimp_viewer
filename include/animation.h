@@ -147,17 +147,13 @@ void ProceduralCalculateNodeTransform(int keyFrame, Animation animation, Skeleto
 {
     glm::mat4 nodeTransform = node->m_Transformation;
 
-    bool isBoneNode = (node->id >= 0);
-    if (isBoneNode) {
+    if (node->id >= 0) {
         nodeTransform = ProceduralFindBoneAndGetTransform(animation, node->m_NodeName, keyFrame);
+        glm::mat4 finalBoneMatrix = parentTransform * nodeTransform * node->m_Offset;
+        FinalBoneMatrix[node->id] = finalBoneMatrix;
     }
 
     glm::mat4 globalTransformation = parentTransform * nodeTransform;
-
-    if (isBoneNode) {
-        glm::mat4 finalBoneMatrix = globalTransformation * node->m_Offset;
-        FinalBoneMatrix[node->id] = finalBoneMatrix;
-    }
 
     for (int i = 0; i < node->m_NumChildren; ++i) {
         ProceduralCalculateNodeTransform(keyFrame, animation, node->m_Children[i], FinalBoneMatrix, globalTransformation);
