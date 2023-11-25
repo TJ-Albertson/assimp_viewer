@@ -62,6 +62,12 @@ void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d);
 void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 
 
+
+
+int MovingSphereTriangleCollision(Sphere sphere, Triangle triangle)
+{
+
+}
     /*
 1. sphere-plane test
         5.5.3 Intersecting Moving Sphere Against Plane
@@ -116,6 +122,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         if (point_in_triangle) {
             // earliest intersection point found
+            
             collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point, p);
             continue;

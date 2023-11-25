@@ -284,8 +284,9 @@ int main()
             const float alpha = accumulator / dt;
 
             // interpolating between pevious and current state
-            playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
             playerState.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
+            playerState.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+            
         }
 
         
