@@ -62,12 +62,59 @@ void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d);
 void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 
 
+Plane PlaneFromTriangle(Triangle triangle)
+{
+    Plane plane;
 
+    return plane;
+}
 
 int MovingSphereTriangleCollision(Sphere sphere, Triangle triangle)
 {
+    Plane plane = PlaneFromTriangle(triangle);
+
+    float time_of_collision;
+    bool sphere_embedded = false;
+
+
     return 1;
 }
+
+void setBit(uint32_t *num, int index, int value) {
+    if (index < 0 || index >= 32) {
+        // Handle invalid index
+        return;
+    }
+
+    // Clear the bit at the specified index
+    *num &= ~(1u << index);
+
+    // Set the bit to the desired value
+    *num |= (value & 1u) << index;
+}
+
+void b_CollisionResponse(int objectIndex)
+{
+
+}
+
+void CheckCollisions(uint32_t collisionFlags, int numDynamicObjects)
+{
+    for (int i = numDynamicObjects; i >= 0; i--) {
+
+        // Check if the current bit is set (1) or not (0)
+        uint32_t mask = 1 << i;
+        int colliding = (collisionFlags & mask) ? 1 : 0;
+
+        printf("Bit at position %d: %d\n", i, colliding);
+
+        if (colliding) {
+
+        }
+    }
+}
+
+
 
 /*
 1. sphere-plane test
