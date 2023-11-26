@@ -119,7 +119,7 @@ void IntegrateState(PlayerState& state, float& time, float dt) {
     // semi-implicit euler
     velocity = velocity + acceleration * dt;
 
-    Collision(velocity, state.position);
+    Collision(velocity, state.position, dt);
 
     //printf("velocity.z: %f\n", velocity.z);
 

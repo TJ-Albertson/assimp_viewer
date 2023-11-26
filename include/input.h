@@ -44,7 +44,7 @@ void startJump() {
 
 }
 
-void Collision(glm::vec3& vector, glm::vec3 position)
+void Collision(glm::vec3& vector, glm::vec3 position, float dt)
 {
     Sphere sphere;
     sphere.center = position;
@@ -52,7 +52,7 @@ void Collision(glm::vec3& vector, glm::vec3 position)
 
     if (!noClip) {
         Point collision_point;
-        int colliding = CollisionDetection(sphere, vector, collision_point);
+        int colliding = CollisionDetection(sphere, vector, collision_point, dt);
 
         if (colliding) {
             //printf("colliding\n");

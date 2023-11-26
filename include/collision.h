@@ -66,9 +66,10 @@ void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
 
 int MovingSphereTriangleCollision(Sphere sphere, Triangle triangle)
 {
-
+    return 1;
 }
-    /*
+
+/*
 1. sphere-plane test
         5.5.3 Intersecting Moving Sphere Against Plane
 
@@ -82,9 +83,11 @@ int MovingSphereTriangleCollision(Sphere sphere, Triangle triangle)
 
 5. if all pass then no intersection
 */
-int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
+int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, float dt)
 {
     bool collisionFlag = false;
+
+    glm::vec3 vel = velocity * dt;
 
     for (int j = 0; j < potentialColliders.size(); ++j) {
 
@@ -92,6 +95,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
         p.n = potentialColliders[j].normal;
         p.d = glm::dot(p.n, potentialColliders[j].vertices[0]);
 
+        //switch to computing plane from triangle in futureaw
         Triangle t;
         t.vertices[0] = potentialColliders[j].vertices[0];
         t.vertices[1] = potentialColliders[j].vertices[1];
@@ -99,10 +103,10 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         float time_of_collision;
         bool sphere_embedded = false;
-
+        
         // 1. sphere-plane test
         // collision_point represents sphere.center at time of collision
-        int planeCollision = IntersectMovingSpherePlane(sphere, velocity, p, time_of_collision, collision_point);
+        int planeCollision = IntersectMovingSpherePlane(sphere, vel, p, time_of_collision, collision_point);
 
         if (!planeCollision || time_of_collision > 1) {
             continue;
@@ -122,7 +126,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
         if (point_in_triangle) {
             // earliest intersection point found
-            
+            printf("time_of_collision: %f\n", time_of_collision);
             collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point, p);
             continue;
@@ -140,7 +144,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
 
             float time;
 
-            int edge_intersect = IntersectSegmentCylinder(sphere.center, sphere.center + velocity, t.vertices[vertex1], t.vertices[vertex2], sphere.radius, time);
+            int edge_intersect = IntersectSegmentCylinder(sphere.center, sphere.center + vel, t.vertices[vertex1], t.vertices[vertex2], sphere.radius, time);
 
             if (edge_intersect && time <= least_time) {
                 edge_collision = true;
@@ -156,7 +160,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
             collisionFlag = true;
 
             if (sphere_embedded) {
-                Point destination = sphere.center + velocity; 
+                Point destination = sphere.center + vel; 
                 ClosestPtPointSegment(destination, a, b, time, edge_point);
                 collision_point = collisionBallPosition = edge_point;
             }
@@ -180,7 +184,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point)
             float time;
             Point point;
 
-            int vertex_intersection = IntersectRaySphere(sphere.center, velocity, temp, time, point);
+            int vertex_intersection = IntersectRaySphere(sphere.center, vel, temp, time, point);
 
             // if plane collision then time == 0 so need to reset
             if (vertex_intersection && time < least_time) {
