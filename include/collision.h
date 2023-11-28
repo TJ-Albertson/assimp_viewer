@@ -93,6 +93,8 @@ void setBit(uint32_t *num, int index, int value) {
     *num |= (value & 1u) << index;
 }
 
+
+
 void b_CollisionResponse(int objectIndex)
 {
 
@@ -109,7 +111,7 @@ void CheckCollisions(uint32_t collisionFlags, int numDynamicObjects)
         printf("Bit at position %d: %d\n", i, colliding);
 
         if (colliding) {
-
+            b_CollisionResponse(i);
         }
     }
 }
