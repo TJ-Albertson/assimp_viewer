@@ -181,6 +181,10 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
             continue;
         }
 
+
+
+
+
         // 3. edge test
         bool edge_collision = false;
         float least_time = 1;
@@ -217,6 +221,12 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
 
             continue;
         }
+
+
+
+
+
+
 
         // 4. vertice test
         bool vertex_collision = false;
