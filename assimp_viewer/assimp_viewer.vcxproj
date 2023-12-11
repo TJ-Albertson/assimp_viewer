@@ -201,8 +201,12 @@
     <None Include="..\shaders\basic\basic_texture.vs" />
     <None Include="..\shaders\billboard.fs" />
     <None Include="..\shaders\billboard.vs" />
-    <None Include="..\shaders\grid.fs" />
-    <None Include="..\shaders\grid.vs" />
+    <None Include="..\shaders\grid\auto_grid.fs" />
+    <None Include="..\shaders\grid\auto_grid.vs" />
+    <None Include="..\shaders\grid\grid.fs" />
+    <None Include="..\shaders\grid\grid.vs" />
+    <None Include="..\shaders\grid\textured_grid.fs" />
+    <None Include="..\shaders\grid\textured_grid.vs" />
     <None Include="..\shaders\hitbox.fs" />
     <None Include="..\shaders\hitbox.vs" />
     <None Include="..\shaders\pbr\pbr.fs" />

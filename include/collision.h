@@ -175,9 +175,10 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
 
         if (point_in_triangle) {
             // earliest intersection point found
-            printf("time_of_collision: %f\n", time_of_collision);
+            //printf("time_of_collision: %f\n", time_of_collision);
             collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point, p);
+            //break;
             continue;
         }
 
@@ -219,6 +220,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
             }
             CollisionResponse(velocity, sphere, collision_point, p);
 
+            //break;
             continue;
         }
 
@@ -259,6 +261,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
         if (vertex_collision) {
             collisionFlag = true;
             CollisionResponse(velocity, sphere, collision_point, p);
+            //break;
             continue;
         }
 
@@ -311,9 +314,9 @@ void CollisionResponse(Vector& originalVelocity, Sphere sphere, Point collision_
         return;
     }
 
-    vectorPosition = originalVelocity = newVelocity;
+    //vectorPosition = originalVelocity = newVelocity;
 
-    //vectorPosition = originalVelocity = newVelocityVector;
+    vectorPosition = originalVelocity = newVelocityVector;
 }
 
 

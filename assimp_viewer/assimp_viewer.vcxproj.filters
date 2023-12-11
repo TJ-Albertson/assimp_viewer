@@ -43,6 +43,9 @@
     <Filter Include="Resource Files\Shaders\pbr">
       <UniqueIdentifier>{b4b82f0e-a437-4881-8ac8-943767ea3a3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\grid">
+      <UniqueIdentifier>{82a91e15-9aa7-413d-a616-a9322b5ccba2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -166,12 +169,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shaders\grid.vs">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="..\shaders\grid.fs">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="..\shaders\4.2.texture.fs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -261,6 +258,24 @@
     </None>
     <None Include="..\shaders\pbr\pbr.vs">
       <Filter>Resource Files\Shaders\pbr</Filter>
+    </None>
+    <None Include="..\shaders\grid\grid.fs">
+      <Filter>Resource Files\Shaders\grid</Filter>
+    </None>
+    <None Include="..\shaders\grid\grid.vs">
+      <Filter>Resource Files\Shaders\grid</Filter>
+    </None>
+    <None Include="..\shaders\grid\textured_grid.fs">
+      <Filter>Resource Files\Shaders\grid</Filter>
+    </None>
+    <None Include="..\shaders\grid\textured_grid.vs">
+      <Filter>Resource Files\Shaders\grid</Filter>
+    </None>
+    <None Include="..\shaders\grid\auto_grid.fs">
+      <Filter>Resource Files\Shaders\grid</Filter>
+    </None>
+    <None Include="..\shaders\grid\auto_grid.vs">
+      <Filter>Resource Files\Shaders\grid</Filter>
     </None>
   </ItemGroup>
 </Project>

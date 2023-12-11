@@ -146,22 +146,22 @@ int main()
     window = InitializeWindow();
     playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-    unsigned int grid_VAO = LoadGrid();
+   
 
     unsigned int basicShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
-    shaderIdArray[2] = basicShader;
     unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
-    shaderIdArray[0] = modelShader;
     unsigned int animShader = createShader(filepath("/shaders/anim_model.vs"), filepath("/shaders/anim_model.fs"));
-    unsigned int gridShader = createShader(filepath("/shaders/grid.vs"), filepath("/shaders/grid.fs"));
     unsigned int hitboxShader = createShader(filepath("/shaders/hitbox.vs"), filepath("/shaders/hitbox.fs"));
-    shaderIdArray[1] = hitboxShader;
     unsigned int animatedShader = createShader(filepath("/shaders/animated_texture.vs"), filepath("/shaders/animated_texture.fs"));
     // unsigned int lightShader  = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
-
     unsigned int alphaShader = createShader(filepath("/shaders/alpha/alpha.vs"), filepath("/shaders/alpha/alpha.fs"));
-
     unsigned int billboardShader = createShader(filepath("/shaders/billboard.vs"), filepath("/shaders/billboard.fs"));
+    unsigned int gridShader = createShader(filepath("/shaders/grid/textured_grid.vs"), filepath("/shaders/grid/textured_grid.fs"));
+    unsigned int autoShader = createShader(filepath("/shaders/grid/auto_grid.vs"), filepath("/shaders/grid/auto_grid.fs"));
+
+    shaderIdArray[0] = modelShader;
+    shaderIdArray[1] = hitboxShader;
+    shaderIdArray[2] = basicShader;
 
     Model* billboard = LoadModel(filepath("/resources/models/billboards/hp1.obj"));
     Model* moon = LoadModel(filepath("/resources/models/billboards/moon.obj"));
@@ -188,8 +188,8 @@ int main()
 
     Model* test_arrow = LoadModel(filepath("/resources/models/test/arrow.obj"));
 
+    load_textured_grid(filepath("/resources/textures/grid.png"));
 
-    
 
     
     for (int i = 0; i < man_run->m_NumAnimations; i++) {
@@ -218,7 +218,7 @@ int main()
     }
 
     LoadSkybox(filepath, "skybox7");
-    // LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
+    LoadTerrain(filepath, filepath("/resources/textures/heightmaps/map1.png"));
 
     glm::vec3 color = glm::vec3(0.0f);
 
@@ -310,22 +310,36 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(playerCamera->FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         glm::mat4 view = GetViewMatrix(*playerCamera);
 
-        /*
-        // Draw Grid, with instance array
-        glUseProgram(gridShader);
-        setShaderMat4(gridShader, "projection", projection);
-        setShaderMat4(gridShader, "view", view);
-        glBindVertexArray(grid_VAO);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-        glBindVertexArray(0);
-        */
+
+        
+
         glUseProgram(basicShader);
         setShaderMat4(basicShader, "projection", projection);
         setShaderMat4(basicShader, "view", view);
 
-        glUseProgram(animShader);
+        glUseProgram(autoShader);
+        setShaderMat4(autoShader, "proj", projection);
+        glm::mat4 gm = glm::mat4(1.0f);
+        gm = glm::translate(gm, glm::vec3(0, 2, 0));
+        gm = glm::scale(gm, glm::vec3(5, 1, 5));
+        gm = gm * view;
+        setShaderMat4(autoShader, "mv", gm);
+        setShaderFloat(autoShader, "near", 0.1f);
+        setShaderFloat(autoShader, "far", RENDER_DISTANCE);
+        setShaderVec3(autoShader, "eyeWorldPosition", playerCamera->Position);
+        setShaderFloat(autoShader, "scale1", 0.01f);
+        setShaderFloat(autoShader, "scale2", 0.05f);
+        draw_textured_grid(autoShader);
 
+        glUseProgram(gridShader);
+        setShaderMat4(gridShader, "projection", projection);
+        setShaderMat4(gridShader, "view", view);
+        glm::mat4 grid_model = glm::mat4(1.0f);
+        grid_model = glm::translate(grid_model, glm::vec3(0, 1, 0));
+        setShaderMat4(gridShader, "model", grid_model);
+        draw_textured_grid(gridShader);
+
+        glUseProgram(animShader);
         // (shader, uniformName, value)
         setShaderMat4(animShader, "projection", projection);
         setShaderMat4(animShader, "view", view);
@@ -358,7 +372,7 @@ int main()
         while (previousRotation >= 3.14159265358979323846 / 4) {
             previousRotation -= 3.14159265358979323846 / 4;
             keyFrame++;
-            printf("keyFrame: %d\n", keyFrame);
+            //printf("keyFrame: %d\n", keyFrame);
         }
 
         // Normalize the rotation to keep it within the range [0, 2*pi)
@@ -497,7 +511,7 @@ int main()
         glUseProgram(hitboxShader);
         setShaderMat4(hitboxShader, "projection", projection);
         setShaderMat4(hitboxShader, "view", view);
-        // DrawTerrain(view, projection, sunDirection, color, PlayerCamera->Position);
+        DrawTerrain(view, projection, sunDirection, color, playerCamera->Position);
 
         if (polygonMode) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
