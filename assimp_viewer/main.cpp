@@ -538,7 +538,7 @@ int main()
 
         model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
         setShaderMat4(modelShader, "model", model);
-        //DrawModel(wave_ball, modelShader);
+        DrawModel(wave_ball, modelShader);
        
 
         glUseProgram(alphaShader);
