@@ -146,7 +146,7 @@ int main()
     window = InitializeWindow();
     playerCamera = CreateCameraVector(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), YAW, PITCH);
 
-   
+    collision_initialize();
 
     unsigned int basicShader = createShader(filepath("/shaders/basic/basic.vs"), filepath("/shaders/basic/basic.fs"));
     unsigned int modelShader = createShader(filepath("/shaders/6.multiple_lights.vs"), filepath("/shaders/6.multiple_lights.fs"));
@@ -538,7 +538,7 @@ int main()
 
         model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
         setShaderMat4(modelShader, "model", model);
-        DrawModel(wave_ball, modelShader);
+        //DrawModel(wave_ball, modelShader);
        
 
         glUseProgram(alphaShader);
@@ -586,12 +586,18 @@ int main()
         DrawModel(sphere, hitboxShader);
 
         // Collision Point Ball
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, collisionBallPosition);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        setShaderMat4(hitboxShader, "model", model);
-        setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        // DrawModel(sphere, hitboxShader);
+        for (int i = 0; i < num_collision_points; ++i)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, collision_points[i]);
+            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+            setShaderMat4(hitboxShader, "model", model);
+            setShaderVec4(hitboxShader, "color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+            DrawModel(sphere, hitboxShader);
+        }
+
+
+        
 
         // Player Velocity Arrow
         model = glm::mat4(1.0f);

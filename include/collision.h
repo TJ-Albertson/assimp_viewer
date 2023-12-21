@@ -40,6 +40,9 @@ std::vector<Polygon> potentialColliders;
 std::vector<AABB_node*> root_AABB_nodes;
 std::vector<Hitbox> hitboxes;
 
+int num_collision_points;
+glm::vec3* collision_points;
+
 glm::vec3 collisionBallPosition;
 glm::vec3 vectorPosition;
 glm::vec3 newDestinationPointBall;
@@ -60,6 +63,26 @@ void ClosestPtPointSegment(Point c, Point a, Point b, float& t, Point& d);
 
 // Utility
 void PrintColliders(glm::vec3 player_move_vec, glm::vec3 player_center);
+
+int collision_initialize() 
+{
+
+    num_collision_points = 500;
+    collision_points = (glm::vec3*)malloc(num_collision_points * sizeof(glm::vec3));
+
+    if (num_collision_points == NULL) 
+    {
+        printf("Error! collision.h collisionPoints not allocated.");
+        return 0;
+    }
+
+    for (int i = 0; i < num_collision_points; ++i) 
+    {
+        collision_points[i] = glm::vec3(0.0f);
+    }
+
+    return 1;
+}
 
 
 Plane PlaneFromTriangle(Triangle triangle)
@@ -177,6 +200,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
             // earliest intersection point found
             //printf("time_of_collision: %f\n", time_of_collision);
             collisionFlag = true;
+            collision_points[j] = collision_point;
             CollisionResponse(velocity, sphere, collision_point, p);
             //break;
             continue;
@@ -218,6 +242,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
                 ClosestPtPointSegment(destination, a, b, time, edge_point);
                 collision_point = collisionBallPosition = edge_point;
             }
+            collision_points[j] = collision_point;
             CollisionResponse(velocity, sphere, collision_point, p);
 
             //break;
@@ -260,6 +285,7 @@ int CollisionDetection(Sphere sphere, Vector& velocity, Point& collision_point, 
 
         if (vertex_collision) {
             collisionFlag = true;
+            collision_points[j] = collision_point;
             CollisionResponse(velocity, sphere, collision_point, p);
             //break;
             continue;
